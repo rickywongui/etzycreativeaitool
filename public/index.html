@@ -1354,7 +1354,12 @@ function resolvePhrase() {
     return selectedPhrase || userInput || firstIdea || fallback;
 }
 
-
+window.addEventListener("error", (e) => {
+  if (e.message.includes("sendMessage")) {
+    console.warn("Blocked extension error:", e.message);
+    e.preventDefault();
+  }
+});
 
 /* ================= Basic SPA nav ================= */
 function show(id){
