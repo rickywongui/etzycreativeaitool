@@ -3,8 +3,8 @@
 // Usage: set OPENAI_API_KEY in .env and run `node server.js` (or use nodemon)
 
 // upload to drive
-// import dotenv from 'dotenv';
-// dotenv.config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 // const app = express();
 

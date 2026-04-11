@@ -1364,19 +1364,26 @@ function show(id){
 show('niche');
 
 /* ================ Helper: call backend ================ */
-const API_ROOT = "http://localhost:3000"; // adjust if needed
+const isLocal = window.location.hostname === "localhost";
+
+const API_ROOT = isLocal
+  ? "http://localhost:3000"
+  : window.location.origin;
 
 async function postJSON(path, body){
   const url = API_ROOT + path;
+
   const resp = await fetch(url, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify(body)
   });
+
   if (!resp.ok) {
     const txt = await resp.text();
     throw new Error(txt || resp.statusText);
   }
+
   return resp.json();
 }
 
