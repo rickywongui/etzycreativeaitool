@@ -1,0 +1,128 @@
+[
+    {
+        "name": "Vintage Spark Motivation",
+        "style": "bold vintage motivational retro",
+        "typography": "large groovy wavy retro font",
+        "layout": "centered phrase with small accent detail",
+        "colorEmphasis": "white text with high contrast on warm background",
+        "graphicEffect": "small star accent highlight",
+        "background": "solid red-orange"
+    },
+    {
+        "name": "Heritage Emblem Classic",
+        "style": "vintage heritage premium classic",
+        "typography": "outlined structured serif typography with elegant lettering",
+        "layout": "emblem-style curved and stacked composition",
+        "colorEmphasis": "gold and green highlights on clean light base",
+        "graphicEffect": "decorative stars and ornamental curves",
+        "background": "clean bright background"
+    },
+    {
+        "name": "Minimal Tropical Summer",
+        "style": "minimalist tropical modern",
+        "typography": "bold clean capital sans-serif",
+        "layout": "illustration above with text centered below",
+        "colorEmphasis": "black text against light background",
+        "graphicEffect": "silhouette illustration with sunset color gradient",
+        "background": "pure white"
+    },
+    {
+        "name": "Marble 3D Motivation",
+        "style": "bold artistic modern motivational",
+        "typography": "large 3D marbled lettering with hand-drawn secondary text",
+        "layout": "stacked hierarchy with hero word above supporting phrase",
+        "colorEmphasis": "bright multicolor focal word on dark base",
+        "graphicEffect": "swirling marbled texture fill",
+        "background": "pure black"
+    },
+    {
+        "name": "Scientific Humor Grid",
+        "style": "clever scientific playful graphic",
+        "typography": "block element-style typography with clean capitals",
+        "layout": "modular grid with supporting phrase below",
+        "colorEmphasis": "varied bright element colors on dark base",
+        "graphicEffect": "realistic periodic table box textures",
+        "background": "pure black"
+    },
+    {
+        "name": "Vintage Papa Bold",
+        "style": "bold vintage masculine classic",
+        "typography": "distressed capital hero words with clean supporting font",
+        "layout": "structured stacked banner-style composition",
+        "colorEmphasis": "all white text for strong contrast",
+        "graphicEffect": "vintage distress texture on main words",
+        "background": "pure black"
+    },
+    {
+        "name": "Royal Queen Elegance",
+        "style": "elegant feminine regal minimal",
+        "typography": "bold royal-style capital lettering",
+        "layout": "centered phrase with icon above and flourish below",
+        "colorEmphasis": "vivid pink focal typography",
+        "graphicEffect": "detailed crown illustration and ornamental accent",
+        "background": "pure white"
+    },
+    {
+        "name": "Retro Fun Layers",
+        "style": "playful retro colorful energetic",
+        "typography": "mixed fonts including bold caps, cursive, and script",
+        "layout": "layered multi-block composition with ribbons and brush shapes",
+        "colorEmphasis": "contrasting bright color word highlights",
+        "graphicEffect": "brushstroke shapes, ribbon banners, decorative stars",
+        "background": "soft pink"
+    },
+    {
+        "name": "Gothic Blessed Power",
+        "style": "dramatic gothic spiritual powerful",
+        "typography": "medieval distressed gothic capitals",
+        "layout": "central word with surrounding symbolic illustration",
+        "colorEmphasis": "stark white typography on dark base",
+        "graphicEffect": "hand-sketched crown of thorns",
+        "background": "pure black"
+    },
+    {
+        "name": "Boho Flower Power",
+        "style": "bohemian retro 1970s vintage",
+        "typography": "bold groovy wavy retro font",
+        "layout": "centered phrase surrounded by floral frame",
+        "colorEmphasis": "earthy warm tones on light base",
+        "graphicEffect": "hand-drawn flowers and foliage",
+        "background": "soft cream"
+    },
+    {
+        "name": "Psychedelic Harmony",
+        "style": "psychedelic vibrant mystical spiritual",
+        "typography": "large groovy gradient lettering",
+        "layout": "illustration-centered composition with integrated text",
+        "colorEmphasis": "neon multicolor on dark base",
+        "graphicEffect": "swirling pattern textures on character",
+        "background": "near black"
+    },
+    {
+        "name": "Bold Dad Humor",
+        "style": "bold graphic humorous masculine",
+        "typography": "large block capitals with clean supporting text",
+        "layout": "stacked phrase with illustration below",
+        "colorEmphasis": "bright yellow-orange hero word",
+        "graphicEffect": "stylized beard icon illustration",
+        "background": "pure black"
+    },
+    {
+        "name": "California Retro Script",
+        "style": "vintage beach retro laid-back",
+        "typography": "elegant script with outline and shadow",
+        "layout": "central word with illustration above",
+        "colorEmphasis": "soft gradient lettering focal point",
+        "graphicEffect": "drop shadow and gradient text fill",
+        "background": "soft off-white"
+    },
+    {
+        "name": "Urban Graffiti Energy",
+        "style": "bold energetic graffiti street art",
+        "typography": "graffiti lettering with dripping paint effect",
+        "layout": "dynamic staggered text composition",
+        "colorEmphasis": "highlighted key words in contrasting bold colors",
+        "graphicEffect": "subtle paint splatter accents",
+        "background": "pure black"
+    }
+]

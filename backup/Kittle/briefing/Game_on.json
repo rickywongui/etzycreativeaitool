@@ -1,0 +1,42 @@
+{
+  "phrase": "Game on",
+  "style_direction": "bold minimal",
+  "font_pairing": [
+    "Montserrat",
+    "Oswald"
+  ],
+  "color_palette": [
+    "#FF5733",
+    "#C70039",
+    "#900C3F",
+    "#581845"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "geometric shapes",
+    "dynamic lines"
+  ],
+  "texture": "smooth",
+  "products": [
+    "t-shirt",
+    "hoodie",
+    "poster"
+  ],
+  "mockup_prompt": "Display the design on a t-shirt and a poster mockup",
+  "seo_title": "Game On Bold Minimal Design",
+  "tags": [
+    "gaming",
+    "sports",
+    "motivational",
+    "bold",
+    "minimalist"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=Game%20on%20bold%20minimal%20t-shirt%20%23FF5733",
+    "https://www.kittl.com/search?q=Game%20on%20bold%20minimal",
+    "https://www.google.com/search?tbm=isch&q=Game%20on%20bold%20minimal%20t-shirt%20%23C70039",
+    "https://dribbble.com/search/Game%20on-bold-minimal",
+    "https://www.behance.net/search?search=Game%20on%20bold%20minimal%20%23900C3F",
+    "https://www.redbubble.com/shop/?query=Game%20on%20bold%20minimal%20t-shirt%20%23581845"
+  ]
+}

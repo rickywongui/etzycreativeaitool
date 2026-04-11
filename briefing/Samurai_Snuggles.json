@@ -1,0 +1,44 @@
+{
+  "phrase": "Samurai Snuggles",
+  "style_direction": "kawaii",
+  "font_pairing": [
+    "Poppins",
+    "Roboto"
+  ],
+  "color_palette": [
+    "#FFB6C1",
+    "#FFD700"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "cute samurai",
+    "snuggling animals",
+    "chibi style"
+  ],
+  "texture": "soft",
+  "products": [
+    "t-shirt",
+    "hoodie",
+    "sticker",
+    "mug",
+    "poster"
+  ],
+  "mockup_prompt": "A cozy scene featuring a cute samurai character snuggling with various adorable animals, perfect for a t-shirt design.",
+  "seo_title": "Samurai Snuggles - Cute Kawaii Design",
+  "tags": [
+    "samurai",
+    "kawaii",
+    "cute",
+    "snuggles",
+    "animals",
+    "t-shirt design"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=Samurai Snuggles kawaii t-shirt #FFB6C1",
+    "https://www.kittl.com/search?q=Samurai Snuggles kawaii",
+    "https://www.google.com/search?tbm=isch&q=Samurai Snuggles kawaii t-shirt #FFD700",
+    "https://dribbble.com/search/Samurai-Snuggles-kawaii",
+    "https://www.behance.net/search?search=Samurai Snuggles kawaii #FFB6C1",
+    "https://www.redbubble.com/shop/?query=Samurai Snuggles kawaii mug #FFD700"
+  ]
+}

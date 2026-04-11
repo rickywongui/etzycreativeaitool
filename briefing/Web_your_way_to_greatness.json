@@ -1,0 +1,45 @@
+{
+  "idea": "spiderman",
+  "phrase": "Web your way to greatness",
+  "style_direction": "bold minimal",
+  "font_pairing": [
+    "Montserrat",
+    "Oswald"
+  ],
+  "color_palette": [
+    "#FF5733",
+    "#C70039",
+    "#900C3F",
+    "#581845"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "spider web",
+    "spiderman silhouette"
+  ],
+  "texture": "smooth",
+  "products": [
+    "t-shirt",
+    "hoodie"
+  ],
+  "mockup_prompt": "Display the design on a black t-shirt and a grey hoodie.",
+  "seo_title": "Spiderman Web Your Way to Greatness T-Shirt and Hoodie",
+  "tags": [
+    "spiderman",
+    "web",
+    "greatness",
+    "bold",
+    "minimal",
+    "t-shirt",
+    "hoodie"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=spiderman Web your way to greatness bold minimal t-shirt #FF5733",
+    "https://www.kittl.com/templates/search?query=spiderman bold minimal",
+    "https://www.google.com/search?tbm=isch&q=spiderman Web your way to greatness bold minimal t-shirt #C70039",
+    "https://dribbble.com/search/spiderman bold minimal",
+    "https://www.etsy.com/search?q=spiderman Web your way to greatness t-shirt bold minimal",
+    "https://www.behance.net/search?search=spiderman bold minimal #900C3F",
+    "https://www.redbubble.com/shop/?query=spiderman Web your way to greatness bold minimal t-shirt #581845"
+  ]
+}

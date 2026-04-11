@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Kittl Listing Factory — Design Systems (Notion Panels)</title>
+        <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --muted:#6b7280;
+      --accent:#3b82f6;
+      --pill-bg:#eef2ff;
+      --card-border:#e6e9ef;
+      --shadow: 0 6px 18px rgba(16,24,40,0.06);
+      --radius:12px;
+      --mono: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;font-family:var(--mono);background:var(--bg);color:#111827}
+    .container{max-width:1200px;margin:28px auto;padding:20px}
+    h1{margin:0 0 14px;font-size:20px}
+    .topbar{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+    .input, button, select, textarea{font-family:inherit}
+    .input{padding:10px 12px;border:1px solid var(--card-border);border-radius:8px;background:#fff}
+    .btn{padding:8px 12px;border-radius:8px;border:1px solid transparent;background:var(--accent);color:#fff;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+    /* left area: big panels list */
+    #designSystemList{display:flex;flex-direction:column;gap:14px}
+    .panel{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:16px;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+      transition:transform .12s ease,box-shadow .12s ease;
+    }
+    .panel:hover{transform:translateY(-4px)}
+    .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .phrase{font-size:16px;font-weight:600;margin-bottom:6px}
+    .sub{font-size:13px;color:var(--muted)}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .pill{background:var(--pill-bg);padding:6px 8px;border-radius:999px;font-size:12px;color:var(--accent);border:1px solid rgba(59,130,246,0.12)}
+    .panel-body{margin-top:12px;display:grid;grid-template-columns:1fr 220px;gap:12px}
+    .left-col{min-width:0}
+    .right-col{background:#f8fafc;padding:10px;border-radius:10px;border:1px dashed #eef2f6}
+    .small-list{font-size:13px;margin:0;padding:0;list-style:none}
+    .small-list li{margin-bottom:6px}
+    .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .outline-btn{background:transparent;border:1px solid var(--card-border);padding:8px 10px;border-radius:8px;cursor:pointer}
+    .selected { border:2px solid #111827; box-shadow: 0 10px 28px rgba(16,24,40,0.08) }
+    pre{background:#0f1724;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+    .side-panel{background:var(--panel);padding:12px;border-radius:12px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .link{color:var(--accent);text-decoration:none;font-size:13px}
+    @media (max-width:980px){
+      .grid{grid-template-columns:1fr;gap:12px}
+      .panel-body{grid-template-columns:1fr}
+      .right-col{order:2}
+    }
+  </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="topbar">
+                <h1>Kittl Listing Factory — AI Design Systems (Notion
+                    Panels)</h1>
+            </div>
+
+            <div
+                style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+                <input id="trendInput" class="input"
+                    placeholder="Enter trend (e.g., Mother's Day, Pride, Halloween)"
+                    style="width:420px" />
+                <button id="genTrendPackBtn" class="btn">Generate Design Pack
+                    (AI)</button>
+                <button id="saveSelectedPackBtn" class="outline-btn">Save
+                    Selected Pack</button>
+                <div style="margin-left:auto" class="muted">Selected phrase:
+                    <span id="selectedPhraseDisplay">—</span></div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <div id="designSystemList">
+                        <!-- Panels inserted here -->
+                    </div>
+                </div>
+
+                <div>
+                    <div class="side-panel">
+                        <div class="label">Design System Details</div>
+                        <div id="designSystemDetails" class="muted">Click a
+                            design's "View System" to see full details
+                            here.</div>
+                        <hr style="margin:10px 0">
+                        <div class="label">Quick Actions</div>
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                            <button id="useSelectedBtn" class="btn">Use Selected
+                                Design</button>
+                            <button id="generateMockupFromSelectedBtn"
+                                class="outline-btn">Generate Mockup for
+                                Selected</button>
+                            <button id="genIllustrationFromSelectedBtn"
+                                class="outline-btn">Generate AI
+                                Illustration</button>
+                            <button id="downloadSelectedJSONBtn"
+                                class="outline-btn">Download Selected
+                                JSON</button>
+                        </div>
+                        <hr style="margin:10px 0">
+                        <div class="label">Saved Packs</div>
+                        <div id="savedPacksList" class="muted">No saved pack
+                            yet.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+/*
+ Helper utilities
+*/
+async function postJSON(url, body){
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {})
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { detail = await res.text(); } catch(e){}
+    throw new Error(`${res.status} ${res.statusText} ${detail}`);
+  }
+  return res.json();
+}
+
+function downloadJSON(obj, filename){
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename || 'pack.json';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* Global state */
+window._allDesignSystems = []; // array of systems
+window._selectedDesignIndex = null;
+window._selectedPackMeta = null;
+
+/* Resolve phrase — prefer selected design's phrase, else input, else stored ideas */
+function resolvePhrase(){
+  if (window._selectedDesignIndex !== null && window._allDesignSystems[window._selectedDesignIndex]) {
+    return window._allDesignSystems[window._selectedDesignIndex].phrase;
+  }
+  const input = document.getElementById('trendInput')?.value?.trim();
+  if (input) return input;
+  // fallback:
+  return "trending_tshirt_design";
+}
+
+/* UI rendering */
+function renderDesignSystemsList(designs){
+  const container = document.getElementById('designSystemList');
+  container.innerHTML = '';
+  window._allDesignSystems = designs || [];
+  window._selectedDesignIndex = null;
+  document.getElementById('selectedPhraseDisplay').textContent = '—';
+  if (!designs || designs.length === 0) {
+    container.innerHTML = '<div class="muted">No designs returned.</div>';
+    return;
+  }
+
+  designs.forEach((sys, i) => {
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.id = `design-panel-${i}`;
+
+    const head = document.createElement('div');
+    head.className = 'panel-head';
+
+    const left = document.createElement('div');
+    left.style.flex='1';
+    left.innerHTML = `<div class="phrase">${escapeHtml(sys.phrase)}</div>
+                      <div class="sub">${escapeHtml(sys.brand_style?.mood || '')}</div>
+                      <div class="meta">
+                        <div class="pill">${escapeHtml(sys.typography_system?.primary || '')}</div>
+                        <div class="pill">${escapeHtml((sys.color_system?.primary || []).slice(0,3).join(', ') )}</div>
+                      </div>`;
+
+    const right = document.createElement('div');
+    right.style.textAlign = 'right';
+    right.innerHTML = `
+      <div style="font-size:12px;color:var(--muted)">Products</div>
+      <div class="sub">${escapeHtml(Object.keys(sys.product_guidelines || {}).slice(0,3).join(', '))}</div>
+      <div style="margin-top:10px" class="actions">
+        <button class="outline-btn" data-index="${i}" onclick="viewDesignSystem(${i})">View System</button>
+        <button class="outline-btn" data-index="${i}" onclick="selectDesignSystem(${i})">Select</button>
+      </div>
+    `;
+
+    head.appendChild(left); head.appendChild(right);
+    panel.appendChild(head);
+
+    // short description / sample layout
+    const body = document.createElement('div');
+    body.className = 'panel-body';
+    body.innerHTML = `
+      <div class="left-col">
+        <p class="sub">${escapeHtml((sys.brand_style?.visual_identity || '').slice(0,240))}</p>
+        <div style="margin-top:8px">
+          <div class="label">Top mockup prompts</div>
+          <ul class="small-list">${(sys.mockup_system?.prompts || []).slice(0,3).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="right-col">
+        <div class="label">Example links</div>
+        <div style="font-size:13px">
+          <div><a target="_blank" class="link" href="${(sys.example_urls?.pinterest||[0])[0] || '#'}">Pinterest</a></div>
+          <div><a target="_blank" class="link" href="${(sys.example_urls?.kittl||[0])[0] || '#'}">Kittl</a></div>
+          <div><a target="_blank" class="link" href="${(sys.example_urls?.freepik||[0])[0] || '#'}">Freepik</a></div>
+          <div><a target="_blank" class="link" href="${(sys.example_urls?.etsy||[0])[0] || '#'}">Etsy</a></div>
+        </div>
+      </div>
+    `;
+
+    panel.appendChild(body);
+    container.appendChild(panel);
+  });
+}
+
+/* Escape helper to avoid injection when inserting HTML */
+function escapeHtml(s){
+  if (!s && s !== 0) return '';
+  return (''+s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+/* View (show details in side panel) */
+function viewDesignSystem(index){
+  const sys = window._allDesignSystems[index];
+  if (!sys) return;
+  window._selectedDesignIndex = index;
+  // highlight selected panel
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('selected'));
+  const el = document.getElementById(`design-panel-${index}`);
+  if (el) el.classList.add('selected');
+
+  document.getElementById('selectedPhraseDisplay').textContent = sys.phrase;
+  const details = document.getElementById('designSystemDetails');
+
+  details.innerHTML = `
+    <h3 style="margin:0 0 8px">${escapeHtml(sys.phrase)}</h3>
+    <div class="label">Brand mood</div>
+    <div class="sub">${escapeHtml(sys.brand_style?.mood || '')}</div>
+
+    <div style="margin-top:8px" class="label">Typography</div>
+    <div class="sub">Primary: ${escapeHtml(sys.typography_system?.primary || '')}<br/>Secondary: ${escapeHtml(sys.typography_system?.secondary || '')}</div>
+
+    <div style="margin-top:8px" class="label">Color System</div>
+    <div class="sub">${(sys.color_system?.primary || []).map(c=>`<span class="pill" style="display:inline-block;margin-right:6px;background:${c};color:#fff;padding:6px 8px;border-radius:6px">${c}</span>`).join('')}</div>
+
+    <div style="margin-top:8px" class="label">Illustration style</div>
+    <div class="sub">${escapeHtml(sys.illustration_system?.style || '')}</div>
+
+    <div style="margin-top:8px" class="label">Mockup prompts</div>
+    <pre>${escapeHtml((sys.mockup_system?.prompts || []).join('\n\n'))}</pre>
+
+    <div style="margin-top:8px" class="label">SEO Title</div>
+    <div class="sub">${escapeHtml(sys.seo?.title || '')}</div>
+
+    <div style="margin-top:8px" class="actions">
+      <button class="btn" onclick="useDesignPhrase()">Use this design system</button>
+      <button class="outline-btn" onclick="generateMockupFromSelected(${index})">Generate Mockup</button>
+      <button class="outline-btn" onclick="generateIllustrationFromSelected(${index})">Generate Illustration</button>
+      <button class="outline-btn" onclick="downloadSelectedSystem(${index})">Download JSON</button>
+    </div>
+  `;
+}
+
+/* Select design system (quick select) */
+function selectDesignSystem(index){
+  window._selectedDesignIndex = index;
+  const sys = window._allDesignSystems[index];
+  if (sys) {
+    document.getElementById('selectedPhraseDisplay').textContent = sys.phrase;
+    // highlight
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('selected'));
+    const el = document.getElementById(`design-panel-${index}`);
+    if (el) el.classList.add('selected');
+  }
+}
+
+/* Use selected design system -- sets global phrase and copies SEO title to clipboard optionally */
+function useDesignPhrase(){
+  const idx = window._selectedDesignIndex;
+  if (idx === null || idx === undefined) {
+    alert('Please select a design system first (click View System).');
+    return;
+  }
+  const sys = window._allDesignSystems[idx];
+  if (!sys) { alert('No design system found.'); return; }
+  // set input to phrase
+  document.getElementById('trendInput').value = sys.phrase;
+  document.getElementById('selectedPhraseDisplay').textContent = sys.phrase;
+  // optionally copy seo title to clipboard
+  if (sys.seo?.title) {
+    navigator.clipboard.writeText(sys.seo.title).catch(()=>{});
+  }
+  alert(`Selected phrase: "${sys.phrase}". SEO title copied to clipboard.`);
+}
+
+/* Download selected JSON */
+function downloadSelectedSystem(index){
+  const sys = window._allDesignSystems[index];
+  if (!sys) { alert('No system to download'); return; }
+  downloadJSON(sys, `${sys.phrase.replace(/\s+/g,'_').toLowerCase()}.json`);
+}
+
+/* Generate Mockup from Selected: calls /api/ai/generate-mockup if available */
+async function generateMockupFromSelected(index){
+  const sys = window._allDesignSystems[index];
+  if (!sys) { alert('Select a design system'); return; }
+  const prompts = (sys.mockup_system?.prompts || []).slice(0,1);
+  const prompt = prompts[0] || (`Mockup for "${sys.phrase}" on t-shirt product, studio lighting, isolated product`);
+  try {
+    const data = await postJSON('/api/ai/generate-mockup', { prompt, phrase: sys.phrase });
+    alert('Mockup job created. Check server logs or mockup results panel if available.');
+    console.log('mockup response', data);
+  } catch (err) {
+    alert('Mockup error: ' + err.message);
+    console.error(err);
+  }
+}
+
+/* Generate AI Illustration from selected (calls /api/ai/generate-illustration) */
+async function generateIllustrationFromSelected(index){
+  const sys = window._allDesignSystems[index];
+  if (!sys) { alert('Select a design system'); return; }
+  const prompt = `${sys.illustration_system?.style || ''} illustration for: ${sys.phrase} — include ${ (sys.illustration_system?.allowed_elements || []).slice(0,4).join(', ') } — isolated PNG transparent BG.`;
+  try {
+    const data = await postJSON('/api/ai/generate-illustration', { prompt, style: sys.illustration_system?.style || '', count: 1, size: '1024x1024', phrase: sys.phrase });
+    if (data.images && data.images.length) {
+      window.open(data.images[0], '_blank');
+    }
+    alert('Illustration generated. Preview opened in new tab (if available).');
+  } catch (err) {
+    alert('Illustration error: ' + err.message);
+    console.error(err);
+  }
+}
+
+/* Save selected pack to server (/save-brief) */
+async function saveSelectedPack(){
+  if (!window._allDesignSystems || window._allDesignSystems.length === 0 || !window._selectedPackMeta) {
+    alert('No pack to save. Generate a pack first.');
+    return;
+  }
+  const filename = `${(window._selectedPackMeta?.trend||'pack').replace(/[^a-z0-9]/gi,'_').toLowerCase()}_pack.json`;
+  try {
+    const content = { trend: window._selectedPackMeta.trend, designs: window._allDesignSystems };
+    await postJSON('/save-brief', { filename, content });
+    alert('Pack saved to server: ' + filename);
+    loadSavedPacksList(); // refresh
+  } catch (err) {
+    alert('Save error: ' + err.message);
+    console.error(err);
+  }
+}
+
+/* Load saved packs list (reads briefing folder listing endpoint if exists) */
+async function loadSavedPacksList(){
+  try {
+    const data = await fetch('/list-briefing').then(r=> r.ok ? r.json() : null).catch(()=>null);
+    const el = document.getElementById('savedPacksList');
+    if (!data || !Array.isArray(data.files)) {
+      el.innerHTML = '<div class="muted">No server listing available.</div>';
+      return;
+    }
+    el.innerHTML = data.files.map(f=>`<div><a href="/briefing/${encodeURIComponent(f)}" target="_blank">${f}</a></div>`).join('');
+  } catch(e){
+    document.getElementById('savedPacksList').innerHTML = '<div class="muted">No saved packs.</div>';
+  }
+}
+
+/* Main: handle Generate Design Pack (trend) */
+document.getElementById('genTrendPackBtn').addEventListener('click', async () => {
+  const trend = document.getElementById('trendInput').value.trim();
+  if (!trend) { alert('Please type a trend (e.g., "Mother\'s Day").'); return; }
+  const btn = document.getElementById('genTrendPackBtn');
+  btn.disabled = true; btn.textContent = 'Generating pack...';
+  try {
+    const data = await postJSON('/api/ai/trend-pack', { trend });
+    if (!data || !data.pack || !Array.isArray(data.pack.designs)) {
+      alert('Invalid pack response from server.');
+      console.error('invalid pack', data);
+      btn.disabled=false; btn.textContent='Generate Design Pack (AI)';
+      return;
+    }
+    window._selectedPackMeta = { trend: data.pack.trend || trend, example_urls: data.pack.example_urls || {} };
+    renderDesignSystemsList(data.pack.designs);
+    loadSavedPacksList();
+  } catch (err) {
+    alert('AI error: ' + err.message);
+    console.error(err);
+  } finally {
+    btn.disabled=false; btn.textContent='Generate Design Pack (AI)';
+  }
+});
+
+/* wired quick action buttons in side panel */
+document.getElementById('useSelectedBtn').addEventListener('click', () => useDesignPhrase());
+document.getElementById('generateMockupFromSelectedBtn').addEventListener('click', async () => {
+  if (window._selectedDesignIndex === null) { alert('Please view/select a design first.'); return; }
+  await generateMockupFromSelected(window._selectedDesignIndex);
+});
+document.getElementById('genIllustrationFromSelectedBtn').addEventListener('click', async () => {
+  if (window._selectedDesignIndex === null) { alert('Please view/select a design first.'); return; }
+  await generateIllustrationFromSelected(window._selectedDesignIndex);
+});
+document.getElementById('downloadSelectedJSONBtn').addEventListener('click', () => {
+  if (window._selectedDesignIndex === null) { alert('Please view/select a design first.'); return; }
+  downloadSelectedSystem(window._selectedDesignIndex);
+});
+document.getElementById('saveSelectedPackBtn').addEventListener('click', saveSelectedPack);
+
+/* initial load */
+loadSavedPacksList();
+
+</script>
+    </body>
+</html>

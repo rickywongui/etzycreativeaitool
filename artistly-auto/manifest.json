@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "Artistly Auto Prompt",
+    "version": "1.0",
+    "description": "Automatically paste prompt and generate images on Artistly",
+    "permissions": [
+        "tabs",
+        "scripting",
+        "activeTab"
+    ],
+    "externally_connectable": {
+        "matches": [
+            "*://localhost/*",
+            "*://127.0.0.1/*",
+            "http://localhost:3000/*",
+            "https://localhost:3000/*",
+            "file:///*",
+            "https://yourdomain.com/*"
+        ]
+    },
+    "host_permissions": [
+        "https://app.artistly.ai/*",
+        "http://localhost:3000/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://app.artistly.ai/*",
+                "http://localhost:3000/*",
+                "*://localhost/*",
+                "*://127.0.0.1/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+  "idea": "spiderman",
+  "phrase": "My favorite web-slinger",
+  "style_direction": "playful typography",
+  "font_pairing": [
+    "Comic Sans MS",
+    "Arial Black"
+  ],
+  "color_palette": [
+    "#FF0000",
+    "#000000",
+    "#FFFFFF"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "spider web",
+    "spiderman silhouette"
+  ],
+  "texture": "smooth",
+  "products": [
+    "t-shirt",
+    "hoodie",
+    "poster"
+  ],
+  "mockup_prompt": "A vibrant t-shirt mockup featuring the phrase 'My favorite web-slinger' in playful typography with a spiderman illustration.",
+  "seo_title": "My favorite web-slinger Spiderman T-Shirt",
+  "tags": [
+    "spiderman",
+    "web-slinger",
+    "playful typography",
+    "comic",
+    "superhero",
+    "t-shirt design"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=spiderman My favorite web-slinger playful typography t-shirt #FF0000",
+    "https://www.kittl.com/templates/search?query=spiderman playful typography",
+    "https://www.google.com/search?tbm=isch&q=spiderman My favorite web-slinger playful typography t-shirt #FF0000",
+    "https://dribbble.com/search/spiderman playful typography",
+    "https://www.etsy.com/search?q=spiderman My favorite web-slinger t-shirt playful typography",
+    "https://www.behance.net/search?search=spiderman playful typography #FF0000",
+    "https://www.redbubble.com/shop/?query=spiderman My favorite web-slinger playful typography t-shirt #FF0000"
+  ]
+}

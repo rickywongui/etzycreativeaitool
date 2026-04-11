@@ -1,0 +1,45 @@
+{
+  "phrase": "Believe in Unicorns & Yourself!",
+  "style_direction": "kawaii",
+  "font_pairing": [
+    "Poppins",
+    "Pacifico"
+  ],
+  "color_palette": [
+    "#FFB6C1",
+    "#FFD700",
+    "#FF69B4",
+    "#FFFFFF"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "cute unicorn",
+    "sparkles",
+    "rainbows"
+  ],
+  "texture": "smooth",
+  "products": [
+    "t-shirt",
+    "hoodie",
+    "sticker",
+    "mug",
+    "poster"
+  ],
+  "mockup_prompt": "Display the design on a pastel-colored t-shirt with a cute unicorn illustration.",
+  "seo_title": "Believe in Unicorns & Yourself! Kawaii Design",
+  "tags": [
+    "unicorn",
+    "kawaii",
+    "motivational",
+    "cute",
+    "whimsical"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=Believe%20in%20Unicorns%20%26%20Yourself%21%20kawaii%20t-shirt%20%23FFB6C1",
+    "https://www.kittl.com/search?q=Believe%20in%20Unicorns%20%26%20Yourself%21%20kawaii",
+    "https://www.google.com/search?tbm=isch&q=Believe%20in%20Unicorns%20%26%20Yourself%21%20kawaii%20t-shirt%20%23FFB6C1",
+    "https://dribbble.com/search/Believe%20in%20Unicorns%20%26%20Yourself%21-kawaii",
+    "https://www.behance.net/search?search=Believe%20in%20Unicorns%20%26%20Yourself%21%20kawaii%20%23FFB6C1",
+    "https://www.redbubble.com/shop/?query=Believe%20in%20Unicorns%20%26%20Yourself%21%20kawaii%20t-shirt%20%23FFB6C1"
+  ]
+}

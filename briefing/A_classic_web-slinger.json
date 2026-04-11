@@ -1,0 +1,45 @@
+{
+  "phrase": "A classic web-slinger",
+  "style_direction": "vintage retro",
+  "font_pairing": [
+    "Bebas Neue",
+    "Roboto"
+  ],
+  "color_palette": [
+    "#FF5733",
+    "#C70039",
+    "#900C3F",
+    "#581845"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "spider web",
+    "classic superhero",
+    "vintage comic style"
+  ],
+  "texture": "grunge",
+  "products": [
+    "t-shirt",
+    "poster",
+    "sticker"
+  ],
+  "mockup_prompt": "Show a vintage retro t-shirt design featuring a classic web-slinger illustration and typography on a distressed fabric texture.",
+  "seo_title": "A Classic Web-Slinger Vintage Retro T-Shirt Design",
+  "tags": [
+    "web-slinger",
+    "vintage",
+    "retro",
+    "superhero",
+    "comic",
+    "t-shirt",
+    "poster"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=A%20classic%20web-slinger%20vintage%20retro%20t-shirt%20%23FF5733",
+    "https://www.kittl.com/search?q=A%20classic%20web-slinger%20vintage%20retro",
+    "https://www.google.com/search?tbm=isch&q=A%20classic%20web-slinger%20vintage%20retro%20poster%20%23C70039",
+    "https://dribbble.com/search/A%20classic%20web-slinger-vintage-retro",
+    "https://www.behance.net/search?search=A%20classic%20web-slinger%20vintage%20retro%20%23900C3F",
+    "https://www.redbubble.com/shop/?query=A%20classic%20web-slinger%20vintage%20retro%20sticker%20%23581445"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "phrase": "dog",
+  "style_direction": "kawaii",
+  "font_pairing": [
+    "Poppins",
+    "Lobster"
+  ],
+  "color_palette": [
+    "#FFB6C1",
+    "#FFD700"
+  ],
+  "layout": "centered",
+  "illustration": [
+    "cute dog",
+    "cartoon dog",
+    "dog paw"
+  ],
+  "texture": "smooth",
+  "products": [
+    "t-shirt",
+    "hoodie",
+    "sticker",
+    "mug",
+    "poster"
+  ],
+  "mockup_prompt": "A cute kawaii dog design on a t-shirt and mug",
+  "seo_title": "Cute Kawaii Dog Designs for T-Shirts and Mugs",
+  "tags": [
+    "dog",
+    "kawaii",
+    "cute",
+    "illustration",
+    "paws",
+    "pets"
+  ],
+  "example_designs": [
+    "https://www.pinterest.com/search/pins/?q=dog kawaii t-shirt #FFB6C1",
+    "https://www.kittl.com/search?q=dog kawaii",
+    "https://www.google.com/search?tbm=isch&q=dog kawaii t-shirt #FFD700",
+    "https://dribbble.com/search/dog-kawaii",
+    "https://www.behance.net/search?search=dog kawaii #FFB6C1",
+    "https://www.redbubble.com/shop/?query=dog kawaii mug #FFD700"
+  ]
+}

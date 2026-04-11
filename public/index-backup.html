@@ -1,0 +1,2755 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kittl Listing Factory — Vanilla + OpenAI</title>
+    <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/milligram/dist/milligram.min.css">
+    <style>
+    body{padding:20px;background:#f7fafc}
+    .panel{background:white;padding:18px;border-radius:8px;margin-bottom:16px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    canvas{width:100%;height:auto;border:1px solid #e6e6e6}
+    .pill{display:inline-block;padding:6px 8px;border-radius:999px;background:#f1f5f9;margin:3px}
+    .small{font-size:13px}
+    .muted{color:#6b7280}
+    .loading{opacity:0.6}
+    /* Modern card look */
+.idea-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: white;
+    position: relative;
+    transition: box-shadow 0.2s ease;
+}
+
+.idea-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Category badge */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-top: 6px;
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+/* Typography pills */
+.pill {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 2px;
+    font-size: 11px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* Layout tag */
+.layout-pill {
+    padding: 4px 8px;
+    display: inline-block;
+    border-radius: 6px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* Color palette circles */
+.color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Copy button */
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    padding: 6px 10px;
+    background: #10b981;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.copy-btn:hover {
+    background: #059669;
+}
+
+.tabBtn {
+    padding: 8px 16px;
+    border: 1px solid #d4d4d8;
+    background: #f1f5f9;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.tabBtn:hover {
+    background: #e2e8f0;
+}
+
+.tabBtn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #2563eb;
+}
+
+.idea-card.selectable {
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+}
+
+.idea-card.selected {
+    border: 2px solid #3b82f6;
+    background: #eff6ff;
+}
+
+.trend-card.selected {
+    border: 2px solid #3b82f6;
+    background: #eff6ff;
+}
+
+.trend-card{
+  width: 32%;
+  box-sizing: border-box;
+}
+
+.trend-results {
+    display: flex;
+    flex-direction: row;   /* ← NOW stacked vertically */
+    gap: 12px;
+    overflow-x: unset;        /* remove horizontal scroll */
+    overflow-y: auto;         /* enable vertical scroll if needed */
+    flex-wrap: wrap;
+}
+
+.niche-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  background: #fafafa;
+}
+
+.niche-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: bold;
+  color: white;
+}
+
+.chip-container span {
+  display: inline-block;
+  margin: 4px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #eee;
+  cursor: pointer;
+}
+
+.chip-container span:hover {
+  background: #ddd;
+}
+
+.muted {
+  color: #666;
+}
+
+.niche-actions button {
+  margin-right: 8px;
+  margin-top: 10px;
+}
+.card {
+  padding: 14px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  margin-top: 10px;
+  background: white;
+}
+
+.progress-wrap {
+  margin-top: 10px;
+  height: 10px;
+  width: 100%;
+  border-radius: 20px;
+  background: #f2f2f2;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 20px;
+  width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  transition: width .3s ease;
+}
+#regenPromptBtn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+
+  </style>
+    <script
+      src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  </head>
+  <body>
+    <header class="panel">
+      <h2>Kittl Listing Factory — Vanilla + OpenAI</h2>
+      <p class="small">Now with AI modules powered by OpenAI (backend
+        required).</p>
+      <div class="toolbar" style="margin-top:8px">
+        <button onclick="show('planner')">Daily Planner</button>
+        <button onclick="show('trends')">Upcoming Trends</button>
+        <button onclick="show('trendPredict')">Trend Prediction</button>
+        <button onclick="show('niche')">Niche Research</button>
+        <button onclick="show('ideas')">Idea Generator</button>
+        <button onclick="show('files')">File Prep</button>
+        <button onclick="show('mockup')">Mockup Manager</button>
+        <button onclick="show('etsy')">Etsy Listing</button>
+
+        <!-- NEW BUTTONS -->
+        <button onclick="saveProject()"
+          style="background:#10b981;color:white">Save</button>
+        <input type="file" id="loadCSVInput" accept=".json"
+          style="display:none"
+          onchange="loadCSVFile(event)">
+        <button
+          onclick="document.getElementById('loadCSVInput').click()"
+          style="background:#3b82f6;color:white">Load</button>
+
+      </div>
+    </header>
+
+    <section id="planner" class="panel" style="display:none">
+
+      <h3>Daily Planner & Sales Accelerator</h3>
+
+      <p class="muted small">
+        Structured daily actions designed to move you toward 100+ sales in 90
+        days.
+      </p>
+
+      <!-- GOAL -->
+      <div class="card">
+        <h4>🎯 Main Goal</h4>
+
+        <label>Sales goal (next 90 days)</label>
+        <input id="plannerGoal" type="number" value="100" />
+
+        <label style="margin-top:6px;">Current sales</label>
+        <input id="plannerCurrentSales" type="number" value="0" />
+
+        <div class="progress-wrap">
+          <div id="plannerProgressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="plannerProjection" class="muted small"></div>
+      </div>
+
+      <!-- DAILY ACTIONS -->
+      <div class="card">
+        <h4>📅 Daily Action Targets</h4>
+
+        <div class="grid-2">
+
+          <div>
+            <label>Designs to create</label>
+            <input id="plannerTargetDesigns" type="number" value="1">
+
+            <label>Listings to publish</label>
+            <input id="plannerTargetListings" type="number" value="1">
+
+            <label>Research tasks</label>
+            <input id="plannerTargetResearch" type="number" value="1">
+          </div>
+
+          <div>
+            <label>Mockups to generate</label>
+            <input id="plannerTargetMockups" type="number" value="1">
+
+            <label>Promotional posts</label>
+            <input id="plannerTargetPromos" type="number" value="2">
+
+            <label>Optimization tasks</label>
+            <input id="plannerTargetImprovements" type="number" value="1">
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CHECKLIST -->
+      <div class="card">
+        <h4>✅ Today’s Checklist</h4>
+
+        <div id="plannerChecklist"></div>
+
+        <button id="plannerResetDay">Reset Today</button>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="card">
+        <h4>⚡ Quick Actions</h4>
+
+        <p class="small muted">These jump directly into tools with smart
+          defaults.</p>
+
+        <div class="chip-container">
+          <button class="outline-btn" id="plannerGoIdeas">Generate
+            ideas</button>
+          <button class="outline-btn" id="plannerGoNiche">Research
+            niche</button>
+          <button class="outline-btn" id="plannerGoBrief">Create design
+            brief</button>
+          <button class="outline-btn" id="plannerGoListing">Write Etsy
+            listing</button>
+          <button class="outline-btn" id="plannerGoMockup">Create
+            mockups</button>
+        </div>
+      </div>
+
+      <!-- WEEKLY REVIEW -->
+      <div class="card">
+        <h4>📓 Weekly Review</h4>
+
+        <textarea id="plannerWeeklyNotes"
+          placeholder="What worked, what didn’t, what to try next..."
+          rows="5"></textarea>
+
+        <button id="plannerSaveNotes">Save Review</button>
+
+        <div id="plannerReviewHistory" style="margin-top:10px;"></div>
+      </div>
+
+    </section>
+
+    <section id="trendPredict" class="panel" style="display:none">
+
+      <h3>AI Trend Prediction (Full Hybrid)</h3>
+
+      <p class="muted small">
+        Predict upcoming POD trends based on global data, holidays, and
+        your
+        niches.
+      </p>
+
+      <textarea id="tpInput"
+        placeholder="Enter niches separated by commas (optional)">
+      </textarea>
+
+      <div style="margin-top:8px">
+        <button id="tpGenBtn">Predict Trends (AI)</button>
+      </div>
+
+      <div id="tpResults" style="margin-top:18px"></div>
+
+    </section>
+
+    <!-- Niche Research -->
+    <section id="niche" class="panel">
+      <h3>Niche Research (AI)</h3>
+      <label>Enter a niche or keyword</label>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input id="nicheInput" placeholder="e.g. dog mom"
+          style="flex:1" />
+        <button id="genNicheBtn">Generate (AI)</button>
+      </div>
+
+      <div style="margin-top:10px"><strong>Suggested keywords</strong>
+        <div style="margin-top:10px">
+          <button id="suggestNichesBtn">
+            Suggest 5 High-Opportunity Niches (AI)
+          </button>
+        </div>
+
+        <div id="suggestedNiches" style="margin-top:12px"></div>
+
+        <span class="muted"> (click to copy)</span></div>
+      <div id="nicheResult" class="niche-card">
+
+        <div class="niche-header">
+          <h2 id="nicheTitle"></h2>
+          <span id="nicheScore" class="score-badge"></span>
+        </div>
+
+        <p id="nicheSummary" class="muted"></p>
+
+        <h3>Market Signals</h3>
+        <ul id="nicheSignals"></ul>
+
+        <h3>Design Recommendations</h3>
+        <ul id="nicheDesignRecs"></ul>
+
+        <h3>Keyword Ideas</h3>
+        <div id="nicheKeywords" class="chip-container"></div>
+
+        <!-- <div class="niche-actions">
+          <button id="genPhraseBtn">Generate Phrase Ideas</button>
+          <button id="genDesignBtn">Generate Design Prompts</button>
+          <button id="genListingBtn">Generate Etsy Listing Ideas</button>
+        </div> -->
+
+      </div>
+
+    </section>
+
+    <section id="trends" class="panel" style="display:none">
+      <h3>Upcoming Trends & Holidays (AI)</h3>
+
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button id="genTrendsBtn">Get Upcoming POD Trends (AI)</button>
+      </div>
+
+      <div id="trendsResults" style="margin-top:12px"
+        class="trend-results"></div>
+      <button id="genTrendPackBtn" style="margin-top:10px;">
+        Generate Design Pack for Selected Trend (AI)
+      </button>
+      <div id="designPackResult"></div>
+      <div id="designPackDetail"></div>
+
+    </section>
+
+    <!-- Idea Generator -->
+    <section id="ideas" class="panel" style="display:none">
+      <h3>Text & Idea Generator (AI)</h3>
+      <label>Enter the main keyword</label>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input id="ideaInput" placeholder="e.g. cat" style="flex:1" />
+        <button id="genIdeaBtn">Generate Ideas (AI)</button>
+      </div>
+      <div style="margin-top:10px"><strong>Ideas</strong></div>
+      <!-- <div id="ideaTabs" style="margin-top:15px; display:flex; gap:10px;">
+        <button class="tabBtn active"
+          data-view="combined">Combined</button>
+        <button class="tabBtn" data-view="ideas">Ideas Only</button>
+        <button class="tabBtn" data-view="kittl">Kittl Phrases
+          Only</button>
+      </div> -->
+
+      <div id="ideasList"
+        style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px"></div>
+
+      <div id="designBriefBox" style="margin-top:18px;">
+        <button id="genDesignBriefBtn">Generate Complete Design Brief
+          (AI)</button>
+        <div id="designBriefResults" style="margin-top:12px;"></div>
+        <div id="aiDesignPromptBox" class="panel"
+          style="margin-top:16px;">
+          <h3>AI-Generated Design Prompt</h3>
+
+          <textarea
+            id="aiDesignPromptText"
+            rows="8"
+            style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;"></textarea>
+
+          <div style="margin-top:8px;display:flex;gap:8px;">
+            <button id="artistlyChooseBtn">Choose style with Artistly</button>
+            <button id="regenPromptBtn" disabled>Regenerate Prompt</button>
+            <button id="copyAIDesignPromptBtn" class="outline-btn">Copy
+              Prompt</button>
+          </div>
+
+        </div>
+        <div class="panel" style="margin-top:12px">
+          <h3>AI Creative Variations</h3>
+
+          <textarea id="variationInput"
+            placeholder="Example: Make it dreamy fantasy style..."></textarea>
+
+          <button id="generateVariationBtn" disabled>Generate
+            Variations</button>
+          <button id="copyVariationBtn">Copy</button>
+          <button id="copyVariationStyleBtn">Copy with Style</button>
+          <button id="artistlyMixBtn">Mix style with Artistly</button>
+          <button id="artistlyVariationBtn">Clone with Artistly</button>
+
+          <textarea id="variationResult"></textarea>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- File Prep -->
+    <section id="files" class="panel" style="display:none">
+      <h3>File & Export Preparation</h3>
+      <p class="small">Upload Kittl-exported PNGs or SVGs and generate
+        multiple sizes + ZIP for Etsy.</p>
+      <input id="fileUploader" type="file"
+        accept="image/*,image/png,image/svg+xml" multiple />
+      <div style="margin-top:8px">
+        <button id="generateSizesBtn">Generate Sizes</button>
+        <button id="zipBtn">Zip & Download</button>
+      </div>
+      <div style="margin-top:10px"><strong>Uploaded files</strong></div>
+      <ul id="uploadedList"></ul>
+      <div style="margin-top:10px"><strong>Exports</strong> (<span
+          id="exportsCount">0</span>)</div>
+      <ul id="exportsList"></ul>
+    </section>
+
+    <!-- Mockup Manager -->
+    <section id="mockup" class="panel" style="display:none">
+      <h3>Mockup Manager (AI prompts)</h3>
+      <label>Upload your design (PNG with transparent background
+        recommended)</label>
+      <input id="designUpload" type="file" accept="image/*" />
+      <div
+        style="margin-top:8px;display:grid;grid-template-columns:1fr 380px;gap:12px">
+        <div>
+          <div>
+            <label class="small" style="display:block;margin-bottom:6px;">
+              Preview background color
+            </label>
+            <input
+              id="mockupBgPicker"
+              type="color"
+              value="#ffffff"
+              style="width:80px;margin-bottom:10px;" />
+          </div>
+          <canvas id="mockupCanvas" width="1200"
+            height="1200"></canvas>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="exportMockupBtn">Export Mockup</button>
+            <button id="clearMockupBtn">Clear</button>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="small">AI mockup prompts</h4>
+          <input id="mpProduct" placeholder="t-shirt"
+            style="flex:0" />
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <input id="mpStyle" placeholder="vintage"
+              style="width:50%" />
+            <input id="mpColor" placeholder="cream"
+              style="width:50%" />
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+
+            <button id="genMockupPrompts">
+              Get prompts (AI)
+            </button>
+
+            <button id="cloneMockupBtn">
+              Clone Mockup
+            </button>
+
+          </div>
+          <textarea
+            id="mockupCloneBox"
+            style="display:none; width:100%; margin-top:10px; height:140px;"
+            placeholder="Cloned mockup will appear here..."></textarea>
+          <div id="mockupPrompts" style="margin-top:10px"></div>
+          <h4 class="small" style="margin-top:10px">Generated
+            mockups</h4>
+          <div id="mockupsList" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Etsy Listing -->
+    <section id="etsy" class="panel" style="display:none">
+      <h3>Etsy Listing Generator (AI)</h3>
+      <div class="grid-2">
+        <div>
+          <label>Title hint</label>
+          <input id="etsyTitleHint"
+            placeholder="e.g. Dog Mom Vintage T-shirt" />
+          <label style="margin-top:8px">Keywords (comma
+            separated)</label>
+          <input id="etsyKeywords"
+            placeholder="dog mom, vintage, retro" />
+          <label style="margin-top:8px">Features / included
+            files</label>
+          <input id="etsyFeatures"
+            placeholder="PNG, SVG, 4500x5400 PNG" />
+
+          <div style="margin-top:8px">
+            <button id="genListingBtn">Generate Listing
+              (AI)</button>
+            <button id="copyListingBtn">Copy Listing JSON</button>
+          </div>
+        </div>
+        <div>
+          <h4 class="small">Preview</h4>
+          <div
+            style="margin-top:8px;padding:10px;background:#fafafa;border-radius:6px;border:1px solid #f0f0f0">
+            <h4 id="previewTitle">—</h4>
+            <p id="previewDesc" class="small"
+              style="white-space:pre-line">—</p>
+            <div class="small" style="margin-top:8px">Tags: <span
+                id="previewTags">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+
+let selectedPhrase = "";
+let selectedTrend = "";
+
+function resolvePhrase() {
+    const userInput = document.getElementById("ideaInput").value.trim();
+    const firstIdea = storedIdeas?.[0]?.text || "";
+    const fallback = "tshirt design";
+
+    // Priority:
+    // 1. Selected card
+    // 2. User input
+    // 3. First normal idea
+    // 4. First Kittl phrase
+    // 5. Safe fallback
+    return selectedPhrase || userInput || firstIdea || fallback;
+}
+
+
+
+/* ================= Basic SPA nav ================= */
+function show(id){
+  document.querySelectorAll('section').forEach(s=> s.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+show('niche');
+
+/* ================ Helper: call backend ================ */
+const API_ROOT = "http://localhost:3000"; // adjust if needed
+
+async function postJSON(path, body){
+  const url = API_ROOT + path;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) {
+    const txt = await resp.text();
+    throw new Error(txt || resp.statusText);
+  }
+  return resp.json();
+}
+
+/* ================= Niche Research (AI) ================= */
+document.getElementById('genNicheBtn').addEventListener('click', async () => {
+  const inEl = document.getElementById('nicheInput');
+  const niche = (inEl.value || 'dog mom').trim();
+
+  const btn = document.getElementById('genNicheBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+    const data = await postJSON('/api/ai/keywords', { niche });
+
+    // ----- EXPECTED FULL OBJECT -----
+    // {
+    //   niche, score, summary, why_now,
+    //   demand, competition,
+    //   risk_flags[], recommended_audience[],
+    //   works_best_on[], design_angles[], micro_niches[],
+    //   keywords: { buyer_intent[], discovery[], long_tail[] }
+    // }
+
+    const r = data;
+
+    // Grab UI references
+    const title   = document.getElementById("nicheTitle");
+    const score   = document.getElementById("nicheScore");
+    const summary = document.getElementById("nicheSummary");
+    const signals = document.getElementById("nicheSignals");
+    const recs    = document.getElementById("nicheDesignRecs");
+    const chips   = document.getElementById("nicheKeywords");
+
+    // ---------- HEADER ----------
+    title.textContent = r.niche || niche;
+
+    score.textContent = (r.score ?? 50) + "/100";
+
+    if (r.score >= 80) score.style.background = "#2ecc71";
+    else if (r.score >= 60) score.style.background = "#f1c40f";
+    else if (r.score >= 40) score.style.background = "#e67e22";
+    else score.style.background = "#e74c3c";
+
+    // ---------- SUMMARY ----------
+    summary.textContent =
+      r.summary || "No summary provided, try another niche.";
+
+    // ---------- MARKET SIGNALS ----------
+    signals.innerHTML = `
+      <li><strong>Why now:</strong> ${r.why_now || "Not available"}</li>
+      <li><strong>Demand:</strong> ${r.demand || "Unknown"}</li>
+      <li><strong>Competition:</strong> ${r.competition || "Unknown"}</li>
+      ${
+        (r.risk_flags || [])
+          .map(flag => `<li style="color:#c0392b">${flag}</li>`)
+          .join("")
+      }
+    `;
+
+    // ---------- DESIGN RECOMMENDATIONS ----------
+    recs.innerHTML = `
+      <li><strong>Audience:</strong> ${(r.recommended_audience || []).join(", ")}</li>
+      <li><strong>Works best on:</strong> ${(r.works_best_on || []).join(", ")}</li>
+      <li><strong>Design angles:</strong></li>
+      ${(r.design_angles || []).map(a => `<li>${a}</li>`).join("")}
+    `;
+
+    // ---------- KEYWORDS (CHIPS) ----------
+    chips.innerHTML = `
+      <div class="section">
+        <h4>Buyer Intent</h4>
+        ${(r.keywords?.buyer_intent || [])
+          .map(k => `<span class="chip">${k}</span>`)
+          .join("")}
+      </div>
+
+      <div class="section">
+        <h4>Discovery</h4>
+        ${(r.keywords?.discovery || [])
+          .map(k => `<span class="chip">${k}</span>`)
+          .join("")}
+      </div>
+
+      <div class="section">
+        <h4>Long Tail</h4>
+        ${(r.keywords?.long_tail || [])
+          .map(k => `<span class="chip">${k}</span>`)
+          .join("")}
+      </div>
+    `;
+
+    // Enable copy-on-click
+    [...chips.querySelectorAll(".chip")].forEach(el => {
+      el.onclick = () => navigator.clipboard.writeText(el.textContent);
+    });
+
+  } catch (err) {
+    alert('AI error: ' + err.message);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate (AI)';
+  }
+});
+
+
+
+
+/* ================= File Prep (unchanged) ================= */
+// ... (reuse the earlier file prep code; truncated here for brevity)
+// For clarity, we'll add the minimal code inline to keep this file self-contained:
+const fileUploader = document.getElementById('fileUploader');
+const uploadedList = document.getElementById('uploadedList');
+const generateSizesBtn = document.getElementById('generateSizesBtn');
+const zipBtn = document.getElementById('zipBtn');
+const exportsList = document.getElementById('exportsList');
+const exportsCount = document.getElementById('exportsCount');
+
+let uploadedFiles = [];
+let exportsArr = [];
+
+fileUploader.addEventListener('change', (e)=> {
+  const files = Array.from(e.target.files);
+  files.forEach(f=> uploadedFiles.push({file:f, id:Math.random().toString(36).slice(2)}));
+  renderUploaded();
+});
+
+function renderUploaded(){
+  uploadedList.innerHTML = '';
+  uploadedFiles.forEach(u=> { const li = document.createElement('li'); li.textContent = u.file.name; uploadedList.appendChild(li); });
+}
+
+function loadImage(file){
+  return new Promise((resolve,reject)=>{
+    const fr = new FileReader(); fr.onload = ()=>{ const img = new Image(); img.onload = ()=> resolve(img); img.onerror = reject; img.src = fr.result; }; fr.onerror = reject; fr.readAsDataURL(file);
+  });
+}
+function stripExt(name){ return name.replace(/\.[^/.]+$/, ''); }
+function resizeToBlob(img,w,h){
+  return new Promise(resolve=>{
+    const canvas = document.createElement('canvas'); canvas.width=w; canvas.height=h; const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    const ratio = Math.min(w/img.width, h/img.height);
+    const iw = img.width*ratio, ih = img.height*ratio;
+    ctx.drawImage(img,(w-iw)/2,(h-ih)/2,iw,ih);
+    canvas.toBlob(b=>resolve(b), 'image/png', 0.92);
+  });
+}
+
+generateSizesBtn.addEventListener('click', async ()=>{
+  if(uploadedFiles.length===0){ alert('Upload files first'); return; }
+  generateSizesBtn.disabled=true; generateSizesBtn.textContent='Processing...';
+  try {
+    const sizes = [5000,4500,3000,2000,1000];
+    exportsArr = [];
+    const base = getExportNameBase();
+    for(const u of uploadedFiles){
+      try{
+        const img = await loadImage(u.file);
+        for(const s of sizes){
+          const blob = await resizeToBlob(img, s, s);
+          exportsArr.push({name:`${base}_${s}.png`, blob});
+        }
+      } catch(e){ console.warn('resize fail', e); }
+    }
+    renderExports();
+    alert('Generated ' + exportsArr.length + ' images');
+  } catch(err){ alert('Error: ' + err.message); } finally { generateSizesBtn.disabled=false; generateSizesBtn.textContent='Generate Sizes'; }
+});
+
+function renderExports(){
+  exportsList.innerHTML=''; exportsArr.forEach(e=>{ const li=document.createElement('li'); const a=document.createElement('a'); a.href=URL.createObjectURL(e.blob); a.download=e.name; a.textContent=e.name; li.appendChild(a); exportsList.appendChild(li); }); exportsCount.textContent = exportsArr.length;
+}
+
+function getExportNameBase() {
+  const phrase = (document.getElementById("ideaInput")?.value || "").trim();
+  const niche  = (document.getElementById("nicheInput")?.value || "").trim();
+
+  // Clean unsafe filename chars
+  const clean = str =>
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/gi, "_")
+      .replace(/^_+|_+$/g, "");
+
+  const safePhrase = clean(phrase);
+  const safeNiche = clean(niche);
+
+  // different cases
+  if (safePhrase && safeNiche) return `${safePhrase}_${safeNiche}`;
+  if (safePhrase) return safePhrase;
+  if (safeNiche) return safeNiche;
+
+  return "design";
+}
+
+
+zipBtn.addEventListener('click', async ()=>{
+  if(exportsArr.length===0){ alert('No exports to zip'); return; }
+  const zip = new JSZip();
+  exportsArr.forEach(e=> zip.file(e.name, e.blob));
+  const content = await zip.generateAsync({type:'blob'});
+  saveAs(content, 'kittl-exports.zip');
+});
+
+/* ================= Mockup Manager (AI prompt fetch + canvas drawing) ================= */
+const designUpload = document.getElementById('designUpload');
+const mockupCanvas = document.getElementById('mockupCanvas');
+const exportMockupBtn = document.getElementById('exportMockupBtn');
+const clearMockupBtn = document.getElementById('clearMockupBtn');
+const mockupsList = document.getElementById('mockupsList');
+const mockupPromptsDiv = document.getElementById('mockupPrompts');
+
+let designImage = null;
+const ctx = mockupCanvas.getContext('2d');
+
+let mockupBgColor = "#ffffff";
+
+
+designUpload.addEventListener('change', async e=> {
+  const f = e.target.files[0]; if(!f) return;
+  designImage = await loadImage(f);
+  drawMockup();
+});
+
+function drawMockup(){
+  const c = mockupCanvas; const ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle = '#f6f6f6';
+  ctx.fillRect(0,0,c.width,c.height);
+  const pad = 80;
+  // dynamic background (user-controlled)
+  ctx.fillStyle = mockupBgColor;
+  ctx.fillRect(pad, pad, c.width - pad*2, c.height - pad*2);
+
+  if(designImage){ const maxW = c.width-pad*4, maxH = c.height-pad*4; const ratio = Math.min(maxW/designImage.width, maxH/designImage.height, 1); const w = designImage.width*ratio, h=designImage.height*ratio; ctx.drawImage(designImage,(c.width-w)/2,(c.height-h)/2,w,h); }
+}
+
+document.getElementById("mockupBgPicker").addEventListener("input", (e) => {
+  mockupBgColor = e.target.value;
+  drawMockup();
+});
+
+
+exportMockupBtn.addEventListener('click', ()=>{
+  const dataUrl = mockupCanvas.toDataURL('image/png');
+  fetch(dataUrl).then(r=>r.blob()).then(blob=>{
+    const name = `mockup_${Date.now()}.png`; const url=URL.createObjectURL(blob);
+    const el = document.createElement('div'); el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center'; el.style.marginBottom='6px';
+    const span = document.createElement('div'); span.textContent = name; const a = document.createElement('a'); a.href=url; a.download=name; a.textContent='Download'; el.appendChild(span); el.appendChild(a); mockupsList.appendChild(el);
+  });
+});
+
+clearMockupBtn.addEventListener('click', ()=>{ designImage = null; drawMockup(); mockupsList.innerHTML=''; });
+
+// document.getElementById('genMockupPrompts').addEventListener('click', async ()=>{
+//   const productType = document.getElementById('mpProduct').value || 't-shirt';
+//   const style = document.getElementById('mpStyle').value || 'vintage';
+//   const color = document.getElementById('mpColor').value || 'cream';
+//   const btn = document.getElementById('genMockupPrompts'); btn.disabled=true; btn.textContent='Generating...';
+//   try {
+//     const data = await postJSON('/api/ai/mockup-prompt', { productType, styleHint: style, color, keyword: (document.getElementById('ideaInput').value || '') });
+//     mockupPromptsDiv.innerHTML = '';
+//     data.prompts.forEach(p=>{
+//       const d = document.createElement('div'); d.style.marginBottom='8px'; d.textContent = p;
+//       const copy = document.createElement('button'); copy.textContent='Copy'; copy.style.marginLeft='8px'; copy.onclick = ()=> navigator.clipboard.writeText(p);
+//       d.appendChild(copy); mockupPromptsDiv.appendChild(d);
+//     });
+//   } catch(err){ alert('AI error: ' + err.message); console.error(err); } finally { btn.disabled=false; btn.textContent='Get prompts (AI)'; }
+// });
+
+
+document.getElementById('genMockupPrompts').addEventListener('click', async () => {
+  const productType = document.getElementById('mpProduct').value || 't-shirt';
+  const style = document.getElementById('mpStyle').value || 'vintage';
+  const color = document.getElementById('mpColor').value || 'cream';
+  const idea = document.getElementById('ideaInput').value || '';
+
+  const btn = document.getElementById('genMockupPrompts');
+  const cloneBox = document.getElementById('mockupCloneBox');
+
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+
+    let data;
+
+    // 👉 CONDITION: clone mode
+    if (
+      cloneBox &&
+      cloneBox.style.display !== 'none' &&
+      cloneBox.value.trim().length > 0
+    ) {
+      // USE CLONE MOCKUP API
+      data = await postJSON('/api/ai/clone-mockup-prompt', {
+        productType,
+        styleHint: style,
+        color,
+        keyword: idea,
+        cloneSource: cloneBox.value.trim()
+      });
+
+    } else {
+      // 👉 OLD FLOW (whatever it previously did)
+      data = await postJSON('/api/ai/mockup-prompt', {
+        productType,
+        styleHint: style,
+        color,
+        keyword: idea
+      });
+    }
+
+    mockupPromptsDiv.innerHTML = '';
+
+    data.prompts.forEach(p => {
+      const d = document.createElement('div');
+      d.style.marginBottom = '8px';
+      d.textContent = p;
+
+      const copy = document.createElement('button');
+      copy.textContent = 'Copy';
+      copy.style.marginLeft = '8px';
+      copy.onclick = () => navigator.clipboard.writeText(p);
+
+      d.appendChild(copy);
+      mockupPromptsDiv.appendChild(d);
+    });
+
+  } catch (err) {
+    alert('AI error: ' + err.message);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Get prompts (AI)';
+  }
+});
+
+
+/* ================= Etsy Listing (AI) ================= */
+const genListingBtn = document.getElementById('genListingBtn');
+const copyListingBtn = document.getElementById('copyListingBtn');
+
+
+genListingBtn.addEventListener('click', async () => {
+  const titleHint = document.getElementById('etsyTitleHint').value || '';
+  const keywords = (document.getElementById('etsyKeywords').value || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const features = document.getElementById('etsyFeatures').value || '';
+
+  // pull phrase if available (ideas / design systems / title input)
+  const phrase =
+    window._selectedDesignSystem?.phrase ||
+    selectedPhrase ||
+    titleHint;
+
+  const btn = genListingBtn;
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+    const data = await postJSON('/api/ai/listing', {
+      phrase,
+      titleHint,
+      features,
+      keywords
+    });
+
+    const title = data?.title || '—';
+    const description = data?.description || '—';
+    const tags = Array.isArray(data?.tags) ? data.tags : [];
+
+    document.getElementById('previewTitle').textContent = title;
+    document.getElementById('previewDesc').textContent = description;
+    document.getElementById('previewTags').textContent = tags.join(', ');
+
+    window._lastListing = { title, description, tags };
+
+  } catch (err) {
+    alert('AI error: ' + err.message);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Listing (AI)';
+  }
+});
+
+
+copyListingBtn.addEventListener('click', async ()=>{
+  if(!window._lastListing) { alert('Generate listing first'); return; }
+  await navigator.clipboard.writeText(JSON.stringify(window._lastListing, null, 2));
+  alert('Listing JSON copied to clipboard');
+});
+
+/* initial draw */
+drawMockup();
+
+/* =========================
+    PROJECT SAVE / LOAD
+========================= */
+
+function collectAppData() {
+
+  function safeHTML(id) {
+    const el = document.getElementById(id);
+    return el ? el.innerHTML : "";
+  }
+
+  function safeText(id) {
+    const el = document.getElementById(id);
+    return el ? el.textContent : "";
+  }
+
+  return {
+    ideasHTML: safeHTML("ideasList"),
+    nicheHTML: safeHTML("nicheResult"),
+    designBriefHTML: safeHTML("designBriefResults"),
+    mockupsHTML: safeHTML("mockupsList"),
+    suggestedNiches: collectSuggestedNiches(),
+    listingTitle: safeText("previewTitle"),
+    listingDesc: safeText("previewDesc"),
+    listingTags: safeText("previewTags")
+  };
+}
+
+
+function collectSuggestedNiches() {
+  const cards = document.querySelectorAll("#suggestedNiches .niche-card");
+
+  return [...cards].map(card => {
+    const title = card.querySelector("div:nth-child(1)")?.textContent.trim() || "";
+    const score = card.querySelector("div:nth-child(2)")?.textContent.trim() || "";
+    const desc  = card.querySelector("div:nth-child(3)")?.textContent.trim() || "";
+
+    return { title, score, desc };
+  });
+}
+
+
+
+function saveProject() {
+  const project = {
+    meta: {
+      nicheInput: document.getElementById("nicheInput")?.value || "",
+      ideaInput: document.getElementById("ideaInput")?.value || "",
+      timestamp: new Date().toISOString()
+    },
+    data: collectAppData()
+  };
+
+  const blob = new Blob([JSON.stringify(project, null, 2)], {
+    type: "application/json"
+  });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "kittl-project.json";
+  a.click();
+}
+
+
+function loadCSVFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        restoreFromFile(text);
+    };
+    reader.onload = function(e) {
+    const text = e.target.result;
+    restoreFromFile(text);
+  };
+    reader.readAsText(file);
+
+}
+
+
+function restoreFromFile(text) {
+  try {
+    // Try JSON first
+    const obj = JSON.parse(text);
+    restoreFromJSON(obj);
+    return;
+  } catch (e) {
+    console.log("Not JSON, trying CSV...");
+  }
+
+  // fallback to old CSV behavior
+  restoreFromCSV(text);
+}
+
+
+function restoreFromJSON(data) {
+
+  // META
+  if (data.meta) {
+    document.getElementById("nicheInput").value = data.meta.nicheInput || "";
+    document.getElementById("ideaInput").value = data.meta.ideaInput || "";
+  }
+
+  // MAIN DATA
+  if (data.data) {
+
+    if (data.data.nicheHTML) {
+      document.getElementById("nicheResult").innerHTML = data.data.nicheHTML;
+      bindNicheCardClicks();        // 👈 IMPORTANT
+    }
+
+    if (data.data?.suggestedNiches) {
+      renderSuggestedNiches(data.data.suggestedNiches);
+      bindSuggestedNiches();  
+    }
+
+
+    if (data.data.ideasHTML) {
+      document.getElementById("ideasList").innerHTML = data.data.ideasHTML;
+      bindIdeaCardClicks();          // 👈 IMPORTANT
+    }
+
+    if (data.data.designBriefHTML) {
+      document.getElementById("designBriefResults").innerHTML = data.data.designBriefHTML;
+    }
+
+    if (data.data.mockupsHTML) {
+      document.getElementById("mockupsList").innerHTML = data.data.mockupsHTML;
+    }
+
+    // Listing preview
+    document.getElementById("previewTitle").textContent = data.data.listingTitle || "—";
+    document.getElementById("previewDesc").textContent = data.data.listingDesc || "—";
+    document.getElementById("previewTags").textContent = data.data.listingTags || "—";
+  }
+
+  alert("Project restored!");
+}
+
+
+function renderSuggestedNiches(list) {
+
+const wrap = document.getElementById("suggestedNiches");
+if (!wrap) return;
+
+wrap.innerHTML = `
+  <h4>🔥 Top suggested niches</h4>
+`;
+
+list.forEach(n => {
+  const div = document.createElement("div");
+  div.className = "niche-card";
+  div.style.cssText =
+    "border:1px solid #ddd;padding:8px;margin:6px;border-radius:8px;cursor:pointer";
+
+  div.innerHTML = `
+    <div style="font-weight:bold">${n.title}</div>
+    <div style="font-size:12px">${n.score}</div>
+    <div style="font-size:12px;color:#666">${n.desc}</div>
+  `;
+
+  wrap.appendChild(div);
+});
+}
+
+
+function bindIdeaCardClicks() {
+
+document.querySelectorAll("#ideasList .idea-card.selectable")
+  .forEach(card => {
+
+    card.addEventListener("click", () => {
+
+      // visual highlight
+      document
+        .querySelectorAll("#ideasList .idea-card")
+        .forEach(c => c.classList.remove("selected"));
+
+      card.classList.add("selected");
+
+      // extract phrase text
+      const phrase =
+        card.querySelector("h3")?.textContent.trim() || "";
+
+      // 🔥 store globally
+      selectedPhrase = phrase;
+
+      // optional: auto-fill listing fields
+      autofillEtsyListingFields({
+        phrase,
+        products: ["t-shirt"]
+      });
+    });
+  });
+}
+
+
+function bindNicheCardClicks() {
+
+  document.querySelectorAll("#nicheResult .niche-card.selectable")
+  .forEach(card => {
+
+    card.addEventListener("click", () => {
+
+      // clear previous selection
+      document
+        .querySelectorAll("#nicheResult .niche-card")
+        .forEach(c => c.classList.remove("selected"));
+
+      // mark selected
+      card.classList.add("selected");
+
+      // extract niche text
+      const title = card.querySelector("h3")?.textContent?.trim() || "";
+
+      // send to input box
+      const input = document.getElementById("nicheInput");
+      if (input) input.value = title;
+    });
+  });
+  bindKeywordChips();
+}
+
+function bindKeywordChips() {
+
+document.querySelectorAll(".chip").forEach(chip => {
+
+  chip.addEventListener("click", async () => {
+
+    const text = chip.textContent.trim();
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+
+      // visual feedback
+      chip.classList.add("copied");
+      chip.textContent = "Copied!";
+
+      setTimeout(() => {
+        chip.classList.remove("copied");
+        chip.textContent = text;
+      }, 1000);
+
+    } catch (err) {
+      console.error("Copy failed", err);
+      alert("Could not copy keyword");
+    }
+  });
+});
+}
+
+function bindSuggestedNiches() {
+
+  document
+    .querySelectorAll("#suggestedNiches .niche-card")
+    .forEach(card => {
+
+      card.addEventListener("click", () => {
+
+        // remove previous selections
+        document
+          .querySelectorAll("#suggestedNiches .niche-card")
+          .forEach(c => c.classList.remove("selected"));
+
+        // mark selected
+        card.classList.add("selected");
+
+        // extract text from first line (title)
+        const title = card.querySelector("div:nth-child(1)")?.textContent?.trim() || "";
+
+        const input = document.getElementById("nicheInput");
+        if (input) input.value = title;
+      });
+    });
+}
+
+
+
+document.getElementById("genTrendsBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("genTrendsBtn");
+  const out = document.getElementById("trendsResults");
+  btn.disabled = true;
+  btn.textContent = "Loading...";
+
+  try {
+    const data = await postJSON("/api/ai/trends", {});
+    const trends = data.trends || [];
+    out.innerHTML = "";
+
+    trends.forEach(t => {
+  const box = document.createElement("div");
+  box.className = "trend-card";
+  box.style.padding = "10px";
+  box.style.border = "1px solid #e5e5e5";
+  box.style.borderRadius = "6px";
+  box.style.marginBottom = "10px";
+  box.innerHTML = `
+    <strong>${t.event}</strong> — <span class="muted">${t.date}</span><br>
+    <div class="small" style="margin-top:6px">${t.why}</div>
+
+    <div class="small" style="margin-top:6px"><strong>Styles:</strong> ${t.styles.join(", ")}</div>
+
+    <div class="small" style="margin-top:6px"><strong>POD Ideas:</strong></div>
+    <ul class="small">${t.ideas.map(x => `<li>${x}</li>`).join("")}</ul>
+  `;
+
+  // select this trend when clicked
+  box.addEventListener("click", () => {
+    document.querySelectorAll(".trend-card").forEach(c => c.classList.remove("selected"));
+    box.classList.add("selected");
+    selectedTrend = t.event; // store name of the event
+  });
+
+  out.appendChild(box);
+});
+
+
+  } catch (err) {
+    alert("AI error: " + err.message);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Get Upcoming POD Trends (AI)";
+  }
+});
+
+
+
+document.getElementById("tpGenBtn").addEventListener("click", async () => {
+    const raw = document.getElementById("tpInput").value.trim();
+    const niches = raw.length ? raw.split(",").map(x => x.trim()) : [];
+
+    const btn = document.getElementById("tpGenBtn");
+    const out = document.getElementById("tpResults");
+    btn.disabled = true;
+    btn.textContent = "Loading...";
+
+    out.innerHTML = "";
+
+    try {
+        const data = await postJSON("/api/ai/predict-trends", { niches });
+        const items = data.predictions || [];
+
+        items.forEach(p => {
+            const box = document.createElement("div");
+            box.className = "listbox";
+            box.innerHTML = `
+<h3>${p.trend}</h3>
+<div class="small muted">${p.category.toUpperCase()}</div>
+
+<div style="margin-top:6px">
+  <strong>Trend Score:</strong> ${p.score}/100
+  <div style="background:#eee;height:6px;border-radius:4px;margin-top:3px">
+    <div style="width:${p.score}%; height:6px; background:#10b981; border-radius:4px"></div>
+  </div>
+</div>
+
+<p class="small" style="margin-top:8px">${p.why}</p>
+
+<p class="small"><strong>Deadline: </strong>${p.deadline}</p>
+
+<p class="small"><strong>Design Styles:</strong> ${p.designStyles.join(", ")}</p>
+
+<p class="small"><strong>Product Ideas:</strong></p>
+<ul class="small">
+${p.productIdeas.map(x => `<li>${x}</li>`).join("")}
+</ul>
+
+<p class="small"><strong>Action Plan:</strong> ${p.actionPlan}</p>
+            `;
+            out.appendChild(box);
+        });
+
+    } catch (err) {
+        console.error(err);
+        alert("AI Error: " + err.message);
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Predict Trends (AI)";
+});
+
+
+let storedIdeas = [];   // normal ideas
+
+document.getElementById("genIdeaBtn").addEventListener("click", async () => {
+    const keyword = (document.getElementById("ideaInput").value || "").trim();
+    const style = document.getElementById("styleInput")?.value?.trim() || "";
+
+    const btn = document.getElementById("genIdeaBtn");
+    btn.disabled = true;
+    btn.textContent = "Generating...";
+
+    const out = document.getElementById("ideasList");
+    out.innerHTML = "";
+
+    try {
+        // Call both AI endpoints
+        const ideaData = await postJSON("/api/ai/ideas", { keyword });
+
+        // Save results in memory
+        storedIdeas = [];
+
+        Object.entries(ideaData.ideas || {}).forEach(([category, arr]) => {
+            arr.forEach(text => {
+                storedIdeas.push({
+                    text,
+                    category,
+                    flag: "" // will be filled by evaluation
+                });
+            });
+        });
+
+        if (!storedIdeas.length) {
+          console.warn("No ideas to evaluate");
+          return;
+        }
+
+
+        // Now evaluate ideas
+        const evalData = await postJSON("/api/ai/evaluate-ideas", {
+            ideas: storedIdeas.map(i => i.text),
+            niche: document.getElementById("ideaInput").value.trim()
+        });
+
+        // Apply flags to each idea
+        storedIdeas.forEach(item => {
+          const r = evalData.results.find(x => x.text === item.text);
+          if (!r) return;
+
+          item.score = r.score;
+          item.label = r.label;     // RECOMMENDED | RISKY | OUTDATED
+          item.signals = r.signals || [];
+        });
+
+
+        renderCombined();
+
+    } catch (err) {
+        alert("AI error: " + err.message);
+        console.error(err);
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Generate Ideas + Kittl Phrases (AI)";
+});
+
+
+function renderIdeasOnly() {
+  const out = document.getElementById("ideasList");
+  out.innerHTML = "";
+
+  // 🔥 SORT ideas: highest score → lowest score
+  const sorted = [...storedIdeas].sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  sorted.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "idea-card selectable";
+
+    // highlight styles
+    let highlight = "";
+    if (item.flag === "TRENDING") highlight = "background:#ecfdf5;border:2px solid #10b981;";
+    if (item.flag === "VIRAL") highlight = "background:#eff6ff;border:2px solid #3b82f6;";
+    if (item.flag === "OUTDATED") highlight = "background:#fef2f2;border:2px solid #ef4444;";
+
+    card.style = highlight;
+
+    card.innerHTML = `
+      <h3>${item.text}</h3>
+      ${renderBadge(item)}
+      <div class="small muted" style="margin-top:6px">
+        Score: <strong>${item.score}/100</strong><br>
+        ${item.signals.map(s => `<span class="pill">${s}</span>`).join("")}
+      </div>
+
+      ${
+        item.flag
+          ? `<div style="margin-top:6px;font-size:12px;font-weight:bold;color:#111;">
+              ${
+                item.flag === "TRENDING" ? "🔥 Trending Now" :
+                item.flag === "VIRAL" ? "🚀 Viral Pick" :
+                "⚠️ Outdated – Avoid This"
+              }
+            </div>`
+          : ""
+      }
+    `;
+
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".idea-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      selectedPhrase = item.text;
+
+      autofillEtsyListingFields({
+        phrase: item.text,
+        products: ["t-shirt"]
+      });
+    });
+
+    out.appendChild(card);
+  });
+}
+
+
+
+function renderBadge(item) {
+  if (item.label === "RECOMMENDED")
+    return `<div class="badge" style="background:#dcfce7;color:#166534">
+      ✅ Recommended for Etsy
+    </div>`;
+
+  if (item.label === "RISKY")
+    return `<div class="badge" style="background:#fef9c3;color:#854d0e">
+      ⚠️ Risky / Saturated
+    </div>`;
+
+  if (item.label === "OUTDATED")
+    return `<div class="badge" style="background:#fee2e2;color:#991b1b">
+      ❌ Outdated
+    </div>`;
+
+  return "";
+}
+
+
+
+function renderCombined() {
+    const out = document.getElementById("ideasList");
+    out.innerHTML = "";
+
+    // Render highlighted ideas first
+    renderIdeasOnly();
+   
+}
+
+
+document.getElementById("genDesignBriefBtn").addEventListener("click", async () => {
+    const phrase = resolvePhrase?.();
+    if (!phrase) {
+      alert("Please select a phrase first.");
+      return;
+    }
+
+    const niche = phrase;
+
+    const btn = document.getElementById("genDesignBriefBtn");
+    const out = document.getElementById("designBriefResults");
+    const idea = document.getElementById("ideaInput").value;
+
+    console.log("Generating brief for:", { idea, phrase, niche });
+
+    btn.disabled = true;
+    btn.textContent = "Generating...";
+    out.innerHTML = "";
+
+    try {
+        const data = await postJSON("/api/ai/design-brief", { idea, phrase, niche });
+        if (!data.brief) {
+            out.innerHTML = `<div class="muted">⚠ AI returned an empty brief. Try again.</div>`;
+            btn.disabled = false;
+            btn.textContent = "Generate Complete Design Brief (AI)";
+            return;
+        }
+
+        const b = data.brief;
+
+
+        // ----- RENDER UI -----
+        const colorsHTML = b.color_palette
+            .map(c => `<span class="color-dot" style="background:${c}"></span>`)
+            .join("");
+        
+            const examplesHTML = b.example_designs
+            .map(url => `<div><a href="${url}" target="_blank">${url}</a></div>`)
+            .join("");
+
+        const card = document.createElement("div");
+        card.className = "idea-card";
+        card.innerHTML = `
+            <h3>Complete Design Brief</h3>
+            <p><strong>Idea:</strong> ${b.idea || idea}</p>
+            <p><strong>Phrase:</strong> ${b.phrase}</p>
+            <p><strong>Style Direction:</strong> ${b.style_direction}</p>
+            <p><strong>Font Pairing:</strong><br>
+                ${b.font_pairing.map(f => `<span class="pill">${f}</span>`).join("")}
+            </p>
+            <p><strong>Color Palette:</strong><br>${colorsHTML}</p>
+            <p><strong>Layout:</strong> ${b.layout}</p>
+            <p><strong>Illustration:</strong><br>
+                ${b.illustration.map(i => `<span class="pill">${i}</span>`).join("")}
+            </p>
+            <p><strong>Texture:</strong> ${b.texture}</p>
+            <p><strong>Products:</strong><br>
+                ${b.products.map(p => `<span class="pill">${p}</span>`).join("")}
+            </p>
+            <p><strong>Mockup Prompt:</strong><br>${b.mockup_prompt}</p>
+            <p><strong>SEO Title:</strong><br>${b.seo_title}</p>
+            <p><strong>Tags:</strong><br>
+                ${b.tags.map(t => `<span class="pill">${t}</span>`).join("")}
+            </p>
+            <p><strong>Example Designs:</strong><br>
+                ${examplesHTML}
+            </p>
+
+        `;
+
+        out.appendChild(card);
+
+        // ----- SAVE FILE (MUST BE HERE BECAUSE b EXISTS HERE) -----
+        const safeName = phrase.replace(/[^a-z0-9\- ]/gi, "_").replace(/ /g, "_");
+        const filename = `${safeName}.json`;
+
+        await fetch("/save-brief", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                filename,
+                content: b     // <-- b is valid here
+            })
+        });
+
+        alert(`Saved to briefing/${filename}`);
+
+        window._lastDesignBrief = data.brief;
+
+    } catch (err) {
+        console.error(err);
+        alert("AI error: " + err.message);
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Generate Complete Design Brief (AI)";
+
+});
+
+// ==============================
+// Trend Pack (Per-Phrase Design Systems) — UPDATED WITH REDBUBBLE SUPPORT
+// ==============================
+
+window._allDesignSystems = [];
+window._selectedDesignIndex = null;
+
+/* Escape helper */
+function esc(s){ 
+  return (""+s).replace(/[&<>"]/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
+  }[c])); 
+}
+
+/* Render the 5 design systems into the "designPackResult" div */
+function renderTrendPack(pack){
+  const container = document.getElementById("designPackResult");
+  const designs = pack.designs || [];
+
+  window._allDesignSystems = designs;
+  window._selectedDesignIndex = null;
+
+  if (!designs.length){
+    container.innerHTML = "<p class='muted'>No design systems returned.</p>";
+    return;
+  }
+
+  let html = `<h2>Design Pack for: ${esc(pack.trend)}</h2><div style="margin-top:12px" class="trend-results">`;
+
+  designs.forEach((sys, i) => {
+    const primaryColors = (sys.color_system?.primary || []).slice(0,3);
+
+    html += `
+      <div class="panel trend-card"
+           id="ds-${i}"
+           onclick="selectDesignSystem(${i})"
+           style="margin-bottom:16px;
+                  padding:16px;
+                  border:1px solid #e3e3e3;
+                  border-radius:12px;
+                  background:#fff;
+                  cursor:pointer;">
+
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:18px;font-weight:600;">${esc(sys.phrase)}</div>
+            <div style="font-size:13px;color:#777;">
+              ${esc(sys.brand_style?.mood || "")}
+            </div>
+          </div>
+
+          <button class="outline-btn"
+                  onclick="event.stopPropagation(); viewDesignSystem(${i})">
+            View System
+          </button>
+        </div>
+
+        <!-- Colors -->
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          ${primaryColors.map(c => `
+            <div class="color-swatch"
+                 title="Click to copy ${c}"
+                 onclick="event.stopPropagation(); navigator.clipboard.writeText('${c}')"
+                 style="background:${c};
+                        color:#fff;
+                        padding:6px 10px;
+                        border-radius:6px;
+                        font-size:12px;
+                        border:1px solid #ddd;">
+              ${c}
+            </div>
+          `).join("")}
+        </div>
+
+        <!-- Meta -->
+        <div style="margin-top:10px;font-size:13px;color:#555;">
+          <strong>Primary Font:</strong> ${esc(sys.typography_system?.primary || "")}<br>
+          <strong>Illustration:</strong> ${esc(sys.illustration_system?.style || "")}
+        </div>
+
+        <!-- Example URLs -->
+        <div style="margin-top:12px;font-size:13px;">
+          <strong>Example URLs:</strong>
+          <div><a target="_blank" href="${sys.example_urls?.pinterest?.[0] || "#"}">Pinterest</a></div>
+          <div><a target="_blank" href="${sys.example_urls?.kittl?.[0] || "#"}">Kittl</a></div>
+          <div><a target="_blank" href="${sys.example_urls?.freepik?.[0] || "#"}">Freepik</a></div>
+          <div><a target="_blank" href="${sys.example_urls?.etsy?.[0] || "#"}">Etsy</a></div>
+          <div><a target="_blank" href="${sys.example_urls?.redbubble?.[0] || "#"}">Redbubble</a></div>
+        </div>
+
+        <!-- AI Prompt Output (hidden until generated) -->
+        <div class="ai-prompt-box"
+            id="aiPromptBox-${i}"
+            style="display:none;
+                    margin-top:12px;
+                    padding:12px;
+                    border:1px dashed #ddd;
+                    border-radius:10px;
+                    background:#fafafa;">
+
+          <strong>🎨 AI Design Prompt</strong>
+
+          <textarea id="aiPromptText-${i}"
+                    style="width:100%;
+                          min-height:140px;
+                          margin-top:8px;
+                          padding:10px;
+                          font-size:13px;
+                          line-height:1.5;"
+                    readonly></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn"
+                  onclick="event.stopPropagation(); useDesignSystem(${i})">
+            Use This Design
+          </button>
+
+
+          <button class="outline-btn"
+                  onclick="event.stopPropagation(); downloadDesignSystem(${i})">
+            Download JSON
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`; // end trend-results
+
+  html += `<p class="muted">
+    Tip: click a card to select it, or click “Generate Prompt (AI)” to go straight to creation.
+  </p>`;
+
+  container.innerHTML = html;
+}
+
+async function generatePromptFromDesign(index) {
+  const sys = window._allDesignSystems?.[index];
+  if (!sys) {
+    alert("Design system not found");
+    return;
+  }
+
+  // Normalize data from design system → API payload
+  const payload = {
+    phrase: sys.phrase,
+    style_direction: sys.brand_style?.mood || "",
+
+    font_pairing: [
+      sys.typography_system?.primary,
+      sys.typography_system?.secondary
+    ].filter(Boolean).join(", "),
+
+    color_palette: [
+      ...(sys.color_system?.primary || []),
+      ...(sys.color_system?.secondary || [])
+    ].join(", "),
+
+    idea: document.getElementById("ideaInput").value,
+
+    layout: sys.layout_system?.patterns?.join(", ") || "",
+
+    illustration: (sys.illustration_system?.allowed_elements || []).join(", "),
+
+    texture: sys.texture_system?.effect_level || "",
+
+    products: Object.keys(sys.product_guidelines || {}).join(", "),
+
+    mockup_prompt: sys.mockup_system?.prompts?.[0] || "",
+
+    seo_title: sys.seo?.title || "",
+
+    tags: (sys.seo?.tags || []).join(", ")
+  };
+
+  // Safety check (prevents "Missing phrase" forever)
+  if (!payload.phrase) {
+    alert("Selected design has no phrase.");
+    return;
+  }
+
+  // Call backend to generate cinematic design prompt
+  const res = await postJSON("/api/ai/design-prompt", payload);
+
+  // Display + copy + automation
+  handleGeneratedDesignPrompt(res.prompt);
+}
+
+
+
+/* Show details in the side panel */
+function viewDesignSystem(index) {
+    window._selectedDesignIndex = index;
+    const sys = window._allDesignSystems[index];
+    const box = document.getElementById("designPackDetail");
+
+    if (!sys) {
+        box.innerHTML = "<p class='muted'>Error loading system.</p>";
+        return;
+    }
+
+    // Highlight selected
+    document.querySelectorAll(".panel").forEach(p => p.style.border = "1px solid #e3e3e3");
+    const selectedPanel = document.getElementById(`ds-${index}`);
+    if (selectedPanel) selectedPanel.style.border = "2px solid #111";
+
+    // Build color UI
+    const colorsHTML = (sys.color_system?.primary || [])
+        .map(c => `<span class="color-dot" style="background:${c}" title="Click to copy" onclick="navigator.clipboard.writeText('${c}')"></span>`)
+        .join("");
+
+    const secondaryColorsHTML = (sys.color_system?.secondary || [])
+        .map(c => `<span class="color-dot" style="background:${c}" title="Click to copy" onclick="navigator.clipboard.writeText('${c}')"></span>`)
+        .join("");
+
+    // Example URLs clickable list
+    const exampleLinksHTML = Object.entries(sys.example_urls || {})
+        .map(([site, arr]) => {
+            return arr
+                .map(url => `<div><a href="${url}" target="_blank">${site.toUpperCase()}</a></div>`)
+                .join("");
+        })
+        .join("");
+
+    box.innerHTML = `
+        <h2 style="margin-bottom:10px;">${esc(sys.phrase)}</h2>
+
+        <div class="panel" style="padding:16px;">
+            <h4>Brand Style</h4>
+            <p><strong>Mood:</strong> ${esc(sys.brand_style?.mood || "")}</p>
+            <p><strong>Identity:</strong> ${esc(sys.brand_style?.visual_identity || "")}</p>
+            <p><strong>Lighting:</strong> ${esc(sys.brand_style?.lighting || "")}</p>
+
+            <h4 style="margin-top:12px;">Typography</h4>
+            <div>
+                <span class="pill">${esc(sys.typography_system?.primary || "")}</span>
+                <span class="pill">${esc(sys.typography_system?.secondary || "")}</span>
+                ${sys.typography_system?.display ? `<span class="pill">${esc(sys.typography_system.display)}</span>` : ""}
+            </div>
+
+            <h4 style="margin-top:12px;">Color System</h4>
+            <div><strong>Primary:</strong></div>
+            <div style="margin-bottom:6px;">${colorsHTML}</div>
+
+            <div><strong>Secondary:</strong></div>
+            <div>${secondaryColorsHTML}</div>
+
+            <h4 style="margin-top:12px;">Illustration System</h4>
+            <p><strong>Style:</strong> ${esc(sys.illustration_system?.style || "")}</p>
+            <p><strong>Shading:</strong> ${esc(sys.illustration_system?.shading || "")}</p>
+            <div>
+                <strong>Allowed:</strong><br>
+                ${(sys.illustration_system?.allowed_elements || []).map(e => `<span class="pill">${esc(e)}</span>`).join("")}
+            </div>
+            <div style="margin-top:6px;">
+                <strong>Forbidden:</strong><br>
+                ${(sys.illustration_system?.forbidden_elements || []).map(e => `<span class="pill" style="background:#fee2e2;color:#b91c1c">${esc(e)}</span>`).join("")}
+            </div>
+
+            <h4 style="margin-top:12px;">Layout System</h4>
+            <p><strong>Patterns:</strong></p>
+            <div>${(sys.layout_system?.patterns || []).map(p => `<span class="pill">${esc(p)}</span>`).join("")}</div>
+
+            <h4 style="margin-top:12px;">Mockup Prompts</h4>
+            <div style="white-space:pre-line; background:#f8fafc; padding:8px; border-radius:6px;">
+                ${(sys.mockup_system?.prompts || []).join("\n")}
+            </div>
+
+            <h4 style="margin-top:12px;">SEO</h4>
+            <p><strong>Title:</strong> ${esc(sys.seo?.title || "")}</p>
+            <p><strong>Tags:</strong><br>${(sys.seo?.tags || []).map(t => `<span class="pill">${esc(t)}</span>`).join("")}</p>
+
+            <h4 style="margin-top:12px;">Example URLs</h4>
+            ${exampleLinksHTML}
+
+            <div style="margin-top:18px;">
+                <button class="btn" onclick="selectDesignSystem(${index})">Use This Design</button>
+                <button class="outline-btn" onclick="downloadDesignSystem(${index})">Download JSON</button>
+            </div>
+        </div>
+    `;
+}
+
+/* Select design system to use for other modules */
+function selectDesignSystem(index){
+  const sys = window._allDesignSystems[index];
+  if (!sys) return alert("Error: system not found");
+
+  window._selectedDesignIndex = index;
+
+  document.getElementById("selectedPhraseDisplay").textContent = sys.phrase;
+  alert(`Selected design phrase: "${sys.phrase}"`);
+  window._selectedDesignSystem = window._allDesignSystems[index];
+
+  autofillEtsyListingFields({
+    phrase: window._selectedDesignSystem.phrase,
+    brand_style: window._selectedDesignSystem.brand_style,
+    style_direction: window._selectedDesignSystem.style_direction,
+    products: Object.keys(window._selectedDesignSystem.product_guidelines || {})
+  });
+
+}
+
+/* Download JSON for a single design */
+function downloadDesignSystem(index){
+  const sys = window._allDesignSystems[index];
+  if (!sys) return;
+
+  const blob = new Blob([JSON.stringify(sys, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${sys.phrase.replace(/\s+/g,"_")}_design.json`;
+  a.click();
+}
+
+/* MAIN: Generate Design Pack */
+document.getElementById("genTrendPackBtn").addEventListener("click", async () => {
+
+  // Use selected trend card instead of input
+  const selectedCard = document.querySelector(".trend-card.selected");
+
+  if (!selectedCard) {
+      alert("Please select a trend card first!");
+      return;
+  }
+
+  const trend = selectedCard.dataset.event?.trim()
+              || selectedCard.querySelector(".trend-title")?.textContent.trim()
+              || selectedCard.textContent.trim();
+
+  const btn = document.getElementById("genTrendPackBtn");
+  btn.disabled = true;
+  btn.textContent = "Generating...";
+
+  try {
+    const data = await postJSON("/api/ai/trend-pack", { trend });
+
+    // Normalize pack format (backend safety)
+    const pack = data.pack || {};
+    pack.designs = Array.isArray(pack.designs)
+      ? pack.designs
+      : Array.isArray(data.designs)
+        ? data.designs
+        : [];
+
+    if (!pack.designs.length) {
+      console.error("Bad pack:", data);
+      alert("Invalid pack format.");
+      return;
+    }
+
+    renderTrendPack(data.pack);
+
+  } catch (err){
+    alert("AI Error: " + err.message);
+    console.error(err);
+  }
+
+  btn.disabled=false;
+  btn.textContent="Generate Design Pack (AI)";
+});
+
+async function generateAIDesignPrompt(designBrief) {
+  const res = await postJSON("/api/ai/design-prompt", {
+    idea: designBrief.idea,
+    phrase: designBrief.phrase,
+    style_direction: designBrief.style_direction,
+    font_pairing: designBrief.font_pairing.join(", "),
+    color_palette: designBrief.color_palette.join(", "),
+    layout: designBrief.layout,
+    illustration: designBrief.illustration.join(", "),
+    texture: designBrief.texture,
+    products: designBrief.products.join(", "),
+    mockup_prompt: designBrief.mockup_prompt,
+    seo_title: designBrief.seo_title,
+    tags: designBrief.tags.join(", ")
+  });
+
+  return res.prompt;
+}
+
+
+// ==============================
+// Shared: Handle AI Design Prompt
+// ==============================
+function handleGeneratedDesignPrompt(prompt) {
+  if (!prompt) {
+    alert("No prompt generated");
+    return;
+  }
+
+  // Show prompt UI
+  document.getElementById("aiDesignPromptBox").style.display = "block";
+  document.getElementById("aiDesignPromptText").value = prompt;
+
+  // Copy + automation
+  document.getElementById("copyAIDesignPromptBtn").onclick = async () => {
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+  
+    // 1️⃣ Copy prompt (user gesture)
+    await navigator.clipboard.writeText(prompt);
+  
+    // 2️⃣ Ask extension to open Artistly + run automation
+    if (window.chrome?.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        {
+          type: "OPEN_ARTISTLY",
+          prompt
+        },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not found, using fallback");
+            window.open(
+              "https://app.artistly.ai/ai/image-designer-v6",
+              "_blank"
+            );
+          }
+        }
+      );
+    } else {
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+  };
+}
+
+window.useDesignSystem = async function (index) {
+  const sys = window._allDesignSystems?.[index];
+  if (!sys) return alert("Design system not found");
+
+  // Build payload (same as Generate Prompt)
+  const payload = {
+    phrase: sys.phrase,
+    style_direction: sys.brand_style?.mood || "",
+    font_pairing: [
+      sys.typography_system?.primary,
+      sys.typography_system?.secondary
+    ].filter(Boolean).join(", "),
+    color_palette: [
+      ...(sys.color_system?.primary || []),
+      ...(sys.color_system?.secondary || [])
+    ].join(", "),
+    layout: sys.layout_system?.patterns?.join(", "),
+    illustration: (sys.illustration_system?.allowed_elements || []).join(", "),
+    texture: sys.texture_system?.effect_level || "",
+    products: Object.keys(sys.product_guidelines || {}).join(", "),
+    mockup_prompt: sys.mockup_system?.prompts?.[0] || "",
+    seo_title: sys.seo?.title || "",
+    tags: (sys.seo?.tags || []).join(", ")
+  };
+
+  // Generate cinematic prompt
+  const res = await postJSON("/api/ai/design-prompt", payload);
+  if (!res?.prompt) {
+    alert("AI failed to generate prompt");
+    return;
+  }
+
+  // Show prompt INSIDE the card
+  const box = document.getElementById(`aiPromptBox-${index}`);
+  const textarea = document.getElementById(`aiPromptText-${index}`);
+
+  if (box && textarea) {
+    textarea.value = res.prompt;
+    box.style.display = "block";
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // Copy prompt
+  await navigator.clipboard.writeText(res.prompt);
+
+  // Open Artistly (extension → fallback)
+  const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+
+  if (window.chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage(
+      EXTENSION_ID,
+      { type: "OPEN_ARTISTLY", prompt: res.prompt },
+      () => {
+        if (chrome.runtime.lastError) {
+          window.open(
+            "https://app.artistly.ai/ai/image-designer-v6",
+            "_blank"
+          );
+        }
+      }
+    );
+  } else {
+    window.open(
+      "https://app.artistly.ai/ai/image-designer-v6",
+      "_blank"
+    );
+  }
+};
+
+
+document.getElementById("mockupPrompts").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  const wrapper = btn.closest("div");
+  if (!wrapper) {
+    alert("Prompt container not found");
+    return;
+  }
+
+  // Extract prompt text (remove "Copy")
+  let prompt = wrapper.textContent.replace("Copy", "").trim();
+
+  if (!prompt) {
+    alert("Prompt is empty");
+    return;
+  }
+
+  const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl"; // your extension ID
+
+  try {
+    // 1️⃣ Copy to clipboard (user gesture ✅)
+    await navigator.clipboard.writeText(prompt);
+    console.log(prompt);
+    // 2️⃣ Trigger Artistly mockup automation
+    if (window.chrome?.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        {
+          type: "RUN_ARTISTLY_MOCKUP_AUTOMATION",
+          prompt
+        },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not found, opening Artistly");
+            window.open(
+              "https://app.artistly.ai/ai/image-designer-v6",
+              "_blank"
+            );
+          }
+        }
+      );
+    } else {
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+
+    // Optional UX feedback
+    // btn.textContent = "Sent ✓";
+    // btn.disabled = true;
+
+  } catch (err) {
+    console.error("Mockup copy failed", err);
+    alert("Failed to send prompt to Artistly");
+  }
+});
+
+
+
+function autofillEtsyListingFields(source) {
+  const titleInput = document.getElementById("etsyTitleHint");
+  const keywordInput = document.getElementById("etsyKeywords");
+  const featuresInput = document.getElementById("etsyFeatures");
+
+  if (!titleInput || !keywordInput || !featuresInput) return;
+
+  // ---- Title ----
+  if (source.phrase) {
+    titleInput.value = source.phrase;
+  }
+
+  // ---- Keywords (max Etsy-friendly) ----
+  const keywords = [];
+
+  if (source.phrase) {
+    keywords.push(source.phrase.toLowerCase());
+  }
+
+  if (source.brand_style?.mood) {
+    keywords.push(source.brand_style.mood.toLowerCase());
+  }
+
+  if (source.style_direction) {
+    keywords.push(source.style_direction.toLowerCase());
+  }
+
+  if (source.products?.length) {
+    keywords.push(...source.products.map(p => p.toLowerCase()));
+  }
+
+  // Remove duplicates + limit length
+  const cleanKeywords = [...new Set(keywords)]
+    .map(k => k.replace(/[^a-z0-9 ]/gi, ""))
+    .filter(Boolean)
+    .slice(0, 10);
+
+  keywordInput.value = cleanKeywords.join(", ");
+
+  // ---- Features / files ----
+  featuresInput.value = "PNG, SVG, 4500x5400 PNG";
+}
+
+
+  const variationInput = document.getElementById("variationInput");
+  const generateVariationBtn = document.getElementById("generateVariationBtn");
+  const regenBtn = document.getElementById("regenPromptBtn");
+  const aiDesignPromptText = document.getElementById("aiDesignPromptText");
+
+  variationInput.addEventListener("input", () => {
+    generateVariationBtn.disabled = !variationInput.value.trim();
+  });
+
+  generateVariationBtn.onclick = async () => {
+  const ideaText = document.getElementById("variationInput").value.trim();
+  const ideaKeyword = document.getElementById("ideaInput").value.trim();
+  const phrase = resolvePhrase?.();
+
+  // Pull illustration from latest design brief
+  const brief = window._lastDesignBrief || null;
+  const illustration = brief?.illustration || [];
+
+  console.log("============== VARIATION REQUEST ==============");
+  console.log({
+    phrase,
+    idea: ideaText,
+    keyword: ideaKeyword,
+    illustration
+  });
+
+  if (!phrase) return alert("Select a phrase first");
+  if (!ideaText) return alert("Type something in the variation box first");
+
+  const res = await postJSON("/api/ai/design-variation", {
+    phrase,
+    idea: ideaText,
+    keyword: ideaKeyword,
+    illustration
+  });
+
+  document.getElementById("variationResult").value = res.prompt;
+};
+
+
+
+regenBtn.onclick = async () => {
+  const ideaText = document.getElementById("aiDesignPromptText").value.trim();
+  const ideaKeyword = document.getElementById("ideaInput").value.trim();
+  const phrase = resolvePhrase?.();
+
+  // Grab illustration from the most recent generated brief
+  const brief = window._lastDesignBrief || null;
+  const illustration = brief?.illustration || [];
+
+  console.log("============== REGEN REQUEST ==============");
+  console.log({
+    phrase,
+    idea: ideaText,
+    keyword: ideaKeyword,
+    illustration
+  });
+
+  if (!phrase) return alert("Select a phrase first");
+  if (!ideaText) return alert("Type something in the variation box first");
+
+  const res = await postJSON("/api/ai/design-variation", {
+    phrase,
+    idea: ideaText,
+    keyword: ideaKeyword,
+    illustration
+  });
+
+  document.getElementById("aiDesignPromptText").value = res.prompt;
+};
+
+
+
+  function toggleRegenPromptBtn() {
+    if (!aiDesignPromptText || !regenBtn) return;
+
+    const hasText = aiDesignPromptText.value.trim().length > 0;
+    regenBtn.disabled = !hasText;
+  }
+
+  // run on load
+  toggleRegenPromptBtn();
+
+  // update as user types
+  aiDesignPromptText.addEventListener("input", toggleRegenPromptBtn);
+
+
+  
+
+
+  document.getElementById("copyAIDesignPromptBtn").onclick = async () => {
+    const prompt = document.getElementById("aiDesignPromptText").value;
+    if (!prompt) return alert("No variation prompt yet");
+
+    await navigator.clipboard.writeText(prompt); 
+
+    if (!prompt) {
+      alert("No prompt generated yet");
+      return;
+    }
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl"; // Artistly Extension ID
+
+    await navigator.clipboard.writeText(prompt);
+
+    if (window.chrome?.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: "OPEN_ARTISTLY", prompt },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not found, using fallback");
+            window.open(
+              "https://app.artistly.ai/ai/image-designer-v6",
+              "_blank"
+            );
+          }
+        }
+      );
+    } else {
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+  };
+
+  document.getElementById("copyVariationBtn").onclick = async () => {
+    const prompt = document.getElementById("variationResult").value;
+    if (!prompt) return alert("No variation prompt yet");
+
+    await navigator.clipboard.writeText(prompt); 
+
+    if (!prompt) {
+      alert("No prompt generated yet");
+      return;
+    }
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl"; // Artistly Extension ID
+
+    await navigator.clipboard.writeText(prompt);
+
+    if (window.chrome?.runtime?.sendMessage) {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: "OPEN_ARTISTLY", prompt },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not found, using fallback");
+            window.open(
+              "https://app.artistly.ai/ai/image-designer-v6",
+              "_blank"
+            );
+          }
+        }
+      );
+    } else {
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+  };
+
+
+  const cloneMockupBtn = document.getElementById("cloneMockupBtn");
+  const mockupCloneBox = document.getElementById("mockupCloneBox");
+
+  cloneMockupBtn.addEventListener("click", () => {
+
+      // reuse same clone function
+      runArtistlyClone();
+
+      // show textarea
+      mockupCloneBox.style.display = "block";
+  });
+
+  document.getElementById("artistlyVariationBtn").addEventListener("click", runArtistlyClone);
+
+  function runArtistlyClone() {
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+
+    // Open Artistly
+    // const win = window.open(
+    //   "https://app.artistly.ai/ai/image-designer-v6",
+    //   "_blank"
+    // );
+
+    // wait a bit so content script loads
+    setTimeout(() => {
+      console.log("Sending RUN_ARTISTLY_CLONE message");
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: "RUN_ARTISTLY_CLONE" },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not ready:", chrome.runtime.lastError);
+          }
+        }
+      );
+    }, 1000);
+  };
+
+  document.getElementById("copyVariationStyleBtn").onclick = async () => {
+    const prompt = document.getElementById("variationResult").value;
+    if (!prompt) return alert("No variation prompt yet");
+
+    await navigator.clipboard.writeText(prompt);
+
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+
+    chrome.runtime.sendMessage(
+      EXTENSION_ID,
+      { type: "RUN_ARTISTLY_STYLE", prompt },
+      () => {}
+    );
+  };
+
+
+  document.getElementById("artistlyMixBtn").onclick = () => {
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+
+    setTimeout(() => {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: "RUN_ARTISTLY_MIX" },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not ready:", chrome.runtime.lastError);
+          }
+        }
+      );
+    }, 800);
+  };
+
+  document.getElementById("artistlyChooseBtn").onclick = () => {
+    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+
+    setTimeout(() => {
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: "RUN_ARTISTLY_MIX" },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not ready:", chrome.runtime.lastError);
+          }
+        }
+      );
+    }, 800);
+  };
+
+
+
+  document.getElementById("suggestNichesBtn").addEventListener("click", async () => {
+
+const btn = document.getElementById("suggestNichesBtn");
+const box = document.getElementById("suggestedNiches");
+
+btn.disabled = true;
+btn.textContent = "Thinking…";
+
+try {
+  const data = await postJSON("/api/ai/suggest-niches", {});
+
+  let list = data?.niches || [];
+
+  // sort by score high → low
+  list = list.sort((a, b) => b.score - a.score).slice(0, 5);
+
+  box.innerHTML = `
+    <h4>🔥 Top suggested niches</h4>
+    ${list
+      .map(
+        n => `
+      <div class="niche-card" 
+          style="border:1px solid #ddd;padding:8px;margin:6px;border-radius:8px;cursor:pointer">
+
+        <div style="font-weight:bold">${n.niche}</div>
+        <div style="font-size:12px">Score: ${n.score}/100</div>
+        <div style="font-size:12px;color:#666">${n.reason}</div>
+      </div>
+    `
+      )
+      .join("")}
+  `;
+
+  // click → auto-fill niche search input
+  [...box.querySelectorAll(".niche-card")].forEach(card => {
+    card.onclick = () => {
+      const text = card.querySelector("div").textContent;
+      document.getElementById("nicheInput").value = text;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+  });
+
+} catch (err) {
+  alert("AI error: " + err.message);
+  console.error(err);
+}
+
+btn.disabled = false;
+btn.textContent = "Suggest 5 High-Opportunity Niches (AI)";
+});
+
+// ----------------- Daily Planner -----------------
+// ----------------- STORAGE -----------------
+const plannerKey = "planner.v1";
+
+function loadPlanner() {
+  try {
+    return JSON.parse(localStorage.getItem(plannerKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function savePlanner(data) {
+  localStorage.setItem(plannerKey, JSON.stringify(data));
+}
+
+let planner = loadPlanner();
+
+
+// ----------------- PROGRESS BAR -----------------
+function updateProgress() {
+  const goal = Number(document.getElementById("plannerGoal").value) || 0;
+  const current = Number(document.getElementById("plannerCurrentSales").value) || 0;
+
+  const pct = goal ? Math.min(100, Math.round((current / goal) * 100)) : 0;
+
+  document.getElementById("plannerProgressBar").style.width = pct + "%";
+
+  let msg = "";
+
+  if (!goal) msg = "";
+  else if (pct === 0) msg = "Let’s get your first sale!";
+  else if (pct < 25) msg = "You’re building momentum.";
+  else if (pct < 60) msg = "Consistent work is paying off.";
+  else if (pct < 100) msg = "Closing in. Keep publishing.";
+  else msg = "Goal reached. Time for the next milestone.";
+
+  document.getElementById("plannerProjection").textContent = msg;
+
+  planner.goal = goal;
+  planner.current = current;
+  savePlanner(planner);
+}
+
+
+// ----------------- CHECKLIST -----------------
+function buildChecklist() {
+  const wrap = document.getElementById("plannerChecklist");
+  wrap.innerHTML = "";
+
+  const items = [
+    { key: "designs", label: "Create a new design" },
+    { key: "listing", label: "Publish or update a listing" },
+    { key: "research", label: "Research a niche or keyword" },
+    { key: "mockup", label: "Create at least one mockup" },
+    { key: "promo", label: "Post or share your product" },
+    { key: "improve", label: "Optimize something old" }
+  ];
+
+  planner.today = planner.today || {};
+
+  items.forEach(item => {
+    const row = document.createElement("div");
+    row.style.marginBottom = "6px";
+
+    row.innerHTML = `
+      <label style="display:flex;gap:8px;align-items:center;">
+        <input type="checkbox" ${planner.today[item.key] ? "checked" : ""} />
+        ${item.label}
+      </label>
+    `;
+
+    const cb = row.querySelector("input");
+    cb.onchange = () => {
+      planner.today[item.key] = cb.checked;
+      savePlanner(planner);
+    };
+
+    wrap.appendChild(row);
+  });
+}
+
+
+// ----------------- RESET DAY -----------------
+document.getElementById("plannerResetDay").onclick = () => {
+  planner.today = {};
+  savePlanner(planner);
+  buildChecklist();
+};
+
+
+// ----------------- QUICK ACTIONS -----------------
+document.getElementById("plannerGoIdeas").onclick = () => show("ideas");
+document.getElementById("plannerGoNiche").onclick = () => show("niche");
+document.getElementById("plannerGoBrief").onclick = () => show("ideas");
+document.getElementById("plannerGoListing").onclick = () => show("etsy");
+document.getElementById("plannerGoMockup").onclick = () => show("mockup");
+
+
+// ----------------- WEEKLY REVIEW -----------------
+planner.reviews = planner.reviews || [];
+
+document.getElementById("plannerSaveNotes").onclick = () => {
+  const text = document.getElementById("plannerWeeklyNotes").value.trim();
+  if (!text) return;
+
+  planner.reviews.push({
+    text,
+    date: new Date().toISOString()
+  });
+
+  document.getElementById("plannerWeeklyNotes").value = "";
+  savePlanner(planner);
+  renderReviews();
+};
+
+function renderReviews() {
+  const out = document.getElementById("plannerReviewHistory");
+  out.innerHTML = "";
+
+  planner.reviews.slice().reverse().forEach(r => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="small muted">${new Date(r.date).toLocaleDateString()}</div>
+      <div style="margin-top:4px;">${r.text}</div>
+    `;
+    out.appendChild(div);
+  });
+}
+
+
+// ----------------- INIT -----------------
+function initPlanner() {
+  document.getElementById("plannerGoal").value = planner.goal ?? 100;
+  document.getElementById("plannerCurrentSales").value = planner.current ?? 0;
+
+  updateProgress();
+  buildChecklist();
+  renderReviews();
+
+  document.getElementById("plannerGoal").oninput = updateProgress;
+  document.getElementById("plannerCurrentSales").oninput = updateProgress;
+}
+
+initPlanner();
+
+
+
+</script>
+  </body>
+</html>
