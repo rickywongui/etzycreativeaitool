@@ -4,6 +4,7 @@
 // ==========================================
 
 let lastPromptValue = null;
+let lastQuantityValue = 4; // 👈 NEW
 
 chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     console.log("🚀 Running mockup automation 2");
@@ -210,6 +211,7 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     if (msg.type === "RUN_ARTISTLY_STYLE") {
         console.log("🎨 RUN_ARTISTLY_STYLE received");
         lastPromptValue = msg.prompt;
+        lastQuantityValue = msg.quantity ?? 4;
 
         const URL = "https://app.artistly.ai/ai/image-designer-v6";
 
@@ -237,7 +239,8 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
                             tab.id,
                             {
                                 type: "RUN_ARTISTLY_STYLE_STEP1",
-                                prompt: lastPromptValue
+                                prompt: lastPromptValue,
+                                quantity: lastQuantityValue
                             },
                             resp => {
                                 if (chrome.runtime.lastError) {
@@ -385,7 +388,8 @@ chrome.tabs.onUpdated.addListener((id, info, tab) => {
 
     chrome.tabs.sendMessage(id, {
         type: "RUN_ARTISTLY_STYLE_STEP2",
-        prompt: lastPromptValue
+        prompt: lastPromptValue,
+        quantity: lastQuantityValue   // 👈 ADD THIS
     });
 });
 

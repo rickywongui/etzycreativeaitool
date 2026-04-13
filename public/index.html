@@ -1015,6 +1015,15 @@
             id="aiDesignPromptText"
             rows="8"
             style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;"></textarea>
+          <div class="control-group">
+            <label for="styleQuantity">Quantity:</label>
+            <select id="styleQuantity">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+            </select>
+          </div>
 
           <div style="margin-top:8px;display:flex;gap:8px;">
             <button id="artistlyChooseBtn">Choose style with Artistly</button>
@@ -4268,21 +4277,28 @@ function activateInList(listId, value){
 
 
 document.getElementById("copyVariationStyleIdeaBtn").onclick = async () => {
-    const prompt = document.getElementById("aiDesignPromptText").value;
-    if (!prompt) return alert("No variation prompt yet");
+  const prompt = document.getElementById("aiDesignPromptText").value;
+  if (!prompt) return alert("No variation prompt yet");
 
-    await navigator.clipboard.writeText(prompt);
+  // 👇 get quantity from UI
+  const quantity = Number(document.getElementById("styleQuantity").value) || 4;
 
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+  await navigator.clipboard.writeText(prompt);
 
-    chrome.runtime.sendMessage(
-      EXTENSION_ID,
-      { type: "RUN_ARTISTLY_STYLE", prompt },
-      () => {}
-    );
-  };
+  const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
 
-  document.querySelectorAll(".slot-value.editable").forEach(el => {
+  chrome.runtime.sendMessage(
+    EXTENSION_ID,
+    {
+      type: "RUN_ARTISTLY_STYLE",
+      prompt,
+      quantity   // 👈 pass it here
+    },
+    () => {}
+  );
+};
+
+document.querySelectorAll(".slot-value.editable").forEach(el => {
 
   el.addEventListener("input", () => {
 

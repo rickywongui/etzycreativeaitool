@@ -171,7 +171,7 @@ async function clickByCardLabel(labelText) {
 // ==============================
 // DESIGN PROMPT AUTOMATION
 // ==============================
-async function runArtistlyAutomation(prompt) {
+async function runArtistlyAutomation(prompt, quantity = 4) {
     if (!prompt) throw new Error("Missing prompt");
 
     console.log("🚀 Running design prompt automation");
@@ -197,7 +197,7 @@ async function runArtistlyAutomation(prompt) {
         "Quantity select"
     );
 
-    qty.value = "4";
+    qty.value = String(quantity);
     qty.dispatchEvent(new Event("change", { bubbles: true }));
     console.log("🔢 Quantity set to 4");
 
@@ -478,9 +478,12 @@ if (!window.__ARTISTLY_LISTENER__) {
         }
 
         if (msg.type === "RUN_ARTISTLY_AUTOMATION") {
-            runArtistlyAutomation(msg.prompt)
+            const quantity = msg.quantity ?? 4; // default fallback
+
+            runArtistlyAutomation(msg.prompt, quantity)
                 .then(() => sendResponse({ ok: true }))
                 .catch(err => sendResponse({ error: String(err) }));
+
             return true;
         }
 
@@ -810,6 +813,8 @@ if (!window.__ARTISTLY_LISTENER__) {
         if (msg.type === "RUN_ARTISTLY_STYLE_STEP2") {
             console.log("🎨 STEP 2: Fill + Generate");
 
+            const quantity = msg.quantity ?? 4; // 👈 NEW (fallback)
+
             (async () => {
                 const textarea = await waitFor(
                     () =>
@@ -828,8 +833,11 @@ if (!window.__ARTISTLY_LISTENER__) {
                     "Quantity select"
                 );
 
-                qty.value = "4";
+                // 👇 dynamic quantity
+                qty.value = String(quantity);
                 qty.dispatchEvent(new Event("change", { bubbles: true }));
+
+                console.log(`🔢 Quantity set to ${quantity}`);
 
                 const btn = await waitFor(
                     () =>
@@ -845,10 +853,6 @@ if (!window.__ARTISTLY_LISTENER__) {
 
             return true;
         }
-
-
-
-
     });
 }
 
