@@ -394,9 +394,13 @@ console.log("🧠 Background loaded");
 function isAppTab(t) {
     try {
         const u = new URL(t.url || "");
+
         return (
-            (u.hostname === "localhost" || u.hostname === "127.0.0.1") &&
-            u.port === "3000"
+            // local
+            (u.hostname === "localhost" && u.port === "3000") ||
+
+            // production
+            u.hostname === "etzycreativeaitool.onrender.com"
         );
     } catch {
         return false;
@@ -465,9 +469,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
         // If not open, open it first
         if (!appTab) {
-            console.log("🆕 Opening localhost:3000");
+            const APP_URL = location.hostname === "localhost"
+                ? "http://localhost:3000"
+                : "https://etzycreativeaitool.onrender.com";
 
-            chrome.tabs.create({ url: "http://localhost:3000" }, newTab => {
+            chrome.tabs.create({ url: APP_URL }, newTab => {
                 chrome.tabs.onUpdated.addListener(function listener(id, info) {
                     if (id === newTab.id && info.status === "complete") {
                         chrome.tabs.onUpdated.removeListener(listener);
