@@ -2586,6 +2586,103 @@ High-quality vector feel, sharp edges, bold clarity, balanced composition, premi
 });
 
 
+
+app.post("/api/ai/design-new-variation", async (req, res) => {
+
+    try {
+
+        const { ideaText } = req.body;
+
+        const prompt = `
+You are an elite Print-On-Demand concept designer generating NEW commercial artwork concepts.
+
+TASK
+Create ONE brand-new POD design concept inspired by the source prompt.
+
+GOAL
+Generate a fresh concept variation every time.
+Each result must feel different in composition, hierarchy, mood, visual treatment, and design execution.
+
+PRESERVE (LOCKED ELEMENTS)
+- Keep Phrase 1 exactly as written.
+- Keep Phrase 2 exactly as written.
+- Keep all required illustration elements from the source prompt.
+- Keep the original thematic intent and emotional meaning.
+
+ALLOWED TO CHANGE
+You may reinvent:
+- Layout composition
+- Typography treatment
+- Phrase hierarchy
+- Graphic balance
+- Negative space usage
+- Visual emphasis
+- Style execution
+- Artistic direction
+- Commercial POD presentation approach
+
+DO NOT
+- Do not alter either phrase.
+- Do not remove required illustration elements.
+- Do not add unrelated objects, symbols, scenery, characters, or environments.
+- Do not repeat or lightly reword the original concept.
+- Do not generate generic filler.
+- Do not describe mockups or products.
+- Do not mention t-shirts, apparel, or merchandise.
+
+STYLE TARGET
+Generate a premium POD-ready concept with:
+- strong visual hook
+- bold vector-friendly clarity
+- clean scalable artwork logic
+- high commercial appeal
+- cinematic composition
+- balanced contrast
+- sharp print-ready execution
+
+OUTPUT FORMAT
+Write ONE flowing paragraph describing only the artwork concept.
+
+MANDATORY
+Every generation must produce a genuinely new concept, not a wording variation.
+
+Source prompt:
+
+        ${ideaText}
+        `;
+
+        const r = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content:
+                        "You professionally refine POD prompts without changing meaning."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ]
+        });
+
+        res.json({
+            prompt: r.choices[0].message.content
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            error: "variation failed"
+        });
+
+    }
+
+});
+
+
 app.use(cors());
 
 app.post("/api/upload-to-drive", upload.array("files"), async (req, res) => {

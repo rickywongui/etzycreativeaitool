@@ -10,6 +10,7 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     console.log("🚀 Running mockup automation 2");
     if (msg.type === "OPEN_ARTISTLY") {
         const URL = "https://app.artistly.ai/ai/image-designer-v6";
+        lastQuantityValue = msg.quantity ?? 4;
 
         chrome.tabs.query({}, tabs => {
             const tab = tabs.find(t => t.url?.startsWith(URL));
@@ -17,7 +18,8 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
             const sendToTab = tabId => {
                 chrome.tabs.sendMessage(tabId, {
                     type: "RUN_ARTISTLY_AUTOMATION",
-                    prompt: msg.prompt
+                    prompt: msg.prompt,
+                    quantity: lastQuantityValue
                 });
             };
 
@@ -41,6 +43,7 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
         sendResponse({ ok: true });
         return true;
     }
+
 
 
     if (
@@ -372,8 +375,6 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
             });
         });
     }
-
-
 });
 
 

@@ -1027,7 +1027,7 @@
 
           <div style="margin-top:8px;display:flex;gap:8px;">
             <button id="artistlyChooseBtn">Choose style with Artistly</button>
-            <button id="regenPromptBtn" disabled>Regenerate Prompt</button>
+            <button id="regenPromptBtn">Regenerate Prompt</button>
             <button id="copyAIDesignPromptBtn" class="outline-btn">Copy
               Prompt</button>
             <button id="copyVariationStyleIdeaBtn">Copy with Style</button>
@@ -3147,34 +3147,62 @@ function autofillEtsyListingFields(source) {
 
 
 
+// regenBtn.onclick = async () => {
+//   const ideaText = document.getElementById("aiDesignPromptText").value.trim();
+//   const ideaKeyword = document.getElementById("ideaInput").value.trim();
+//   const phrase = resolvePhrase?.();
+
+//   // Grab illustration from the most recent generated brief
+//   const brief = window._lastDesignBrief || null;
+//   const illustration = brief?.illustration || [];
+
+//   console.log("============== REGEN REQUEST ==============");
+//   console.log({
+//     phrase,
+//     idea: ideaText,
+//     keyword: ideaKeyword,
+//     illustration
+//   });
+
+//   if (!phrase) return alert("Select a phrase first");
+//   if (!ideaText) return alert("Type something in the variation box first");
+
+//   const res = await postJSON("/api/ai/design-variation", {
+//     phrase,
+//     idea: ideaText,
+//     keyword: ideaKeyword,
+//     illustration
+//   });
+
+//   document.getElementById("aiDesignPromptText").value = res.prompt;
+// };
+
+
 regenBtn.onclick = async () => {
-  const ideaText = document.getElementById("aiDesignPromptText").value.trim();
-  const ideaKeyword = document.getElementById("ideaInput").value.trim();
-  const phrase = resolvePhrase?.();
 
-  // Grab illustration from the most recent generated brief
-  const brief = window._lastDesignBrief || null;
-  const illustration = brief?.illustration || [];
+  const ideaText =
+    document.getElementById("aiDesignPromptText")
+      .value
+      .trim();
 
-  console.log("============== REGEN REQUEST ==============");
-  console.log({
-    phrase,
-    idea: ideaText,
-    keyword: ideaKeyword,
-    illustration
-  });
+  if (!ideaText) {
+    return alert("Type something first");
+  }
 
-  if (!phrase) return alert("Select a phrase first");
-  if (!ideaText) return alert("Type something in the variation box first");
+  console.log("===== REFINING IDEA TEXT =====");
+  console.log({ ideaText });
 
-  const res = await postJSON("/api/ai/design-variation", {
-    phrase,
-    idea: ideaText,
-    keyword: ideaKeyword,
-    illustration
-  });
+  const res = await postJSON(
+    "/api/ai/design-new-variation",
+    {
+      ideaText
+    }
+  );
 
-  document.getElementById("aiDesignPromptText").value = res.prompt;
+  document.getElementById(
+    "aiDesignPromptText"
+  ).value = res.prompt;
+
 };
 
 
@@ -3198,6 +3226,7 @@ regenBtn.onclick = async () => {
 
   document.getElementById("copyAIDesignPromptBtn").onclick = async () => {
     const prompt = document.getElementById("aiDesignPromptText").value;
+    const quantity = Number(document.getElementById("styleQuantity").value) || 4;
     if (!prompt) return alert("No variation prompt yet");
 
     await navigator.clipboard.writeText(prompt); 
@@ -3211,9 +3240,10 @@ regenBtn.onclick = async () => {
     await navigator.clipboard.writeText(prompt);
 
     if (window.chrome?.runtime?.sendMessage) {
+      console.log("Sending OPEN_ARTISTLY message with quantity:", quantity);
       chrome.runtime.sendMessage(
         EXTENSION_ID,
-        { type: "OPEN_ARTISTLY", prompt },
+        { type: "OPEN_ARTISTLY", prompt, quantity },
         () => {
           if (chrome.runtime.lastError) {
             console.warn("Extension not found, using fallback");
@@ -3234,6 +3264,7 @@ regenBtn.onclick = async () => {
 
   document.getElementById("copyVariationBtn").onclick = async () => {
     const prompt = document.getElementById("variationResult").value;
+    const quantity = Number(document.getElementById("styleQuantity").value) || 4;
     if (!prompt) return alert("No variation prompt yet");
 
     await navigator.clipboard.writeText(prompt); 
@@ -3247,9 +3278,10 @@ regenBtn.onclick = async () => {
     await navigator.clipboard.writeText(prompt);
 
     if (window.chrome?.runtime?.sendMessage) {
+      console.log("Sending OPEN_ARTISTLY message with quantity:", quantity);
       chrome.runtime.sendMessage(
         EXTENSION_ID,
-        { type: "OPEN_ARTISTLY", prompt },
+        { type: "OPEN_ARTISTLY", prompt, quantity },
         () => {
           if (chrome.runtime.lastError) {
             console.warn("Extension not found, using fallback");
