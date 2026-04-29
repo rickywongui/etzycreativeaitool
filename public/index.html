@@ -506,6 +506,12 @@
       <h2>Kittl Listing Factory — Vanilla + OpenAI</h2>
       <p class="small">Now with AI modules powered by OpenAI (backend
         required).</p>
+      <label style="margin-left:12px;">
+        Extension:
+      </label>
+      <select id="extensionPicker" style="width:220px;">
+        <option value>Loading extensions...</option>
+      </select>
       <div class="toolbar" style="margin-top:8px">
         <button onclick="show('planner')">Daily Planner</button>
         <button onclick="show('trends')">Upcoming Trends</button>
@@ -912,6 +918,48 @@
                   and
                   bottom
                 </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  flat graphic backdrop
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  minimal abstract shapes
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  retro sunburst rays
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  distressed badge emblem
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  comic halftone burst
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  floral ornamental frame
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  3D wireframe tunnel
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  geometric portal ring
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  checker wave pattern
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  lightning energy accents
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  botanical line border
+                </div>
+                <div class="drag-item" draggable="true" data-type="illusBg">
+                  vintage ribbon seal
+                </div>
+                <div class="drag-item" draggable="true"
+                  data-type="illusBg">radial motion lines</div>
+                <div class="drag-item" draggable="true"
+                  data-type="illusBg">layered contour rings</div>
+                <div class="drag-item" draggable="true"
+                  data-type="illusBg">stamp-style circular border</div>
               </div>
             </div>
 
@@ -1018,10 +1066,10 @@
           <div class="control-group">
             <label for="styleQuantity">Quantity:</label>
             <select id="styleQuantity">
-              <option value="1">1</option>
+              <option value="1" selected>1</option>
               <option value="2">2</option>
               <option value="3">3</option>
-              <option value="4" selected>4</option>
+              <option value="4">4</option>
             </select>
           </div>
 
@@ -1151,7 +1199,7 @@
                 style="flex:1">
               <button id="addColorBtn">+</button>
             </div>
-            <div id="colorList" style="margin-top:6px;"></div>
+            <div id="mockupColorList" style="margin-top:6px;"></div>
           </div>
           <div id="producType">
             <label class="small">Product Type</label>
@@ -1765,7 +1813,7 @@ document.getElementById('genMockupPrompts').addEventListener('click', async () =
 });
 
 function getColorsFromList() {
-  return [...document.querySelectorAll("#colorList .pill")]
+  return [...document.querySelectorAll("#mockupColorList .pill")]
     .map(el => el.textContent.replace("✕", "").trim())
     .filter(Boolean);
 }
@@ -2892,8 +2940,11 @@ function handleGeneratedDesignPrompt(prompt) {
 
   // Copy + automation
   document.getElementById("copyAIDesignPromptBtn").onclick = async () => {
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
-  
+    let EXTENSION_ID =
+      localStorage.getItem(
+        "selectedExtensionId"
+      ) || "";
+        
     // 1️⃣ Copy prompt (user gesture)
     await navigator.clipboard.writeText(prompt);
   
@@ -2970,7 +3021,10 @@ window.useDesignSystem = async function (index) {
   await navigator.clipboard.writeText(res.prompt);
 
   // Open Artistly (extension → fallback)
-  const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+  let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
   if (window.chrome?.runtime?.sendMessage) {
     chrome.runtime.sendMessage(
@@ -3012,7 +3066,10 @@ document.getElementById("mockupPrompts").addEventListener("click", async (e) => 
     return;
   }
 
-  const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl"; // your extension ID
+  let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
   try {
     // 1️⃣ Copy to clipboard (user gesture ✅)
@@ -3235,7 +3292,10 @@ regenBtn.onclick = async () => {
       alert("No prompt generated yet");
       return;
     }
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl"; // Artistly Extension ID
+    let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
     await navigator.clipboard.writeText(prompt);
 
@@ -3273,7 +3333,10 @@ regenBtn.onclick = async () => {
       alert("No prompt generated yet");
       return;
     }
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl"; // Artistly Extension ID
+    let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
     await navigator.clipboard.writeText(prompt);
 
@@ -3364,7 +3427,7 @@ regenBtn.onclick = async () => {
 
       pill.onclick = () => pill.remove();
 
-      document.getElementById("colorList").appendChild(pill);
+      document.getElementById("mockupColorList").appendChild(pill);
     }
   });
 
@@ -3374,7 +3437,7 @@ regenBtn.onclick = async () => {
 
 
   function renderColorList() {
-    const wrap = document.getElementById("colorList");
+    const wrap = document.getElementById("mockupColorList");
     wrap.innerHTML = "";
 
     selectedColors.forEach((c, i) => {
@@ -3392,12 +3455,26 @@ regenBtn.onclick = async () => {
     });
   }
 
+  document
+.getElementById("newColorInput")
+.addEventListener("keydown", e=>{
+   if(e.key==="Enter"){
+      e.preventDefault();
+      document
+       .getElementById("addColorBtn")
+       .click();
+   }
+});
+
 
 
   document.getElementById("artistlyVariationBtn").addEventListener("click", runArtistlyClone);
 
   function runArtistlyClone() {
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+    let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
     // Open Artistly
     // const win = window.open(
@@ -3426,7 +3503,10 @@ regenBtn.onclick = async () => {
 
     await navigator.clipboard.writeText(prompt);
 
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+    let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
     chrome.runtime.sendMessage(
       EXTENSION_ID,
@@ -3437,7 +3517,10 @@ regenBtn.onclick = async () => {
 
 
   document.getElementById("artistlyMixBtn").onclick = () => {
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+    let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
     setTimeout(() => {
       chrome.runtime.sendMessage(
@@ -3453,7 +3536,10 @@ regenBtn.onclick = async () => {
   };
 
   document.getElementById("artistlyChooseBtn").onclick = () => {
-    const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+    let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
     setTimeout(() => {
       chrome.runtime.sendMessage(
@@ -3853,23 +3939,123 @@ slot.addEventListener("drop", e => {
   }
 
   // MAIN slot drop (phrase, phrase2, illustration)
-  else if(slot.classList.contains("drop-slot") && slot.dataset.slot === type){
+  else if (
+  slot.classList.contains("drop-slot") &&
+  slot.dataset.slot === type
+){
 
-    const valueBox = slot.querySelector(".slot-value");
+  const valueBox =
+    slot.querySelector(".slot-value");
 
-    // slots WITH children (phrase, phrase2, illustration)
-    if(valueBox){
+  if (valueBox) {
       valueBox.textContent = value;
-    }
-
-    // slots WITHOUT children (style, background)
-    else{
+  } else {
       slot.textContent = value;
-    }
-
-    slot.classList.add("filled");
-    designBuilder[type] = value;
   }
+
+  slot.classList.add("filled");
+  designBuilder[type] = value;
+
+  // add remove button once
+  if (!slot.querySelector(".remove-chip")) {
+
+      const btn =
+        document.createElement("button");
+
+      btn.textContent = "✕";
+      btn.className = "remove-chip";
+
+      btn.style.marginLeft = "8px";
+      btn.style.padding = "2px 8px";
+      btn.style.fontSize = "11px";
+
+      btn.onclick = function(e){
+
+e.stopPropagation();
+
+// clear slot text only
+if(valueBox){
+
+   if(type==="phrase"){
+      valueBox.textContent =
+        "Drop main phrase";
+   }
+
+   if(type==="illustration"){
+      valueBox.textContent =
+        "Drop illustration";
+   }
+
+   if(type==="phrase2"){
+      valueBox.textContent =
+        "Drop second phrase";
+   }
+
+}
+
+// clear prompt data
+designBuilder[type] = "";
+
+// clear linked children too
+if(type==="phrase"){
+   designBuilder.phraseFont1 = "";
+
+   const child =
+     document.querySelector(
+       '[data-slot="phraseFont1"]'
+     );
+
+   if(child){
+     child.textContent =
+      "Drop font style";
+     child.classList.remove("filled");
+   }
+}
+
+if(type==="illustration"){
+   designBuilder.illusBg = "";
+
+   const child =
+     document.querySelector(
+      '[data-slot="illusBg"]'
+     );
+
+   if(child){
+     child.textContent =
+      "Drop illustration background style";
+
+     child.classList.remove("filled");
+   }
+}
+
+if(type==="phrase2"){
+   designBuilder.phraseFont2 = "";
+
+   const child =
+     document.querySelector(
+      '[data-slot="phraseFont2"]'
+     );
+
+   if(child){
+     child.textContent =
+       "Drop font style";
+
+     child.classList.remove("filled");
+   }
+}
+
+slot.classList.remove("filled");
+
+// hide/remove close button
+btn.remove();
+
+// rebuild prompt
+generateDesignPrompt();
+};
+
+      slot.appendChild(btn);
+  }
+}
 
   generateDesignPrompt();
 });
@@ -3879,54 +4065,120 @@ slot.addEventListener("drop", e => {
 
 function generateDesignPrompt(){
 
-if(!designBuilder.phrase && !designBuilder.illustration) return;
-
-
+// restore missing vars
 const bg =
   designBuilder.background === "black"
     ? "pure black background"
     : "pure white background";
 
-const style = designBuilder.style || "clean vector style";
+const style =
+  designBuilder.style ||
+  "clean vector style";
 
-let prompt = `A cinematic print-ready design where the main phrase "${designBuilder.phrase}" sits prominently at the top of the layout.`;
+if(
+  !designBuilder.phrase &&
+  !designBuilder.illustration &&
+  !designBuilder.phrase2
+){
+    document.getElementById(
+      "aiDesignPromptText"
+    ).value = "";
 
-// 🎨 Phrase 1 font style
-if(designBuilder.phraseFont1){
-  prompt += ` The main phrase uses ${designBuilder.phraseFont1}.`;
+    return;
 }
 
-prompt += ` Centered below it is a bold clean illustration of ${designBuilder.illustration}.`;
+let prompt = "";
 
-// 🎨 Illustration background attribute
-if(designBuilder.illusBg){
-  prompt += ` The illustration is presented within a ${designBuilder.illusBg}.`;
+// Phrase 1
+if(designBuilder.phrase){
+
+    prompt +=
+    `A cinematic print-ready design where the main phrase "${designBuilder.phrase}" sits prominently at the top of the layout.`;
+
+    if(designBuilder.phraseFont1){
+       prompt +=
+       ` The main phrase uses ${designBuilder.phraseFont1}.`;
+    }
 }
 
-// ✍ Phrase 2 line
+if(designBuilder.illustration){
+
+  if(designBuilder.phrase){
+
+    // phrase exists
+    prompt +=
+    ` Centered below it is a clean character illustration of ${designBuilder.illustration}.`;
+
+  } else {
+
+    // no phrase → illustration becomes main subject
+    prompt +=
+    ` A clean character illustration of ${designBuilder.illustration} forms the central focal point of the composition. Ignore any text prompts and focus on creating a striking design centered around this illustration.`;
+
+  }
+
+  if(designBuilder.illusBg){
+    prompt +=
+    ` The illustration is presented within a ${designBuilder.illusBg}.`;
+  }
+
+}
+
+// Phrase 2 only if exists
 if(designBuilder.phrase2){
-  prompt += ` Directly beneath the illustration, the secondary phrase "${designBuilder.phrase2}" is placed clearly.`;
+
+    if(designBuilder.illustration){
+
+        prompt +=
+        ` Directly beneath the illustration, the secondary phrase "${designBuilder.phrase2}" is placed clearly.`;
+
+    } else {
+
+        prompt +=
+        ` The secondary phrase "${designBuilder.phrase2}" is prominently integrated into the composition.`;
+
+    }
+
+    if(designBuilder.phraseFont2){
+
+       prompt +=
+       ` The secondary phrase uses ${designBuilder.phraseFont2}.`;
+
+    }
 }
 
-// 🎨 Phrase 2 font style
-if(designBuilder.phraseFont2){
-  prompt += ` The secondary phrase uses ${designBuilder.phraseFont2}.`;
+if(designBuilder.layout){
+  if(
+    designBuilder.phrase ||
+    designBuilder.phrase2
+  ){
+    prompt +=
+      ` The text follows a ${designBuilder.layout}.`;
+  }
+
+  else{
+    prompt +=
+      ` The illustration follows a ${designBuilder.layout} composition.`;
+  }
 }
 
-if(designBuilder.layout)
-  prompt += ` The text follows a ${designBuilder.layout}.`;
+if(designBuilder.colorEmphasis){
+    prompt +=
+    ` The design uses ${designBuilder.colorEmphasis}.`;
+}
 
-if(designBuilder.colorEmphasis)
-  prompt += ` The design uses ${designBuilder.colorEmphasis}.`;
+if(designBuilder.graphicEffect){
+    prompt +=
+    ` Graphic effects include ${designBuilder.graphicEffect}.`;
+}
 
-if(designBuilder.graphicEffect)
-  prompt += ` Graphic effects include ${designBuilder.graphicEffect}.`;
+// final render
+prompt +=
+ ` The artwork is rendered in ${style} with sharp vector edges, strong contrast, balanced composition, and premium print clarity on a ${bg}, creating a high-impact POD-ready design.`;
 
-
-// 🎬 Final cinematic + print finish
-prompt += ` The artwork is rendered in ${style} with sharp vector edges, strong contrast, balanced composition, and premium print clarity on a ${bg}, creating a high-impact POD-ready design.`;
-
-document.getElementById("aiDesignPromptText").value = prompt;
+document.getElementById(
+   "aiDesignPromptText"
+).value = prompt.trim();
 }
 
 
@@ -4317,7 +4569,10 @@ document.getElementById("copyVariationStyleIdeaBtn").onclick = async () => {
 
   await navigator.clipboard.writeText(prompt);
 
-  const EXTENSION_ID = "fdonebolmapcfabkehempoafhfpimapl";
+  let EXTENSION_ID =
+ localStorage.getItem(
+   "selectedExtensionId"
+ ) || "";
 
   chrome.runtime.sendMessage(
     EXTENSION_ID,
@@ -4343,6 +4598,99 @@ document.querySelectorAll(".slot-value.editable").forEach(el => {
   });
 
 });
+
+async function loadExtensions(){
+
+try{
+
+  const res =
+    await fetch("data/extension.json");
+
+  const items =
+    await res.json();
+
+  const picker =
+    document.getElementById(
+      "extensionPicker"
+    );
+
+  picker.innerHTML="";
+
+  const saved =
+    localStorage.getItem(
+      "selectedExtensionId"
+    );
+
+  items.forEach(ext=>{
+
+     const opt =
+      document.createElement(
+        "option"
+      );
+
+     opt.value = ext.id;
+
+     opt.textContent =
+       ext.label;
+
+     if(
+       saved &&
+       saved===ext.id
+     ){
+        opt.selected=true;
+        EXTENSION_ID=ext.id;
+     }
+
+     picker.appendChild(opt);
+
+  });
+
+  // first load fallback
+  if(!saved && items.length){
+
+     EXTENSION_ID =
+      items[0].id;
+
+     localStorage.setItem(
+       "selectedExtensionId",
+       items[0].id
+     );
+
+  }
+
+  picker.addEventListener(
+    "change",
+    function(){
+
+      EXTENSION_ID =
+        this.value;
+
+      localStorage.setItem(
+        "selectedExtensionId",
+        this.value
+      );
+
+      console.log(
+        "Using extension:",
+        EXTENSION_ID
+      );
+
+    }
+  );
+
+}
+catch(e){
+
+  console.error(
+    "Could not load extensions",
+     e
+  );
+
+}
+
+}
+
+loadExtensions();
 
 
 
