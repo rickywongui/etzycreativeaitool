@@ -517,6 +517,18 @@ if (!window.__ARTISTLY_LISTENER__) {
             return true;
         }
 
+        if (msg.type === "RUN_ARTISTLY_SEAMLESS_AUTOMATION") {
+
+            runFlowByName("seamless_v1", {
+                prompt: msg.prompt
+            })
+                .then(() => sendResponse({ ok: true }))
+                .catch(err => sendResponse({ error: String(err) }));
+
+            return true;
+        }
+
+
         if (msg.type === "RUN_ARTISTLY_CLONE") {
             console.log("🚀 Running clone automation 2");
 
@@ -906,14 +918,99 @@ async function runFlow(flow, context = {}) {
                     await sleep(step.ms);
                     break;
 
-                case "click":
-                    console.log("🖱 click", step.selector);
-                    const elClick = await waitFor(
+                case "click": {
+
+                    let el = null;
+
+                    // support selector OR selectors
+                    const selectorList = Array.isArray(step.selectors)
+                        ? step.selectors
+                        : [step.selector];
+
+                    for (const sel of selectorList) {
+                        if (!sel) continue;
+
+                        el = document.querySelector(sel);
+
+                        if (el) {
+                            console.log("✅ Found element:", sel);
+                            break;
+                        }
+                    }
+
+                    if (!el) {
+                        throw new Error("❌ No selector matched");
+                    }
+
+                    // handle closest
+                    if (step.target?.startsWith("closest:")) {
+                        const tag = step.target.split(":")[1];
+                        const parent = el.closest(tag);
+
+                        if (!parent) {
+                            throw new Error(`❌ closest(${tag}) not found`);
+                        }
+
+                        el = parent;
+                    }
+
+                    // safety check
+                    if (typeof el.click !== "function") {
+                        console.error("Invalid click target:", el);
+                        throw new Error("Element is not clickable");
+                    }
+
+                    el.click();
+
+                    break;
+                }
+
+                case "clickByText": {
+
+                    const el = await waitFor(() => {
+                        return [...document.querySelectorAll("button")]
+                            .find(b =>
+                                b.textContent
+                                    ?.toLowerCase()
+                                    .includes(step.text.toLowerCase())
+                            );
+                    }, `button text: ${step.text}`);
+
+                    if (!el) {
+                        console.error("Available buttons:",
+                            [...document.querySelectorAll("button")]
+                                .map(b => b.textContent)
+                        );
+                        throw new Error(`Button not found: ${step.text}`);
+                    }
+
+                    console.log("✅ Clicking:", el.textContent);
+
+                    el.click();
+
+                    break;
+                }
+
+                case "select": {
+
+                    const el = await waitFor(
                         () => document.querySelector(step.selector),
                         step.selector
                     );
-                    elClick.click();
+
+                    if (!el) {
+                        throw new Error("Select not found");
+                    }
+
+                    el.value = step.value;
+
+                    // trigger React / UI updates
+                    el.dispatchEvent(new Event("change", { bubbles: true }));
+
+                    console.log("✅ Selected:", step.value);
+
                     break;
+                }
 
                 case "clickTab":
                     console.log("🧭 clickTab", step.text);

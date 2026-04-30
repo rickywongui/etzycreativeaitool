@@ -35,16 +35,57 @@
             ]
         },
         {
-            "name": "design_v1",
+            "name": "seamless_v1",
             "steps": [
                 {
+                    "action": "wait",
+                    "ms": 2000
+                },
+                {
+                    "action": "clickTab",
+                    "text": "AI Image Designer v6"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1500
+                },
+                {
                     "action": "clickCard",
-                    "label": "Create From Prompt"
+                    "label": "Seamless Patterns V2"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1000
                 },
                 {
                     "action": "type",
                     "selector": "textarea",
                     "value": "{{prompt}}"
+                },
+                {
+                    "action": "click",
+                    "selectors": [
+                        "button:has([data-tooltip-id='enhance-prompt-tooltip'])",
+                        "[data-tooltip-id='enhance-prompt-tooltip']"
+                    ],
+                    "target": "closest:button"
+                },
+                {
+                    "action": "clickByText",
+                    "text": "Enhance"
+                },
+                {
+                    "action": "wait",
+                    "ms": 10000
+                },
+                {
+                    "action": "select",
+                    "selector": "select",
+                    "value": "16:9"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1500
                 },
                 {
                     "action": "click",

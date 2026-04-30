@@ -521,6 +521,7 @@
         <button onclick="show('files')">File Prep</button>
         <button onclick="show('mockup')">Mockup Manager</button>
         <button onclick="show('etsy')">Etsy Listing</button>
+        <button onclick="show('adobe')">Adobe Stock</button>
 
         <!-- NEW BUTTONS -->
         <button onclick="saveProject()"
@@ -1391,7 +1392,65 @@
         </div>
       </div>
     </section>
+    <section id="adobe" class="panel" style="display:none">
 
+      <h3>Adobe Stock Generator (AI)</h3>
+
+      <div class="grid-2">
+
+        <!-- LEFT SIDE -->
+        <div>
+
+          <label>Title / Concept</label>
+          <input id="adobeTitle" placeholder="e.g. Cute cat illustration" />
+
+          <label style="margin-top:8px">Keywords</label>
+          <input id="adobeKeywords"
+            placeholder="cat, cute, cartoon, pet" />
+
+          <label style="margin-top:8px">Category</label>
+          <select id="adobeCategory">
+            <option>Realistic</option>
+            <option>Illustration</option>
+            <option>Graphic Resources</option>
+            <option>Patterns</option>
+            <option>Backgrounds</option>
+            <option>Icons</option>
+          </select>
+
+          <div style="margin-top:10px">
+            <button id="genAdobeBtn">Generate Adobe Stock Data (AI)</button>
+            <button id="copyAdobeBtn">Copy</button>
+          </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div>
+
+          <h4 class="small">Preview</h4>
+
+          <div style="padding:10px;background:#fafafa;border-radius:6px">
+            <strong>Prompt:</strong>
+            <div id="adobePrompts" style="margin-top:12px;"></div>
+            <strong>Title:</strong>
+            <p id="adobePreviewTitle">—</p>
+
+            <strong>Keywords:</strong>
+            <p id="adobePreviewKeywords">—</p>
+
+            <strong>Description:</strong>
+            <p id="adobePreviewDesc" class="small">—</p>
+            <button id="runAllPromptsBtn">
+              Generate All in Artistly 🚀
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
     <script>
 
 let selectedPhrase = "";
@@ -4734,10 +4793,188 @@ catch(e){
 loadExtensions();
 
 
+// ================= 
+// ADOBE
+// =================
 
 
 
+document.getElementById("genAdobeBtn").addEventListener("click", async () => {
 
+const title = document.getElementById("adobeTitle").value;
+const keywords = document.getElementById("adobeKeywords").value;
+const category = document.getElementById("adobeCategory").value;
+
+const btn = document.getElementById("genAdobeBtn");
+btn.disabled = true;
+btn.textContent = "Generating...";
+
+try {
+
+  const res = await postJSON("/api/ai/adobe-stock", {
+    title,
+    keywords,
+    category
+  });
+
+  // Preview
+  document.getElementById("adobePreviewTitle").textContent = res.title;
+  document.getElementById("adobePreviewKeywords").textContent = res.keywords.join(", ");
+  document.getElementById("adobePreviewDesc").textContent = res.description;
+
+  // 🔥 THIS IS STEP 4 (correct position)
+  renderAdobePrompts(res.prompts);
+
+  // store for later (batch run, copy, etc.)
+  window._lastAdobe = res;
+
+} catch (err) {
+  alert("Error: " + err.message);
+} finally {
+  btn.disabled = false;
+  btn.textContent = "Generate Adobe Stock Data (AI)";
+}
+
+});
+
+document.getElementById("copyAdobeBtn").onclick = () => {
+  if (!window._lastAdobe) return;
+
+  const text = `
+    Title: ${window._lastAdobe.title}
+
+    Keywords:
+    ${window._lastAdobe.keywords.join(", ")}
+
+    Description:
+    ${window._lastAdobe.description}
+    `;
+
+  navigator.clipboard.writeText(text);
+};
+
+
+function renderAdobePrompts(prompts){
+
+const box = document.getElementById("adobePrompts");
+box.innerHTML = "";
+
+prompts.forEach((p, i) => {
+
+  const row = document.createElement("div");
+  row.style.marginBottom = "8px";
+
+  const text = document.createElement("textarea");
+  text.value = p;
+  text.style.width = "100%";
+  text.rows = 3;
+
+  const actions = document.createElement("div");
+
+  const copyBtn = document.createElement("button");
+  copyBtn.textContent = "Copy";
+
+  const runBtn = document.createElement("button");
+  runBtn.textContent = "Send to Artistly ⚡";
+  runBtn.style.marginLeft = "6px";
+
+  const seamlessBtn = document.createElement("button");
+  seamlessBtn.textContent = "Send Seamless 🧩";
+  seamlessBtn.style.marginLeft = "6px";
+
+  copyBtn.onclick = () => navigator.clipboard.writeText(p);
+  seamlessBtn.onclick = () => sendToArtistlySeamless(p);
+
+  runBtn.onclick = () => sendToArtistly(p);
+
+  actions.appendChild(copyBtn);
+  actions.appendChild(runBtn);
+  actions.appendChild(seamlessBtn);
+
+  row.appendChild(text);
+  row.appendChild(actions);
+
+  box.appendChild(row);
+
+});
+
+}
+
+function sendToArtistly(prompt){
+
+const quantity =
+  document.getElementById("styleQuantity")?.value || 1;
+
+if (!EXTENSION_ID) {
+  alert("Select extension first");
+  return;
+}
+
+chrome.runtime.sendMessage(
+  EXTENSION_ID,
+  {
+    type: "OPEN_ARTISTLY",
+    prompt: prompt,
+    quantity: quantity
+  },
+  () => {
+    if (chrome.runtime.lastError) {
+      console.warn("Extension not found, fallback");
+
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+  }
+);
+
+}
+
+document.getElementById("runAllPromptsBtn").onclick = () => {
+
+if (!window._lastAdobe?.prompts) return;
+
+window._lastAdobe.prompts.forEach((p, i) => {
+
+  setTimeout(() => {
+    sendToArtistly(p);
+  }, i * 2000); // delay between runs
+
+});
+
+};
+
+function sendToArtistlySeamless(prompt){
+
+const quantity =
+  document.getElementById("styleQuantity")?.value || 1;
+
+if (!EXTENSION_ID) {
+  alert("Select extension first");
+  return;
+}
+
+chrome.runtime.sendMessage(
+  EXTENSION_ID,
+  {
+    type: "RUN_ARTISTLY_SEAMLESS_AUTOMATION", // 👈 NEW TYPE
+    prompt: prompt,
+    quantity: quantity
+  },
+  () => {
+    if (chrome.runtime.lastError) {
+      console.warn("Extension not found, fallback");
+
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+  }
+);
+
+}
 
 </script>
   </body>

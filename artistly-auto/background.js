@@ -49,7 +49,8 @@ chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
     if (
         msg.type === "RUN_ARTISTLY_MOCKUP_AUTOMATION" ||
         msg.type === "RUN_ARTISTLY_MOCKUP_NEWMODAL" ||
-        msg.type === "RUN_ARTISTLY_PROMPT_NEWMODAL"
+        msg.type === "RUN_ARTISTLY_PROMPT_NEWMODAL" ||
+        msg.type === "RUN_ARTISTLY_SEAMLESS_AUTOMATION"
     ) {
         const URL = "https://app.artistly.ai/ai/image-designer-v6";
 
