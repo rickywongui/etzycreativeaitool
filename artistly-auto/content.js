@@ -320,7 +320,7 @@ async function runMockupAutomation(prompt) {
 
 async function runMockupAutomationNewModal(prompt) {
     try {
-        console.log("🚀 Running mockup automation");
+        console.log("🚀 Running mockup automation old");
         // stop running automations
         window.AUTOMATION.cancel = true;
 
@@ -496,10 +496,24 @@ if (!window.__ARTISTLY_LISTENER__) {
         }
 
         if (msg.type === "RUN_ARTISTLY_MOCKUP_NEWMODAL") {
-            console.log("🚀 Running mockup automation New Modal=====");
-            runMockupAutomationNewModal(msg.prompt)
+
+            runFlowByName("mockup_v1", {
+                prompt: msg.prompt
+            })
                 .then(() => sendResponse({ ok: true }))
                 .catch(err => sendResponse({ error: String(err) }));
+
+            return true;
+        }
+
+        if (msg.type === "RUN_ARTISTLY_PROMPT_NEWMODAL") {
+
+            runFlowByName("mockup_v1", {
+                prompt: msg.prompt
+            })
+                .then(() => sendResponse({ ok: true }))
+                .catch(err => sendResponse({ error: String(err) }));
+
             return true;
         }
 
@@ -864,3 +878,137 @@ async function clickNode(node) {
 }
 
 
+
+
+// ==============================
+// Automation Flow Click
+// ==============================
+
+
+async function runFlow(flow, context = {}) {
+
+    console.log("🚀 Running flow:", flow.name);
+
+    for (const step of flow.steps) {
+
+        console.log("➡️ Step:", step);
+
+        if (window.AUTOMATION?.cancel) {
+            throw new Error("Automation cancelled");
+        }
+
+        try {
+
+            switch (step.action) {
+
+                case "wait":
+                    console.log("⏳ wait", step.ms);
+                    await sleep(step.ms);
+                    break;
+
+                case "click":
+                    console.log("🖱 click", step.selector);
+                    const elClick = await waitFor(
+                        () => document.querySelector(step.selector),
+                        step.selector
+                    );
+                    elClick.click();
+                    break;
+
+                case "clickTab":
+                    console.log("🧭 clickTab", step.text);
+                    await clickTabText(step.text);
+                    break;
+
+                case "clickCard":
+                    console.log("🧩 clickCard", step.label);
+                    await clickByCardLabel(step.label);
+                    break;
+
+                case "type":
+                    console.log("⌨️ type", step.selector);
+
+                    const el = await waitFor(
+                        () => document.querySelector(step.selector),
+                        step.selector
+                    );
+
+                    const value = interpolate(step.value, context);
+
+                    el.focus();
+
+                    const setter =
+                        Object.getOwnPropertyDescriptor(
+                            HTMLTextAreaElement.prototype,
+                            "value"
+                        ).set;
+
+                    setter.call(el, value);
+
+                    el.dispatchEvent(
+                        new Event("input", { bubbles: true })
+                    );
+
+                    break;
+
+                case "waitFor":
+                    console.log("⏳ waitFor", step.selector);
+                    await waitFor(
+                        () => document.querySelector(step.selector),
+                        step.selector
+                    );
+                    break;
+
+                default:
+                    console.warn("Unknown step:", step);
+            }
+
+        } catch (err) {
+
+            console.error("❌ Step failed:", step, err);
+            throw err;
+
+        }
+    }
+
+    console.log("🎉 Flow completed");
+}
+
+function interpolate(template, context) {
+
+    return template.replace(
+        /\{\{(.*?)\}\}/g,
+        (_, key) => context[key.trim()] ?? ""
+    );
+
+}
+
+
+async function runFlowByName(flowName, context = {}) {
+
+    console.log("🚀 Loading flow:", flowName);
+
+    const url =
+        chrome.runtime.getURL("mockup-flow.json");
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.flows || !Array.isArray(data.flows)) {
+        throw new Error("Invalid flow file structure");
+    }
+
+    const flow = data.flows.find(
+        f => f.name === flowName
+    );
+
+    if (!flow) {
+        throw new Error(
+            "Flow not found: " + flowName
+        );
+    }
+
+    console.log("✅ Flow found:", flow.name);
+
+    await runFlow(flow, context);
+}

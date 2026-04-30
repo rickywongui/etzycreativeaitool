@@ -2608,6 +2608,7 @@ PRESERVE (LOCKED ELEMENTS)
 - Keep Phrase 2 exactly as written.
 - Keep all required illustration elements from the source prompt.
 - Keep the original thematic intent and emotional meaning.
+- if Phrase 1 and Phrase 2 are missing, remove all prompt that related to text. Only keep the illustration and the idea. Do not add new text.
 
 ALLOWED TO CHANGE
 You may reinvent:

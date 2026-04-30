@@ -1,0 +1,56 @@
+{
+    "flows": [
+        {
+            "name": "mockup_v1",
+            "steps": [
+                {
+                    "action": "wait",
+                    "ms": 2000
+                },
+                {
+                    "action": "clickTab",
+                    "text": "AI Image Designer v6"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1500
+                },
+                {
+                    "action": "clickCard",
+                    "label": "Seamless Patterns V2"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1000
+                },
+                {
+                    "action": "type",
+                    "selector": "textarea",
+                    "value": "{{prompt}}"
+                },
+                {
+                    "action": "click",
+                    "selector": "#generate_image_flux"
+                }
+            ]
+        },
+        {
+            "name": "design_v1",
+            "steps": [
+                {
+                    "action": "clickCard",
+                    "label": "Create From Prompt"
+                },
+                {
+                    "action": "type",
+                    "selector": "textarea",
+                    "value": "{{prompt}}"
+                },
+                {
+                    "action": "click",
+                    "selector": "#generate_image_flux"
+                }
+            ]
+        }
+    ]
+}

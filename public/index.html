@@ -1078,6 +1078,8 @@
             <button id="regenPromptBtn">Regenerate Prompt</button>
             <button id="copyAIDesignPromptBtn" class="outline-btn">Copy
               Prompt</button>
+            <button id="copyAIDesignPromptNewModelBtn" class="outline-btn">Copy
+              Seamless Prompt</button>
             <button id="copyVariationStyleIdeaBtn">Copy with Style</button>
           </div>
 
@@ -3281,6 +3283,46 @@ regenBtn.onclick = async () => {
   
 
 
+  document.getElementById("copyAIDesignPromptNewModelBtn").onclick = async () => {
+    const prompt = document.getElementById("aiDesignPromptText").value;
+    const quantity = Number(document.getElementById("styleQuantity").value) || 4;
+    if (!prompt) return alert("No variation prompt yet");
+
+    await navigator.clipboard.writeText(prompt); 
+
+    if (!prompt) {
+      alert("No prompt generated yet");
+      return;
+    }
+    let EXTENSION_ID = localStorage.getItem(
+      "selectedExtensionId"
+    ) || "";
+
+    await navigator.clipboard.writeText(prompt);
+
+    if (window.chrome?.runtime?.sendMessage) {
+      console.log("Sending RUN_ARTISTLY_PROMPT_NEWMODAL message with quantity:", quantity);
+      chrome.runtime.sendMessage(
+        EXTENSION_ID,
+        { type: "RUN_ARTISTLY_PROMPT_NEWMODAL", prompt, quantity },
+        () => {
+          if (chrome.runtime.lastError) {
+            console.warn("Extension not found, using fallback");
+            window.open(
+              "https://app.artistly.ai/ai/image-designer-v6",
+              "_blank"
+            );
+          }
+        }
+      );
+    } else {
+      window.open(
+        "https://app.artistly.ai/ai/image-designer-v6",
+        "_blank"
+      );
+    }
+  };
+
   document.getElementById("copyAIDesignPromptBtn").onclick = async () => {
     const prompt = document.getElementById("aiDesignPromptText").value;
     const quantity = Number(document.getElementById("styleQuantity").value) || 4;
@@ -3292,10 +3334,9 @@ regenBtn.onclick = async () => {
       alert("No prompt generated yet");
       return;
     }
-    let EXTENSION_ID =
- localStorage.getItem(
-   "selectedExtensionId"
- ) || "";
+    let EXTENSION_ID = localStorage.getItem(
+      "selectedExtensionId"
+    ) || "";
 
     await navigator.clipboard.writeText(prompt);
 
