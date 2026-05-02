@@ -1420,7 +1420,7 @@
 
           <div style="margin-top:10px">
             <button id="genAdobeBtn">Generate Adobe Stock Data (AI)</button>
-            <button id="copyAdobeBtn">Copy</button>
+            <button id="copyAdobeBtn">Download CSV 📥</button>
           </div>
 
         </div>
@@ -1431,19 +1431,39 @@
           <h4 class="small">Preview</h4>
 
           <div style="padding:10px;background:#fafafa;border-radius:6px">
+
             <strong>Prompt:</strong>
             <div id="adobePrompts" style="margin-top:12px;"></div>
-            <strong>Title:</strong>
+
+            <!-- TITLE -->
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;margin-top:10px; position:relative;">
+              <strong>Title:</strong>
+              <button class="copy-btn" data-copy="adobePreviewTitle">📋</button>
+            </div>
             <p id="adobePreviewTitle">—</p>
 
-            <strong>Keywords:</strong>
+            <!-- KEYWORDS -->
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;margin-top:10px; position:relative;">
+              <strong>Keywords:</strong>
+              <button class="copy-btn"
+                data-copy="adobePreviewKeywords">📋</button>
+            </div>
             <p id="adobePreviewKeywords">—</p>
 
-            <strong>Description:</strong>
+            <!-- DESCRIPTION -->
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;margin-top:10px; position:relative;">
+              <strong>Description:</strong>
+              <button class="copy-btn" data-copy="adobePreviewDesc">📋</button>
+            </div>
             <p id="adobePreviewDesc" class="small">—</p>
+
             <button id="runAllPromptsBtn">
               Generate All in Artistly 🚀
             </button>
+
           </div>
 
         </div>
@@ -4975,6 +4995,82 @@ chrome.runtime.sendMessage(
 );
 
 }
+
+document.addEventListener("click", async (e) => {
+
+const btn = e.target.closest(".copy-btn");
+if (!btn) return;
+
+const targetId = btn.dataset.copy;
+const el = document.getElementById(targetId);
+
+// 🛑 prevent your old bug
+if (!el) {
+  console.error("❌ Element not found:", targetId);
+  return;
+}
+
+// get text from <p>
+const text = el.textContent?.trim();
+
+if (!text || text === "—") {
+  console.warn("⚠️ Nothing to copy");
+  return;
+}
+
+try {
+  await navigator.clipboard.writeText(text);
+
+  // nice feedback
+  const old = btn.textContent;
+  btn.textContent = "✅";
+
+  setTimeout(() => {
+    btn.textContent = old;
+  }, 1000);
+
+} catch (err) {
+  console.error("Copy failed:", err);
+}
+
+});
+
+document.getElementById("copyAdobeBtn")?.addEventListener("click", () => {
+
+const title = document.getElementById("adobePreviewTitle")?.textContent?.trim() || "";
+const keywords = document.getElementById("adobePreviewKeywords")?.textContent?.trim() || "";
+const desc = document.getElementById("adobePreviewDesc")?.textContent?.trim() || "";
+
+if (!title) {
+  alert("No data to export");
+  return;
+}
+
+// Escape CSV safely
+const escapeCSV = (str) =>
+  `"${str.replace(/"/g, '""')}"`;
+
+const csvContent =
+  "Title,Keywords,Description\n" +
+  [
+    escapeCSV(title),
+    escapeCSV(keywords),
+    escapeCSV(desc)
+  ].join(",");
+
+// Create file
+const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+a.href = url;
+a.download = "adobe_stock_metadata.csv";
+a.click();
+
+URL.revokeObjectURL(url);
+
+});
 
 </script>
   </body>

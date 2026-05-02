@@ -1,0 +1,282 @@
+<!-- /*
+
+ RJ AdobeStock Auto
+ Copyright (c) 2025 Riiicil
+ Licensed under the MIT License. See LICENSE file for details.
+
+ 
+ ██████╗ ██╗██╗██╗ ██████╗██╗██╗
+ ██╔══██╗██║██║██║██╔════╝██║██║
+ ██████╔╝██║██║██║██║     ██║██║
+ ██╔══██╗██║██║██║██║     ██║██║
+ ██║  ██║██║██║██║╚██████╗██║███████╗
+ ╚═╝  ╚═╝╚═╝╚═╝╚═╝ ╚═════╝╚═╝╚══════╝
+
+*/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RJ AdobeStock Auto</title>
+    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #5271ff;
+            --primary-hover: #4260e8;
+            --success-color: #36b37e;
+            --success-hover: #2d9669;
+            --danger-color: #ff5c71;
+            --danger-hover: #e84c60;
+            --gradient-start: #f8f9fa;
+            --gradient-end: #ffffff;
+        }
+        body {
+            width: 340px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+            height: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(10px); }
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        .container-fluid {
+            padding: 16px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        header {
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        header h5 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+            position: relative;
+            display: inline-block;
+        }
+        header h5:after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 3px;
+            background: var(--primary-color);
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+        }
+        h6 {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: none;
+            margin: auto;
+            font-size: 0.9rem;
+            display: block;
+        }
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        .btn-success:hover {
+            background-color: var(--success-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #statusMessage {
+            font-size: 0.75rem;
+            font-weight: 400;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.02);
+            border-radius: 8px;
+            color: #666;
+            transition: all 0.3s ease;
+            text-align: center;
+            margin-top: 8px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .footer {
+            font-size: 0.7rem;
+            color: #888;
+        }
+        .hidden {
+            display: none;
+        }
+        .input-group.api-key-group {
+            border-radius: 4px;
+            border: 0.5px solid #feffff;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+        #browseApiKeyLabel {
+            cursor: pointer;
+            font-size: small;
+            padding: 5px 10px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+        }
+        #apiKeyFileStatus {
+            font-size: small;
+            padding: 5px 10px;
+            color: #666;
+            background: #fff;
+            border-left: 1px solid #d1d5db;
+            min-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #getApiKeyLink {
+            font-size: 0.7rem;
+            margin-left: 2px;
+            font-weight: 500;
+            animation: fadeIn 0.2s ease;
+        }
+        #apiKeyLoadedStatus {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 2px;
+            margin-left: 2px;
+            font-weight: 500;
+        }
+        #modelSelect {
+            animation: fadeIn 0.2s ease;
+        }
+        #specificDelayValue {
+            animation: fadeIn 0.2s ease;
+        }
+        #saveSpecificDelayBtn {
+            animation: fadeIn 0.2s ease;
+        }
+        #specificKeywordsCountValue {
+            animation: fadeIn 0.2s ease;
+        }
+        #saveSpecificKeywordsCountBtn {
+            animation: fadeIn 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="text-center">
+            <h5>RJ AdobeStock Auto</h5>
+        </header>
+        
+        <div class="mb-3">
+            <h6>Settings</h6>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="toggleGenerativeAi">
+                <label class="form-check-label" for="toggleGenerativeAi" style="font-size: 0.9rem;">Generative AI</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="toggleModelApiKey">
+                <label class="form-check-label" for="toggleModelApiKey" style="font-size: 0.9rem;">Select Model and API Key</label>
+            </div>
+            <div id="modelApiKeySection">
+                <div class="mt-2">
+                    <select id="modelSelect" class="form-select form-select-sm">
+                        <option value="auto-rotation" selected>Auto Rotation</option>
+                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                        <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b</option>
+                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                        <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+                        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                        <option value="gemini-2.5-flash-lite-preview-06-17">gemini-2.5-flash-lite</option>
+                        <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                    </select>
+                </div>
+                <div class="input-group api-key-group mt-2">
+                    <input type="file" id="apiKeyFile" class="form-control d-none" accept=".txt">
+                    <label id="browseApiKeyLabel" for="apiKeyFile" class="input-group-text">Browse</label>
+                    <span id="apiKeyFileStatus" class="input-group-text flex-grow-1">Input your API key</span>
+                </div>
+                <div id="apiKeyLoadedStatus" style="display: none;"></div>
+                <div id="getApiKeyLink">
+                    <small><a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="font-size: 0.7rem; margin-left: 2px;">Get Gemini API Key Here</a></small>
+                </div>
+            </div>
+            <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" id="toggleSpecificDelay">
+                <label class="form-check-label" for="toggleSpecificDelay" style="font-size: 0.9rem;">Specific Delay</label>
+            </div>
+            <div class="mt-2" id="specificDelayValueWrapper">
+                <div class="input-group api-key-group mt-1">
+                    <input type="number" id="specificDelayValue" class="form-control form-control-sm" value="3" min="3" step="1" style="font-size: small;">
+                    <button id="saveSpecificDelayBtn" class="input-group-text" style="background-color: var(--primary-color); color: #fff; border: none; cursor: pointer;font-size: small;">Save</button>
+                </div>
+            </div>
+            <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" id="toggleSpecificKeywordsCount">
+                <label class="form-check-label" for="toggleSpecificKeywordsCount" style="font-size: 0.9rem;">Specific Keywords Count</label>
+            </div>
+            <div class="mt-2" id="specificKeywordsCountValueWrapper">
+                <div class="input-group api-key-group mt-1">
+                    <input type="number" id="specificKeywordsCountValue" class="form-control form-control-sm" value="49" min="8" max="49" step="1" style="font-size: small;">
+                    <button id="saveSpecificKeywordsCountBtn" class="input-group-text" style="background-color: var(--primary-color); color: #fff; border: none; cursor: pointer;font-size: small;">Save</button>
+                </div>
+            </div>
+            <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" id="toggleSpecificKeywords">
+                <label class="form-check-label" for="toggleSpecificKeywords" style="font-size: 0.9rem;">Add Specific Keywords</label>
+            </div>
+            <div class="mt-2" id="specificKeywordsValueWrapper" style="display:none">
+                <div class="input-group api-key-group mt-1">
+                    <input type="text" id="specificKeywordsValue" class="form-control form-control-sm" placeholder="Your Keywords (e.g. tree, nature, etc.)">
+                    <button id="saveSpecificKeywordsBtn" class="input-group-text" style="background-color: var(--primary-color); color: #fff; border: none; cursor: pointer;font-size: small;">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3 hidden">
+            <div class="row">
+            </div>
+        </div>
+
+        <div class="footer text-center mt-4">
+            &copy; Riiicil 2025 - All rights reserved.
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="../bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

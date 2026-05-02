@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "RJ Adobe Stock Auto",
+  "version": "1.6.0", 
+  "description": "Automate metadata input on Adobe Stock upload page using Gemini API",
+  "permissions": [
+    "storage",      
+    "scripting",    
+    "activeTab",    
+    "tabs"         
+  ],
+  "host_permissions": [
+    "*://*.adobe.com/*",
+    "*://*.googleapis.com/*",
+    "*://esm.run/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://contributor.stock.adobe.com/en/uploads*","*://contributor.stock.adobe.com/en/uploads", "*://contributor.stock.adobe.com/*/uploads"],
+      "js": ["scripts/content.js"],
+      "run_at": "document_idle",
+      "css": ["scripts/floating-controls.css"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/floating-controls.css"],
+      "matches": ["*://contributor.stock.adobe.com/*"]
+    }
+  ]
+}

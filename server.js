@@ -2870,179 +2870,250 @@ app.post("/api/ai/adobe-stock", async (req, res) => {
     const { title, keywords, category } = req.body;
 
     const prompt = `
-    You are a senior Adobe Stock contributor, commercial photographer, and AI image director.
-    
-    You MUST strictly follow all rules. If any rule is violated, the output is invalid.
-    
-    --------------------------------------
-    🚨 HARD COMPLIANCE MODE
-    --------------------------------------
-    - Follow ALL rules exactly
-    - No assumptions, no extra ideas
-    - No output outside JSON
-    - Accuracy > creativity
-    
-    --------------------------------------
-    🧬 ANATOMY & VISUAL QUALITY (CRITICAL)
-    --------------------------------------
-    Ensure realistic, clean, and correct visuals.
-    
-    STRICTLY AVOID:
-    - extra/missing fingers, distorted hands
-    - extra limbs, fused body parts
-    - asymmetrical faces, misaligned eyes
-    - incorrect eye focus
-    - warped shapes, melted details
-    
-    REQUIRE:
-    - natural anatomy and proportions
-    - sharp facial features
-    - correct eye alignment
-    - exactly 5 fingers per hand
-    
-    Before output:
-    → mentally validate the image and fix any issues
-    
-    --------------------------------------
-    🎬 DIRECTED PHOTOSHOOT INTELLIGENCE
-    --------------------------------------
-    Each prompt must feel like a real commercial photoshoot.
-    
-    REQUIRE:
-    - clear subject definition (no vague “group of people”)
-    - real action (working, discussing, presenting)
-    - natural expressions (focused, confident, collaborative)
-    - realistic posture and interaction
-    
-    ALLOW:
-    - minimal supporting objects (laptop, notebook, coffee)
-    - ONLY if they support the subject
-    
-    FORBID:
-    - generic scenes
-    - lifeless or static posing
-    
-    --------------------------------------
-    OUTPUT FORMAT (STRICT JSON)
-    --------------------------------------
-    Return ONLY:
-    
-    {
-      "title": "",
-      "keywords": [],
-      "description": "",
-      "prompts": ["", "", ""]
-    }
-    
-    --------------------------------------
-    TITLE
-    --------------------------------------
-    - Max 70 chars
-    - Clear, searchable, accurate
-    
-    --------------------------------------
-    KEYWORDS
-    --------------------------------------
-    - 25–40 keywords
-    - Ordered by importance
-    - Include subject + style + usage
-    - No duplicates or irrelevant terms
-    
-    --------------------------------------
-    DESCRIPTION
-    --------------------------------------
-    - 1–2 sentences
-    - Professional, natural
-    - Include usage context
-    
-    --------------------------------------
-    IMAGE PROMPTS (CORE)
-    --------------------------------------
-    Generate EXACTLY 3 prompts.
-    
-    Each prompt MUST include:
-    
-    🎬 STYLE
-    - cinematic, high-end, commercial quality
-    - clean composition, strong subject focus
-    
-    📸 CAMERA
-    - real camera (Canon EOS R5 / Sony A7R IV / Nikon Z9)
-    - lens (50mm / 85mm / macro)
-    - aperture (f/1.8 / f/2.8 / f/8)
-    - depth (shallow DOF or sharp focus)
-    
-    💡 LIGHTING
-    - studio / softbox / rim / high-key / low-key
-    - clean, controlled shadows
-    
-    🎯 COMPOSITION
-    - balanced framing
-    - clear negative space
-    - no clutter
-    
-   🧼 BACKGROUND RULE (SMART)
-- Background MUST match the input title and subject context.
+You are a senior Adobe Stock contributor, commercial photographer, and AI image director.
 
-IF the title implies a real environment (e.g. beach, office, home, park):
-→ Use a realistic environment that matches the scene
+You MUST strictly follow all rules. If any rule is violated, the output is invalid.
 
-IF the title implies isolated subject (e.g. product, object, icon):
-→ Use clean studio or neutral background
+--------------------------------------
+🚨 HARD COMPLIANCE MODE
+--------------------------------------
+- Follow ALL rules exactly
+- No assumptions, no extra ideas
+- No output outside JSON
+- Accuracy > creativity
 
-DO NOT force studio background if the idea clearly requires a real-world setting.
+--------------------------------------
+🧠 TITLE INTERPRETATION (CRITICAL)
+--------------------------------------
+You MUST extract the subject and scene directly from the Title.
 
-🎯 IDEA DOMINANCE RULE (HIGHEST PRIORITY)
-- The input Title is the PRIMARY SOURCE OF TRUTH
-- The scene, environment, and subject MUST reflect the title exactly
-- Do NOT override or neutralize key elements from the title
+Steps:
+1. Identify the main subject from the Title
+2. Identify the scene type (flat lay, product, lifestyle, portrait, etc.)
+3. Build ALL outputs strictly around this subject
 
-SCENE TYPE DETECTION:
-- If title contains location (beach, office, park, kitchen):
-  → generate lifestyle scene
+STRICT RULE:
+- DO NOT introduce unrelated subjects
+- DO NOT reuse previous concepts
+- DO NOT default to people/lifestyle unless explicitly stated
 
-- If title contains object (product, icon, symbol):
-  → generate studio scene
-    
-    🚫 CONTENT
-    - no text, logos, brands, copyrighted characters
-    
-    --------------------------------------
-    🚨 STRICT FILTER
-    --------------------------------------
-    Before output:
-    - remove unrelated objects
-    - remove background scenes
-    - remove narrative complexity
-    - KEEP real interaction and action
-    
-    --------------------------------------
-    CONSISTENCY
-    --------------------------------------
-    - same subject across all prompts
-    - no new ideas introduced
-    
-    --------------------------------------
-    VARIATION
-    --------------------------------------
-    Each prompt must differ in:
-    - camera angle or lens
-    - lighting style
-    - composition
-    
-    --------------------------------------
-    INPUT
-    --------------------------------------
-    Title: ${title}
-    Keywords: ${keywords}
-    Category: ${category}
-    `;
+Example:
+Title: "Workspace Flat Lay"
+→ Subject: workspace items
+→ Scene: top-down flat lay composition
+→ NO people, NO beach, NO lifestyle scene
+
+--------------------------------------
+🚫 SUBJECT OVERRIDE PROTECTION
+--------------------------------------
+If the generated content does NOT match the Title:
+→ The output is INVALID
+→ You MUST internally fix it before returning
+
+--------------------------------------
+🧬 ANATOMY & VISUAL QUALITY (CRITICAL)
+--------------------------------------
+Ensure realistic, clean, and correct visuals.
+
+STRICTLY AVOID:
+- extra/missing fingers, distorted hands
+- extra limbs, fused body parts
+- asymmetrical faces, misaligned eyes
+- incorrect eye focus
+- warped shapes, melted details
+
+--------------------------------------
+🎬 DIRECTED PHOTOSHOOT INTELLIGENCE
+--------------------------------------
+Each prompt must feel like a real commercial photoshoot.
+
+REQUIRE:
+- clear subject definition
+- real action or realistic arrangement (for flat lay/product)
+- natural, believable composition
+
+--------------------------------------
+💰 COMMERCIAL IMPACT (CRITICAL)
+--------------------------------------
+The content must be highly sellable on stock platforms.
+
+Ensure:
+- clear commercial usage (branding, marketing, ads)
+- visually clean and modern
+- strong composition and clarity
+
+--------------------------------------
+OUTPUT FORMAT (STRICT JSON)
+--------------------------------------
+Return ONLY:
+
+{
+  "title": "",
+  "keywords": [],
+  "description": "",
+  "prompts": ["", "", ""]
+}
+
+--------------------------------------
+TITLE (SEO OPTIMIZED - CRITICAL)
+--------------------------------------
+- Max 70 characters
+- Must include strong search keywords (subject + context)
+- Must reflect EXACT subject from Title
+- No generic wording
+
+--------------------------------------
+KEYWORDS (HIGH COVERAGE - CRITICAL)
+--------------------------------------
+- Generate 40–45 keywords
+- Ordered by importance
+- Include:
+  • subject
+  • objects
+  • environment
+  • style
+  • commercial usage
+- No duplicates
+
+--------------------------------------
+DESCRIPTION
+--------------------------------------
+- 1–2 sentences
+- Professional, clear
+- Reflect exact subject + usage
+
+--------------------------------------
+IMAGE PROMPTS (CORE)
+--------------------------------------
+Generate EXACTLY 3 prompts.
+
+--------------------------------------
+📖 PROMPT DEPTH REQUIREMENT (CRITICAL)
+--------------------------------------
+Each prompt MUST be 80–120 words.
+
+Each MUST include:
+
+1. SUBJECT & ARRANGEMENT
+- exact objects from title
+- precise layout (especially for flat lay)
+
+2. ENVIRONMENT
+- surface, background, materials
+
+3. LIGHTING
+- realistic light source (natural or studio)
+
+4. CAMERA
+- camera + lens + aperture
+
+5. COMPOSITION
+- top-down / angle / framing
+
+6. COMMERCIAL USE
+- branding / product / marketing use
+
+DO NOT:
+- write short prompts
+- add unrelated subjects
+- drift from title
+
+--------------------------------------
+🎬 STYLE
+--------------------------------------
+- cinematic, high-end, commercial
+- clean, minimal, sharp
+
+--------------------------------------
+💡 LIGHTING (ADAPTIVE)
+--------------------------------------
+- flat lay/product → soft studio or natural window light
+- lifestyle → natural environment lighting
+
+--------------------------------------
+🧼 BACKGROUND RULE (SMART)
+--------------------------------------
+- MUST match title context
+
+Example:
+Workspace → desk surface
+Food → table
+Product → clean background
+
+--------------------------------------
+🎯 IDEA DOMINANCE RULE
+--------------------------------------
+- Title is the ONLY source of truth
+- Everything must align with it
+
+--------------------------------------
+🚫 CONTENT RESTRICTIONS
+--------------------------------------
+- no text in image
+- no logos or brands
+- no unrelated elements
+
+--------------------------------------
+🚨 STRICT FILTER
+--------------------------------------
+Before output:
+- remove anything not related to title
+- ensure subject consistency
+- ensure commercial clarity
+
+--------------------------------------
+CONSISTENCY
+--------------------------------------
+- same subject across all prompts
+
+--------------------------------------
+VARIATION
+--------------------------------------
+Each prompt must differ in:
+- angle (top-down, slight angle, close-up)
+- lighting style
+- composition
+
+--------------------------------------
+INPUT
+--------------------------------------
+Title: \${title}
+Keywords: \${keywords || "auto-generate"}
+Category: \${category}
+`;
     const r = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }]
     });
 
-    const parsed = JSON.parse(r.choices[0].message.content);
+    const raw = r.choices[0].message.content;
+
+    const cleaned = raw
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+    const extracted = cleaned.match(/\{[\s\S]*\}/)?.[0];
+
+    if (!extracted) {
+        console.error("❌ No valid JSON found");
+        console.log(raw);
+        throw new Error("Invalid AI response");
+    }
+
+    const parsed = JSON.parse(extracted);
 
     res.json(parsed);
 });
+
+function cleanJSON(text) {
+    return text
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+}
+
+function extractJSON(text) {
+    const match = text.match(/\{[\s\S]*\}/);
+    return match ? match[0] : null;
+}
