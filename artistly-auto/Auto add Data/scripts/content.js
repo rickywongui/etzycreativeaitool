@@ -1,125 +1,28 @@
 let isRunning = false;
 
-async function runAutomation(rows) {
-
-    await waitForElements('[data-t="assets-content-grid"]');
-
-    const max = rows.length;
-
-    for (let i = 0; i < max; i++) {
-
-        if (!isRunning) break;
-
-        try {
-            const items = document.querySelectorAll(
-                '[data-t="assets-content-grid"] .container-inline-block'
-            );
-
-            if (!items[i]) break;
-
-            console.log("Processing index:", items[i], "with data:", rows[i]);
-
-            const row = rows[i];
-
-            items[i].scrollIntoView({ behavior: "smooth", block: "center" });
-            await delay(500);
-            const clickable = items[i].querySelector("a, button, div[role='option']") || items[i];
-            realClick(clickable);
-
-            await delay(1000);
-
-            // 🔥 STEP 1: Click first checkbox
-            const aiCheckbox = await waitForElement(
-                '#content-tagger-generative-ai-checkbox'
-            );
-            setCheckboxChecked(aiCheckbox, true);
-
-            await delay(500); // allow UI update
-
-            // 🔥 STEP 2: Click second checkbox
-            const propertyCheckbox = await waitForElement(
-                '#content-tagger-generative-ai-property-release-checkbox'
-            );
-            setCheckboxChecked(propertyCheckbox, true);
-
-            await delay(500); // allow UI update
-
-
-            const categoryBtn = await waitForElement(
-                '[data-t="content-tagger-category-select"]'
-            );
-
-            realClick(categoryBtn);
-
-            await delay(1000);
-
-            // 🔥 STEP 4: Select category (robust)
-            if (row.Category) {
-
-                const targetCategory = row.Category.trim().toLowerCase();
-
-                await delay(800); // allow dropdown render
-
-                const options = document.querySelectorAll('[role="option"]');
-
-                let found = false;
-
-                for (const opt of options) {
-
-                    const label = opt.querySelector('.gO9Mdq_spectrum-Menu-itemLabel');
-
-                    if (!label) continue;
-
-                    const text = label.innerText.trim().toLowerCase();
-
-                    if (text === targetCategory) {
-                        realClick(opt);
-                        found = true;
-                        console.log("✅ Selected category:", text);
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    console.warn("❌ Category not found:", row.Category);
-                }
-
-                await delay(800);
-            }
-
-            const titleBox = await waitForElement(
-                'textarea[data-t="asset-title-content-tagger"]'
-            );
-
-            const keywordBox = await waitForElement(
-                '#content-keywords-ui-textarea'
-            );
-
-            setNativeValue(titleBox, row.Title);
-            setNativeValue(keywordBox, row.Keywords);
-
-            document.getElementById("statusText").innerText =
-                `Processing ${i + 1}/${max}`;
-
-            await delay(2000);
-
-        } catch (err) {
-            console.error("Error at index", i, err);
-        }
-    }
-
-    console.log("✅ Done automation");
-}
-
 function setNativeValue(element, value) {
-    const valueSetter = Object.getOwnPropertyDescriptor(
+
+    // ✅ CASE 1: input / textarea
+    const descriptor = Object.getOwnPropertyDescriptor(
         element.__proto__,
         "value"
-    ).set;
+    );
 
-    valueSetter.call(element, value);
+    if (descriptor && descriptor.set) {
+        descriptor.set.call(element, value);
+        element.dispatchEvent(new Event("input", { bubbles: true }));
+        return;
+    }
 
-    element.dispatchEvent(new Event("input", { bubbles: true }));
+    // ✅ CASE 2: contenteditable (Slate, div, etc.)
+    if (element.isContentEditable) {
+        element.innerText = value;
+        element.dispatchEvent(new Event("input", { bubbles: true }));
+        return;
+    }
+
+    // ❌ fallback
+    console.warn("⚠️ Cannot set value for element:", element);
 }
 
 function delay(ms) {
@@ -130,41 +33,119 @@ function createFloatingUI() {
     const panel = document.createElement("div");
 
     panel.style.position = "fixed";
-    panel.style.top = "20px";
+    panel.style.top = "120px";
     panel.style.right = "20px";
     panel.style.zIndex = "9999";
-    panel.style.background = "#fff";
-    panel.style.padding = "10px";
-    panel.style.border = "1px solid #ccc";
-    panel.style.borderRadius = "8px";
-    panel.style.boxShadow = "0 2px 10px rgba(0,0,0,0.2)";
+    panel.style.width = "260px";
+    panel.style.background = "#ffffff";
+    panel.style.borderRadius = "12px";
+    panel.style.boxShadow = "0 8px 30px rgba(0,0,0,0.12)";
+    panel.style.fontFamily = "Inter, sans-serif";
+    panel.style.overflow = "hidden";
+    panel.style.border = "1px solid #eee";
 
     panel.innerHTML = `
-        <input type="file" id="excelFile" accept=".xlsx,.csv"/><br><br>
-        <button id="startAuto">▶ Start</button>
-        <button id="stopAuto">⛔ Stop</button>
-        <div id="statusText">Idle</div>
+        <div id="dragHeader" style="
+            padding:12px;
+            font-weight:600;
+            font-size:14px;
+            cursor:grab;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color:#fff;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        ">
+            <span>🚀 Automation</span>
+            <span style="font-size:12px;opacity:0.8;">v1.0</span>
+        </div>
+
+        <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+
+            <label style="font-size:12px;color:#666;">Upload Excel</label>
+            <input id="excelFile" type="file" accept=".xlsx,.csv" style="
+                border:1px solid #ddd;
+                border-radius:6px;
+                padding:6px;
+                font-size:12px;
+            ">
+
+            <div style="display:flex;gap:8px;">
+                <button id="startAuto" style="
+                    flex:1;
+                    background:#22c55e;
+                    color:#fff;
+                    border:none;
+                    border-radius:6px;
+                    padding:8px;
+                    font-size:12px;
+                    cursor:pointer;
+                ">▶ Start</button>
+
+                <button id="stopAuto" style="
+                    flex:1;
+                    background:#ef4444;
+                    color:#fff;
+                    border:none;
+                    border-radius:6px;
+                    padding:8px;
+                    font-size:12px;
+                    cursor:pointer;
+                ">⛔ Stop</button>
+            </div>
+
+            <div id="statusText" style="
+                font-size:12px;
+                color:#555;
+                background:#f9fafb;
+                padding:6px;
+                border-radius:6px;
+                text-align:center;
+            ">Idle</div>
+        </div>
     `;
+
+    ["startAuto", "stopAuto"].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+
+        btn.onmouseenter = () => btn.style.opacity = "0.9";
+        btn.onmouseleave = () => btn.style.opacity = "1";
+    });
 
     document.body.appendChild(panel);
 
     document.getElementById("excelFile").addEventListener("change", handleFile);
-    document.getElementById("startAuto").onclick = startAutomation;
-    document.getElementById("stopAuto").onclick = stopAutomation;
+    document.getElementById("statusText").style.color = "#16a34a"; // running
+    document.getElementById("statusText").style.color = "#ef4444"; // stopped
+
+    setTimeout(() => {
+        const startBtn = document.getElementById("startAuto");
+        const stopBtn = document.getElementById("stopAuto");
+
+        if (startBtn) startBtn.onclick = startAutomation;
+        if (stopBtn) stopBtn.onclick = stopAutomation;
+    }, 0);
+
+    return panel;
 }
 
-createFloatingUI();
 
-async function waitForElement(selector, timeout = 10000) {
+async function waitForElement(selector, timeout = 15000) {
     const start = Date.now();
+    const selectors = selector.split(",");
 
     while (Date.now() - start < timeout) {
-        const el = document.querySelector(selector);
-        if (el) return el;
+
+        for (const sel of selectors) {
+            const el = document.querySelector(sel.trim());
+            if (el) return el;
+        }
+
         await delay(300);
     }
 
-    throw new Error("Element not found: " + selector);
+    console.warn("⚠️ Element not found, fallback to ANY textarea");
 }
 
 
@@ -175,15 +156,20 @@ function realClick(el) {
 }
 
 async function getData() {
-    const result = await chrome.storage.local.get("excelData");
-    return result.excelData || [];
+    return new Promise((resolve) => {
+        chrome.storage.local.get("excelData", (result) => {
+            resolve(result.excelData || []);
+        });
+    });
 }
 
 
 async function startAutomation() {
+
     isRunning = true;
 
     const data = await getData();
+
     console.log("🔥 Loaded data:", data);
 
     if (!data.length) {
@@ -191,25 +177,46 @@ async function startAutomation() {
         return;
     }
 
-    runAutomation(data);
+    await runAutomation(data);
 }
-
 
 function stopAutomation() {
     isRunning = false;
     console.log("⛔ STOP clicked");
 }
 
-async function waitForElements(selector, timeout = 10000) {
-    const start = Date.now();
 
-    while (Date.now() - start < timeout) {
-        const elements = document.querySelectorAll(selector);
-        if (elements.length > 0) return elements;
-        await delay(500);
+async function loadFlowByURL() {
+
+    const url = window.location.href;
+
+    const res = await fetch(
+        chrome.runtime.getURL("scripts/mockup-flow.json")
+    );
+
+    const json = await res.json();
+
+    // 🔥 find matching route
+    const route = json.routes.find(r =>
+        url.includes(r.url)
+    );
+
+    if (!route) {
+        throw new Error("❌ No flow mapped for this URL");
     }
 
-    throw new Error("Elements not found: " + selector);
+    // 🔥 find flow
+    const flow = json.flows.find(f =>
+        f.name === route.flow
+    );
+
+    if (!flow) {
+        throw new Error("❌ Flow not found: " + route.flow);
+    }
+
+    console.log("✅ Using flow:", flow.name);
+
+    return flow;
 }
 
 
@@ -254,14 +261,358 @@ function setCheckboxChecked(el, checked = true) {
 }
 
 
-async function waitForElement(selector, timeout = 10000) {
-    const start = Date.now();
 
-    while (Date.now() - start < timeout) {
-        const el = document.querySelector(selector);
-        if (el) return el;
-        await delay(300);
+async function executeFlow(flow, context = {}) {
+
+    for (const step of flow.steps) {
+
+        console.log("⚡ Running step:", step);
+
+        switch (step.action) {
+
+            case "wait":
+                await delay(step.ms || 1000);
+                break;
+
+            case "click":
+                await handleClick(step);
+                break;
+
+            case "type":
+                await handleType(step, context);
+                break;
+
+            case "clickByText":
+                await handleClickByText(step);
+                break;
+
+            case "select":
+                await handleSelect(step);
+                break;
+
+            case "clickTab":
+                await handleClickByText({ text: step.text });
+                break;
+
+            case "clickCard":
+                await handleClickByText({ text: step.label });
+                break;
+
+            case "clickGridItem":
+                await handleClickGridItem(context.index);
+                break;
+
+            case "setCheckbox":
+                await handleCheckbox(step);
+                break;
+
+            case "selectByText":
+                await handleSelectByText(step, context);
+                break;
+
+            case "slateInput":
+                await handleSlateInput(step, context);
+                break;
+
+            default:
+                console.warn("❌ Unknown action:", step.action);
+        }
+    }
+}
+
+
+async function handleType(step, context) {
+
+    const el = await waitForElement(step.selector);
+
+    let value = step.value || "";
+
+    value = value.replace(/\{\{(.*?)\}\}/g, (_, key) => {
+        return context[key.trim()] || "";
+    });
+
+    console.log("VALUE:", value);
+
+    // 🔥 CASE 1: input / textarea
+    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+        setNativeValue(el, value);
+        return;
     }
 
-    throw new Error("Element not found: " + selector);
+    // 🔥 CASE 2: contenteditable (Slate, Google Flow)
+    if (el.isContentEditable) {
+
+        el.focus();
+        await delay(100);
+
+        // 🔥 👉 USE simulateTyping HERE
+        await simulateTyping(el, value);
+
+        console.log("✅ Typed into contenteditable:", value);
+        return;
+    }
+
+    console.warn("⚠️ Unsupported element type:", el);
 }
+
+
+async function simulateTyping(el, text) {
+
+    for (const ch of text) {
+
+        el.dispatchEvent(new KeyboardEvent("keydown", {
+            key: ch,
+            bubbles: true
+        }));
+
+        el.dispatchEvent(new InputEvent("beforeinput", {
+            bubbles: true,
+            cancelable: true,
+            inputType: "insertText",
+            data: ch
+        }));
+
+        el.dispatchEvent(new InputEvent("input", {
+            bubbles: true,
+            inputType: "insertText",
+            data: ch
+        }));
+
+        el.dispatchEvent(new KeyboardEvent("keyup", {
+            key: ch,
+            bubbles: true
+        }));
+
+        await delay(5);
+    }
+}
+
+async function handleClickByText(step) {
+
+    const elements = document.querySelectorAll("button, div, span");
+
+    for (const el of elements) {
+        if (el.innerText?.trim() === step.text) {
+            realClick(el);
+            return;
+        }
+    }
+
+    console.warn("❌ Text not found:", step.text);
+}
+
+
+async function handleSelect(step) {
+
+    const el = await waitForElement(step.selector);
+
+    el.value = step.value;
+
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+
+async function handleClickGridItem(index) {
+
+    const items = document.querySelectorAll(
+        '[data-t="assets-content-grid"] .container-inline-block'
+    );
+
+    const item = items[index];
+
+    if (!item) throw new Error("Item not found");
+
+    item.scrollIntoView({ behavior: "smooth", block: "center" });
+    await delay(500);
+
+    const clickable =
+        item.querySelector("a, button, div[role='option']") || item;
+
+    realClick(clickable);
+}
+
+
+
+async function handleCheckbox(step) {
+
+    const el = await waitForElement(step.selector);
+
+    if (el.checked !== step.value) {
+        realClick(el);
+    }
+}
+
+
+async function handleSelectByText(step, context) {
+
+    const target = (context[step.value.replace(/[{}]/g, "")] || "")
+        .trim()
+        .toLowerCase();
+
+    const options = document.querySelectorAll(step.selector);
+
+    for (const opt of options) {
+
+        const label = opt.innerText.trim().toLowerCase();
+
+        if (label === target) {
+            realClick(opt);
+            return;
+        }
+    }
+
+    console.warn("❌ Not found:", target);
+}
+
+async function runAutomation(rows) {
+
+    const flow = await loadFlowByURL();
+
+    for (let i = 0; i < rows.length; i++) {
+
+        if (!isRunning) break;
+
+        const row = rows[i];
+
+        await executeFlow(flow, {
+            Prompt: row.Prompt,
+            Title: row.Title,
+            Keywords: row.Keywords,
+            Category: row.Category,
+            index: i
+        });
+
+        document.getElementById("statusText").innerText =
+            `Processing ${i + 1}/${rows.length}`;
+    }
+
+    console.log("✅ Done automation");
+}
+
+
+async function handleSlateInput(step, context) {
+
+    const el = await waitForElement('[contenteditable="true"]');
+
+    let value = step.value || "";
+
+    value = value.replace(/\{\{(.*?)\}\}/g, (_, key) => {
+        return context[key.trim()] || "";
+    });
+
+    // 🔥 focus editor
+    el.focus();
+
+    await delay(100);
+
+    // 🔥 clear content (robust)
+    el.innerHTML = "";
+    el.textContent = "";
+
+    // 🔥 insert text (FAST + STABLE)
+    const selection = window.getSelection();
+    const range = document.createRange();
+
+    range.selectNodeContents(el);
+    range.collapse(true);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const textNode = document.createTextNode(value);
+    range.insertNode(textNode);
+
+    // 🔥 move cursor to end
+    range.setStartAfter(textNode);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    // 🔥 trigger proper events (IMPORTANT)
+    el.dispatchEvent(new InputEvent("input", {
+        bubbles: true,
+        inputType: "insertText",
+        data: value
+    }));
+
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+
+    console.log("✅ Slate input (fast mode):", value);
+}
+
+async function handleClick(step) {
+
+    // 🔥 exact button (icon + label)
+    if (step.icon && step.text) {
+        const btn = findExactSendButton();
+        if (btn) {
+            realClick(btn);
+            return;
+        }
+    }
+
+    // 🔥 icon only
+    if (step.icon) {
+        const btn = findSendButtonByIcon();
+        if (btn) {
+            realClick(btn);
+            return;
+        }
+    }
+
+    // 🔥 text only
+    if (step.text) {
+        const btn = findSendButtonByLabel();
+        if (btn) {
+            realClick(btn);
+            return;
+        }
+    }
+
+    // 🔥 fallback selector
+    if (step.selector) {
+        const el = await waitForElement(step.selector);
+        realClick(el);
+    }
+}
+
+
+function findExactSendButton() {
+    const buttons = document.querySelectorAll("button");
+
+    for (const btn of buttons) {
+        const hasIcon = btn.querySelector("i")?.textContent.trim() === "arrow_forward";
+        const hasLabel = Array.from(btn.querySelectorAll("span"))
+            .some(s => s.textContent.trim().toLowerCase() === "tạo");
+
+        if (hasIcon && hasLabel) return btn;
+    }
+
+    return null;
+}
+
+let isDragging = false;
+let offsetX = 0, offsetY = 0;
+
+const panel = createFloatingUI();
+const header = panel.querySelector("#dragHeader");
+
+header.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    offsetX = e.clientX - panel.offsetLeft;
+    offsetY = e.clientY - panel.offsetTop;
+    panel.style.cursor = "grabbing";
+});
+
+document.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    panel.style.left = (e.clientX - offsetX) + "px";
+    panel.style.top = (e.clientY - offsetY) + "px";
+    panel.style.right = "auto";
+});
+
+document.addEventListener("mouseup", () => {
+    isDragging = false;
+    panel.style.cursor = "grab";
+});

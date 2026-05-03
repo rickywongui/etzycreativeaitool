@@ -1,0 +1,108 @@
+{
+    "routes": [
+        {
+            "url": "contributor.stock.adobe.com",
+            "flow": "adobe_stock_v1"
+        },
+        {
+            "url": "labs.google",
+            "flow": "google_flow_prompt"
+        },
+        {
+            "url": "firefly.adobe.com",
+            "flow": "adobe_flow_prompt"
+        }
+    ],
+    "flows": [
+        {
+            "name": "adobe_stock_v1",
+            "steps": [
+                {
+                    "action": "clickGridItem"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1000
+                },
+                {
+                    "action": "setCheckbox",
+                    "selector": "#content-tagger-generative-ai-checkbox",
+                    "value": true
+                },
+                {
+                    "action": "setCheckbox",
+                    "selector": "#content-tagger-generative-ai-property-release-checkbox",
+                    "value": true
+                },
+                {
+                    "action": "click",
+                    "selector": "[data-t='content-tagger-category-select']"
+                },
+                {
+                    "action": "selectByText",
+                    "selector": "[role='option']",
+                    "value": "{{Category}}"
+                },
+                {
+                    "action": "type",
+                    "selector": "textarea[data-t='asset-title-content-tagger']",
+                    "value": "{{Title}}"
+                },
+                {
+                    "action": "type",
+                    "selector": "#content-keywords-ui-textarea",
+                    "value": "{{Keywords}}"
+                }
+            ]
+        },
+        {
+            "name": "google_flow_prompt",
+            "steps": [
+                {
+                    "action": "wait",
+                    "ms": 2000
+                },
+                {
+                    "action": "type",
+                    "selector": "[contenteditable='true']",
+                    "value": "{{Prompt}}"
+                },
+                {
+                    "action": "click",
+                    "icon": "arrow_forward",
+                    "text": "Tạo"
+                },
+                {
+                    "action": "wait",
+                    "ms": 2000
+                }
+            ]
+        },
+        {
+            "name": "adobe_flow_prompt",
+            "steps": [
+                {
+                    "action": "click",
+                    "selector": "body"
+                },
+                {
+                    "action": "wait",
+                    "ms": 1000
+                },
+                {
+                    "action": "type",
+                    "selector": "textarea, [contenteditable='true']",
+                    "value": "{{Prompt}}"
+                },
+                {
+                    "action": "click",
+                    "selector": "button[id='generate-button']"
+                },
+                {
+                    "action": "wait",
+                    "ms": 2000
+                }
+            ]
+        }
+    ]
+}

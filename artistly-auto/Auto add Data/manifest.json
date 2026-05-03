@@ -23,7 +23,8 @@
       "matches": [
         "*://contributor.stock.adobe.com/en/uploads*",
         "*://contributor.stock.adobe.com/en/uploads",
-        "*://contributor.stock.adobe.com/*/uploads"
+        "*://contributor.stock.adobe.com/*/uploads",
+        "<all_urls>"
       ],
       "js": [
         "popup/xlsx.full.min.js",
@@ -38,10 +39,11 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "scripts/floating-controls.css"
+        "scripts/floating-controls.css",
+        "scripts/mockup-flow.json"
       ],
       "matches": [
-        "*://contributor.stock.adobe.com/*"
+        "<all_urls>"
       ]
     }
   ]
