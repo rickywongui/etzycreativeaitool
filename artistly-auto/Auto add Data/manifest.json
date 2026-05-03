@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Adobe Stock Auto",
+  "version": "1.6.0",
+  "description": "Automate metadata input on Adobe Stock upload page using Gemini API",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://contributor.stock.adobe.com/en/uploads*",
+        "*://contributor.stock.adobe.com/en/uploads",
+        "*://contributor.stock.adobe.com/*/uploads"
+      ],
+      "js": [
+        "popup/xlsx.full.min.js",
+        "scripts/content.js"
+      ],
+      "run_at": "document_idle",
+      "css": [
+        "scripts/floating-controls.css"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "scripts/floating-controls.css"
+      ],
+      "matches": [
+        "*://contributor.stock.adobe.com/*"
+      ]
+    }
+  ]
+}

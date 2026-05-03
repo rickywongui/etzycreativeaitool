@@ -1401,6 +1401,32 @@
         <!-- LEFT SIDE -->
         <div>
 
+          <label>Category</label>
+          <select id="adobeCategory"
+            style="width:100%;padding:6px;margin-bottom:10px;">
+            <option value>Select category</option>
+            <option>Animals</option>
+            <option>Buildings and Architecture</option>
+            <option>Business</option>
+            <option>Drinks</option>
+            <option>The Environment</option>
+            <option>States of Mind</option>
+            <option>Food</option>
+            <option>Graphic Resources</option>
+            <option>Hobbies and Leisure</option>
+            <option>Industry</option>
+            <option>Landscapes</option>
+            <option>Lifestyle</option>
+            <option>People</option>
+            <option>Plants and Flowers</option>
+            <option>Culture and Religion</option>
+            <option>Science</option>
+            <option>Social Issues</option>
+            <option>Sports</option>
+            <option>Technology</option>
+            <option>Transport</option>
+            <option>Travel</option>
+          </select>
           <label>Title / Concept</label>
           <input id="adobeTitle" placeholder="e.g. Cute cat illustration" />
 
@@ -1408,19 +1434,18 @@
           <input id="adobeKeywords"
             placeholder="cat, cute, cartoon, pet" />
 
-          <label style="margin-top:8px">Category</label>
-          <select id="adobeCategory">
-            <option>Realistic</option>
-            <option>Illustration</option>
-            <option>Graphic Resources</option>
-            <option>Patterns</option>
-            <option>Backgrounds</option>
-            <option>Icons</option>
+          <label style="margin-top:8px">Number of Variations</label>
+          <select id="adobeQuantity">
+            <option value="1">1</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
           </select>
 
           <div style="margin-top:10px">
             <button id="genAdobeBtn">Generate Adobe Stock Data (AI)</button>
             <button id="copyAdobeBtn">Download CSV 📥</button>
+            <button id="resetAdobeBtn">♻️ Reset Data</button>
           </div>
 
         </div>
@@ -1432,37 +1457,7 @@
 
           <div style="padding:10px;background:#fafafa;border-radius:6px">
 
-            <strong>Prompt:</strong>
             <div id="adobePrompts" style="margin-top:12px;"></div>
-
-            <!-- TITLE -->
-            <div
-              style="display:flex;align-items:center;justify-content:space-between;margin-top:10px; position:relative;">
-              <strong>Title:</strong>
-              <button class="copy-btn" data-copy="adobePreviewTitle">📋</button>
-            </div>
-            <p id="adobePreviewTitle">—</p>
-
-            <!-- KEYWORDS -->
-            <div
-              style="display:flex;align-items:center;justify-content:space-between;margin-top:10px; position:relative;">
-              <strong>Keywords:</strong>
-              <button class="copy-btn"
-                data-copy="adobePreviewKeywords">📋</button>
-            </div>
-            <p id="adobePreviewKeywords">—</p>
-
-            <!-- DESCRIPTION -->
-            <div
-              style="display:flex;align-items:center;justify-content:space-between;margin-top:10px; position:relative;">
-              <strong>Description:</strong>
-              <button class="copy-btn" data-copy="adobePreviewDesc">📋</button>
-            </div>
-            <p id="adobePreviewDesc" class="small">—</p>
-
-            <button id="runAllPromptsBtn">
-              Generate All in Artistly 🚀
-            </button>
 
           </div>
 
@@ -1477,6 +1472,7 @@ let selectedPhrase = "";
 let selectedTrend = "";
 let selectedColors = [];
 let latestIdeaData = null;
+let adobeDataStore = [];
 
 function resolvePhrase() {
     const userInput = document.getElementById("ideaInput").value.trim();
@@ -4824,6 +4820,8 @@ document.getElementById("genAdobeBtn").addEventListener("click", async () => {
 const title = document.getElementById("adobeTitle").value;
 const keywords = document.getElementById("adobeKeywords").value;
 const category = document.getElementById("adobeCategory").value;
+const quantity = document.getElementById("adobeQuantity").value;
+
 
 const btn = document.getElementById("genAdobeBtn");
 btn.disabled = true;
@@ -4834,16 +4832,26 @@ try {
   const res = await postJSON("/api/ai/adobe-stock", {
     title,
     keywords,
-    category
+    category,
+    quantity  
   });
 
-  // Preview
-  document.getElementById("adobePreviewTitle").textContent = res.title;
-  document.getElementById("adobePreviewKeywords").textContent = res.keywords.join(", ");
-  document.getElementById("adobePreviewDesc").textContent = res.description;
+  // 🚨 IMPORTANT: APPEND, NOT REPLACE
+  if (Array.isArray(res.results)) {
+    const category = document.getElementById("adobeCategory").value;
+
+    adobeDataStore = [
+      ...adobeDataStore,
+      ...res.results.map(item => ({
+        ...item,
+        category // ✅ attach category here
+      }))
+    ];
+  }
 
   // 🔥 THIS IS STEP 4 (correct position)
-  renderAdobePrompts(res.prompts);
+  window._adobeResults = adobeDataStore;
+  renderAdobePrompts(adobeDataStore);
 
   // store for later (batch run, copy, etc.)
   window._lastAdobe = res;
@@ -4857,144 +4865,55 @@ try {
 
 });
 
-document.getElementById("copyAdobeBtn").onclick = () => {
-  if (!window._lastAdobe) return;
-
-  const text = `
-    Title: ${window._lastAdobe.title}
-
-    Keywords:
-    ${window._lastAdobe.keywords.join(", ")}
-
-    Description:
-    ${window._lastAdobe.description}
-    `;
-
-  navigator.clipboard.writeText(text);
-};
-
 
 function renderAdobePrompts(prompts){
 
-const box = document.getElementById("adobePrompts");
-box.innerHTML = "";
+const container = document.getElementById("adobePrompts");
+container.innerHTML = "";
 
-prompts.forEach((p, i) => {
+if (!Array.isArray(prompts)) {
+  console.warn("⚠️ prompts is not array", prompts);
+  return;
+}
 
-  const row = document.createElement("div");
-  row.style.marginBottom = "8px";
+prompts.forEach((item, index) => {
 
-  const text = document.createElement("textarea");
-  text.value = p;
-  text.style.width = "100%";
-  text.rows = 3;
+  const block = document.createElement("div");
 
-  const actions = document.createElement("div");
+  block.innerHTML = `
+    <div style="border:1px solid #ddd;padding:10px;margin-bottom:10px;border-radius:6px">
 
-  const copyBtn = document.createElement("button");
-  copyBtn.textContent = "Copy";
+      <strong>Prompt ${index + 1}</strong>
 
-  const runBtn = document.createElement("button");
-  runBtn.textContent = "Send to Artistly ⚡";
-  runBtn.style.marginLeft = "6px";
+      <textarea id="prompt_${index}" style="width:100%;margin-top:6px;">
+${item.prompt || ""}
+      </textarea>
 
-  const seamlessBtn = document.createElement("button");
-  seamlessBtn.textContent = "Send Seamless 🧩";
-  seamlessBtn.style.marginLeft = "6px";
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+        <button onclick="copyPrompt(${index})">📋 Copy</button>
+        <button onclick="sendToArtistly(${index})">⚡ Send to Artistly</button>
+        <button onclick="sendSeamless(${index})">🧩 Send Seamless</button>
+      </div>
 
-  copyBtn.onclick = () => navigator.clipboard.writeText(p);
-  seamlessBtn.onclick = () => sendToArtistlySeamless(p);
+      <p><strong>Title:</strong> ${item.title || ""}</p>
 
-  runBtn.onclick = () => sendToArtistly(p);
+      <p><strong>Keywords:</strong> ${
+        Array.isArray(item.keywords)
+          ? item.keywords.join(", ")
+          : ""
+      }</p>
 
-  actions.appendChild(copyBtn);
-  actions.appendChild(runBtn);
-  actions.appendChild(seamlessBtn);
+      <p><strong>Description:</strong> ${item.description || ""}</p>
 
-  row.appendChild(text);
-  row.appendChild(actions);
+    </div>
+  `;
 
-  box.appendChild(row);
-
+  container.appendChild(block);
 });
 
 }
 
-function sendToArtistly(prompt){
 
-const quantity =
-  document.getElementById("styleQuantity")?.value || 1;
-
-if (!EXTENSION_ID) {
-  alert("Select extension first");
-  return;
-}
-
-chrome.runtime.sendMessage(
-  EXTENSION_ID,
-  {
-    type: "OPEN_ARTISTLY",
-    prompt: prompt,
-    quantity: quantity
-  },
-  () => {
-    if (chrome.runtime.lastError) {
-      console.warn("Extension not found, fallback");
-
-      window.open(
-        "https://app.artistly.ai/ai/image-designer-v6",
-        "_blank"
-      );
-    }
-  }
-);
-
-}
-
-document.getElementById("runAllPromptsBtn").onclick = () => {
-
-if (!window._lastAdobe?.prompts) return;
-
-window._lastAdobe.prompts.forEach((p, i) => {
-
-  setTimeout(() => {
-    sendToArtistly(p);
-  }, i * 2000); // delay between runs
-
-});
-
-};
-
-function sendToArtistlySeamless(prompt){
-
-const quantity =
-  document.getElementById("styleQuantity")?.value || 1;
-
-if (!EXTENSION_ID) {
-  alert("Select extension first");
-  return;
-}
-
-chrome.runtime.sendMessage(
-  EXTENSION_ID,
-  {
-    type: "RUN_ARTISTLY_SEAMLESS_AUTOMATION", // 👈 NEW TYPE
-    prompt: prompt,
-    quantity: quantity
-  },
-  () => {
-    if (chrome.runtime.lastError) {
-      console.warn("Extension not found, fallback");
-
-      window.open(
-        "https://app.artistly.ai/ai/image-designer-v6",
-        "_blank"
-      );
-    }
-  }
-);
-
-}
 
 document.addEventListener("click", async (e) => {
 
@@ -5035,40 +4954,122 @@ try {
 
 });
 
-document.getElementById("copyAdobeBtn")?.addEventListener("click", () => {
 
-const title = document.getElementById("adobePreviewTitle")?.textContent?.trim() || "";
-const keywords = document.getElementById("adobePreviewKeywords")?.textContent?.trim() || "";
-const desc = document.getElementById("adobePreviewDesc")?.textContent?.trim() || "";
+function copyPrompt(index){
+  const item = window._adobeResults?.[index];
+  if (!item) return;
 
-if (!title) {
+  navigator.clipboard.writeText(item.prompt || "");
+  alert("Copied!");
+}
+
+function sendToArtistly(index){
+  const item = window._adobeResults?.[index];
+  if (!item) return;
+
+  const prompt = item.prompt;
+  const quantity = 1; // or dynamic later
+
+  if (window.chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage(
+      EXTENSION_ID,
+      { type: "OPEN_ARTISTLY", prompt, quantity },
+      () => {
+        if (chrome.runtime.lastError) {
+          window.open(
+            "https://app.artistly.ai/ai/image-designer-v6",
+            "_blank"
+          );
+        }
+      }
+    );
+  }
+}
+
+function sendSeamless(index){
+  const item = window._adobeResults?.[index];
+  if (!item) return;
+
+  const prompt = "A seamless pattern of " + (item.prompt || "");
+
+  if (window.chrome?.runtime?.sendMessage) {
+    chrome.runtime.sendMessage(
+      EXTENSION_ID,
+      {
+        type: "RUN_ARTISTLY_SEAMLESS_AUTOMATION",
+        prompt,
+        quantity: 4
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          window.open(
+            "https://app.artistly.ai/ai/image-designer-v6",
+            "_blank"
+          );
+        }
+      }
+    );
+  }
+}
+
+
+document.getElementById("copyAdobeBtn").addEventListener("click", async () => {
+
+if (!adobeDataStore.length) {
   alert("No data to export");
   return;
 }
 
-// Escape CSV safely
-const escapeCSV = (str) =>
-  `"${str.replace(/"/g, '""')}"`;
+const res = await fetch("/api/export-excel", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    data: adobeDataStore
+  })
+});
 
-const csvContent =
-  "Title,Keywords,Description\n" +
-  [
-    escapeCSV(title),
-    escapeCSV(keywords),
-    escapeCSV(desc)
-  ].join(",");
+if (!res.ok) {
+  alert("Export failed");
+  return;
+}
 
-// Create file
-const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-
-const url = URL.createObjectURL(blob);
+// 🔥 Download file
+const blob = await res.blob();
+const url = window.URL.createObjectURL(blob);
 
 const a = document.createElement("a");
 a.href = url;
-a.download = "adobe_stock_metadata.csv";
+a.download = "adobe_export.xlsx";
 a.click();
 
-URL.revokeObjectURL(url);
+});
+
+
+document.getElementById("resetAdobeBtn").addEventListener("click", () => {
+
+const confirmReset = confirm("Are you sure you want to clear all data?");
+
+if (!confirmReset) return;
+
+// 🧠 Clear memory
+adobeDataStore = [];
+
+// 🧹 Clear UI (prompts list)
+const container = document.getElementById("adobePrompts");
+if (container) container.innerHTML = "";
+
+// 🧼 Reset preview fields
+const titleEl = document.getElementById("adobePreviewTitle");
+const keywordsEl = document.getElementById("adobePreviewKeywords");
+const descEl = document.getElementById("adobePreviewDesc");
+
+if (titleEl) titleEl.textContent = "—";
+if (keywordsEl) keywordsEl.textContent = "—";
+if (descEl) descEl.textContent = "—";
+
+console.log("♻️ Data reset complete");
 
 });
 

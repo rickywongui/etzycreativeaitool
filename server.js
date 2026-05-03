@@ -2867,212 +2867,189 @@ app.listen(PORT, () => console.log(`AI proxy server running on ${PORT}`));
 
 app.post("/api/ai/adobe-stock", async (req, res) => {
 
-    const { title, keywords, category } = req.body;
+    const { title, keywords, category, quantity } = req.body;
 
     const prompt = `
 You are a senior Adobe Stock contributor, commercial photographer, and AI image director.
 
-You MUST strictly follow all rules. If any rule is violated, the output is invalid.
-
 --------------------------------------
-🚨 HARD COMPLIANCE MODE
+🚨 HARD RULES
 --------------------------------------
-- Follow ALL rules exactly
-- No assumptions, no extra ideas
-- No output outside JSON
+- Follow all rules strictly
+- Output ONLY valid JSON
+- No extra ideas
 - Accuracy > creativity
 
 --------------------------------------
-🧠 TITLE INTERPRETATION (CRITICAL)
+🧠 STEP 1: INTERPRET TITLE
 --------------------------------------
-You MUST extract the subject and scene directly from the Title.
-
-Steps:
-1. Identify the main subject from the Title
-2. Identify the scene type (flat lay, product, lifestyle, portrait, etc.)
-3. Build ALL outputs strictly around this subject
-
-STRICT RULE:
-- DO NOT introduce unrelated subjects
-- DO NOT reuse previous concepts
-- DO NOT default to people/lifestyle unless explicitly stated
+Extract:
+- Subject
+- Scene type (flat lay, product, lifestyle, etc.)
+- Key objects
 
 Example:
-Title: "Workspace Flat Lay"
-→ Subject: workspace items
-→ Scene: top-down flat lay composition
-→ NO people, NO beach, NO lifestyle scene
+"Workspace Flat Lay"
+→ subject: workspace items
+→ scene: top-down desk layout
+→ objects: laptop, notebook, accessories
 
 --------------------------------------
-🚫 SUBJECT OVERRIDE PROTECTION
+🔒 STEP 2: LOCK SUBJECT
 --------------------------------------
-If the generated content does NOT match the Title:
-→ The output is INVALID
-→ You MUST internally fix it before returning
+- ALL outputs MUST match the Title exactly
+- Do NOT replace subject with another concept
+- Do NOT introduce unrelated objects
+
+INVALID:
+- "Working From Home" → coffee flat lay ❌
+- "Workspace" → food scene ❌
 
 --------------------------------------
-🧬 ANATOMY & VISUAL QUALITY (CRITICAL)
---------------------------------------
-Ensure realistic, clean, and correct visuals.
-
-STRICTLY AVOID:
-- extra/missing fingers, distorted hands
-- extra limbs, fused body parts
-- asymmetrical faces, misaligned eyes
-- incorrect eye focus
-- warped shapes, melted details
-
---------------------------------------
-🎬 DIRECTED PHOTOSHOOT INTELLIGENCE
---------------------------------------
-Each prompt must feel like a real commercial photoshoot.
-
-REQUIRE:
-- clear subject definition
-- real action or realistic arrangement (for flat lay/product)
-- natural, believable composition
-
---------------------------------------
-💰 COMMERCIAL IMPACT (CRITICAL)
---------------------------------------
-The content must be highly sellable on stock platforms.
-
-Ensure:
-- clear commercial usage (branding, marketing, ads)
-- visually clean and modern
-- strong composition and clarity
-
---------------------------------------
-OUTPUT FORMAT (STRICT JSON)
+OUTPUT FORMAT
 --------------------------------------
 Return ONLY:
 
 {
-  "title": "",
-  "keywords": [],
-  "description": "",
-  "prompts": ["", "", ""]
+  "results": [
+    {
+      "title": "",
+      "keywords": [],
+      "description": "",
+      "prompt": ""
+    }
+  ]
 }
 
 --------------------------------------
-TITLE (SEO OPTIMIZED - CRITICAL)
+🎯 TITLE DOMINANCE RULE (CRITICAL)
 --------------------------------------
-- Max 70 characters
-- Must include strong search keywords (subject + context)
-- Must reflect EXACT subject from Title
-- No generic wording
+The Title is the ONLY source of truth for the visual concept.
+
+Keywords are ONLY for SEO support and MUST NOT override or change:
+- subject
+- scene type
+- composition
+
+If keywords conflict with the Title:
+→ IGNORE the conflicting keywords
+
+Example:
+Title: "Working From Home"
+Keywords: "flat lay, desk"
+→ MUST generate a lifestyle scene, NOT flat lay
 
 --------------------------------------
-KEYWORDS (HIGH COVERAGE - CRITICAL)
+QUANTITY
 --------------------------------------
-- Generate 40–45 keywords
-- Ordered by importance
-- Include:
-  • subject
-  • objects
-  • environment
-  • style
-  • commercial usage
+Generate EXACTLY ${quantity} results
+
+Each result:
+- unique title
+- unique prompt
+- unique keywords
+- SAME core concept
+
+--------------------------------------
+TITLE
+--------------------------------------
+- Max 70 characters
+- Must reflect the Title concept clearly
+- SEO-friendly
+- Each Title must be unique if quantity > 1 but all must match the same core concept from the input Title
+
+Do NOT use generic titles.
+The title must be commercially searchable.
+
+--------------------------------------
+KEYWORDS
+--------------------------------------
+- 45–49 keywords
+- Relevant only
 - No duplicates
+
+KEYWORDS USAGE RULE:
+
+Keywords are used ONLY for:
+- SEO enrichment
+- vocabulary variation
+
+They MUST NOT:
+- define scene type
+- introduce new objects
+- override the Title concept
 
 --------------------------------------
 DESCRIPTION
 --------------------------------------
 - 1–2 sentences
-- Professional, clear
-- Reflect exact subject + usage
+- Must match the subject and usage
 
 --------------------------------------
-IMAGE PROMPTS (CORE)
+PROMPT RULES (DIRECTED PHOTOSHOOT)
 --------------------------------------
-Generate EXACTLY 3 prompts.
+Each prompt must be 80–120 words and feel like a directed photoshoot.
 
---------------------------------------
-📖 PROMPT DEPTH REQUIREMENT (CRITICAL)
---------------------------------------
-Each prompt MUST be 80–120 words.
+Include ALL:
 
-Each MUST include:
+1. SUBJECT & OBJECTS  
+- exact items from the Title  
+- realistic arrangement or interaction  
 
-1. SUBJECT & ARRANGEMENT
-- exact objects from title
-- precise layout (especially for flat lay)
+2. ENVIRONMENT  
+- correct setting (desk, home, office, etc.)  
 
-2. ENVIRONMENT
-- surface, background, materials
+3. LIGHTING  
+- realistic and scene-appropriate  
+  • natural window light / golden hour / soft ambient  
+  • OR studio softbox if product  
+- describe light direction and softness  
 
-3. LIGHTING
-- realistic light source (natural or studio)
+4. CAMERA  
+- real camera (Canon EOS R5 / Sony A7R IV / Nikon Z9)  
+- lens (35mm / 50mm / 85mm)  
+- aperture (f/1.8, f/2.8, f/8)  
+- depth of field (shallow or sharp)  
 
-4. CAMERA
-- camera + lens + aperture
+5. COMPOSITION  
+- angle (top-down, eye-level, close-up)  
+- balanced framing  
+- clear negative space  
 
-5. COMPOSITION
-- top-down / angle / framing
-
-6. COMMERCIAL USE
-- branding / product / marketing use
-
-DO NOT:
-- write short prompts
-- add unrelated subjects
-- drift from title
-
---------------------------------------
-🎬 STYLE
---------------------------------------
-- cinematic, high-end, commercial
-- clean, minimal, sharp
+6. DIRECTED FEEL  
+- must feel intentional, styled, and commercial  
+- not random or generic  
 
 --------------------------------------
-💡 LIGHTING (ADAPTIVE)
+BACKGROUND
 --------------------------------------
-- flat lay/product → soft studio or natural window light
-- lifestyle → natural environment lighting
+Must match context:
+- workspace → desk surface
+- product → clean studio background
+- lifestyle → real environment
 
 --------------------------------------
-🧼 BACKGROUND RULE (SMART)
+CATEGORY (STRICT)
 --------------------------------------
-- MUST match title context
-
-Example:
-Workspace → desk surface
-Food → table
-Product → clean background
+- Category: ${category}
+- The generated content MUST strongly reflect this category
+- Do NOT ignore or override the category
 
 --------------------------------------
-🎯 IDEA DOMINANCE RULE
+🚫 RESTRICTIONS
 --------------------------------------
-- Title is the ONLY source of truth
-- Everything must align with it
+- no text, logos, brands
+- no unrelated objects
+- no concept drift
 
 --------------------------------------
-🚫 CONTENT RESTRICTIONS
---------------------------------------
-- no text in image
-- no logos or brands
-- no unrelated elements
-
---------------------------------------
-🚨 STRICT FILTER
+🔁 FINAL CHECK
 --------------------------------------
 Before output:
-- remove anything not related to title
-- ensure subject consistency
-- ensure commercial clarity
+- Does it match the Title exactly?
+- Any unrelated objects?
 
---------------------------------------
-CONSISTENCY
---------------------------------------
-- same subject across all prompts
-
---------------------------------------
-VARIATION
---------------------------------------
-Each prompt must differ in:
-- angle (top-down, slight angle, close-up)
-- lighting style
-- composition
+If incorrect → fix before returning
 
 --------------------------------------
 INPUT
@@ -3117,3 +3094,44 @@ function extractJSON(text) {
     const match = text.match(/\{[\s\S]*\}/);
     return match ? match[0] : null;
 }
+
+
+import XLSX from "xlsx";
+
+
+app.use(express.json()); // 🔥 MUST HAVE
+
+app.post("/api/export-excel", (req, res) => {
+    try {
+        const { data } = req.body;
+
+        if (!data || !data.length) {
+            return res.status(400).send("No data");
+        }
+
+        const rows = data.map(item => ({
+            Prompt: item.prompt || "",
+            Title: item.title || "",
+            Keywords: Array.isArray(item.keywords)
+                ? item.keywords.join(", ")
+                : "",
+            Description: item.description || "",
+            Category: item.category || ""
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(rows);
+        const wb = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(wb, ws, "Adobe");
+
+        const filePath = path.join(process.cwd(), "adobe_export.xlsx");
+
+        XLSX.writeFile(wb, filePath);
+
+        res.download(filePath);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err.message);
+    }
+});
