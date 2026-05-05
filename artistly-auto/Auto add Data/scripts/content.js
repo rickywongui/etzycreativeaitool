@@ -1,4 +1,5 @@
 let isRunning = false;
+let selectedImages = [];
 
 function setNativeValue(element, value) {
 
@@ -103,7 +104,11 @@ function createFloatingUI() {
                 text-align:center;
             ">Idle</div>
         </div>
+       
+        
     `;
+
+
 
     ["startAuto", "stopAuto"].forEach(id => {
         const btn = document.getElementById(id);
@@ -129,6 +134,41 @@ function createFloatingUI() {
 
     return panel;
 }
+
+
+function uploadFileDirect(file) {
+    const input = document.querySelector('input[type="file"]');
+
+    if (!input) {
+        console.warn("❌ File input not found");
+        return;
+    }
+
+    const dt = new DataTransfer();
+    dt.items.add(file);
+
+    input.files = dt.files;
+
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+    console.log("📤 Uploaded:", file.name);
+}
+
+async function loadFlowByName(name) {
+    const res = await fetch(
+        chrome.runtime.getURL("scripts/mockup-flow.json")
+    );
+
+    const json = await res.json();
+
+    const flow = json.flows.find(f => f.name === name);
+
+    if (!flow) throw new Error("Flow not found: " + name);
+
+    return flow;
+}
+
+
 
 
 async function waitForElement(selector, timeout = 15000) {

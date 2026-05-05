@@ -24,7 +24,9 @@
         "*://contributor.stock.adobe.com/en/uploads*",
         "*://contributor.stock.adobe.com/en/uploads",
         "*://contributor.stock.adobe.com/*/uploads",
-        "<all_urls>"
+        "https://contributor.stock.adobe.com/en/uploads*",
+        "https://labs.google/fx/vi/tools/flow/project/*",
+        "https://firefly.adobe.com/generate/image*"
       ],
       "js": [
         "popup/xlsx.full.min.js",

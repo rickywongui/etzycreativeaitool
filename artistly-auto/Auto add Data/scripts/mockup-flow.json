@@ -103,6 +103,19 @@
                     "ms": 2000
                 }
             ]
+        },
+        {
+            "name": "browseFlow",
+            "steps": [
+                {
+                    "action": "clickByText",
+                    "text": "Browse"
+                },
+                {
+                    "action": "wait",
+                    "ms": 3000
+                }
+            ]
         }
     ]
 }

@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -1472,7 +1473,8 @@ let selectedPhrase = "";
 let selectedTrend = "";
 let selectedColors = [];
 let latestIdeaData = null;
-let adobeDataStore = [];
+let adobeDataStore = [];        // UI (latest only)
+let adobeDataMaster = [];       // CSV (ALL history)
 
 function resolvePhrase() {
     const userInput = document.getElementById("ideaInput").value.trim();
@@ -4838,15 +4840,38 @@ try {
 
   // 🚨 IMPORTANT: APPEND, NOT REPLACE
   if (Array.isArray(res.results)) {
-    const category = document.getElementById("adobeCategory").value;
+    // const category = document.getElementById("adobeCategory").value;
 
-    adobeDataStore = [
-      ...adobeDataStore,
-      ...res.results.map(item => ({
+    const currentCategory = document.getElementById("adobeCategory").value;
+
+    // 🔥 RESET (IMPORTANT)
+    adobeDataStore = [];
+
+    if (Array.isArray(res.results)) {
+
+      const currentCategory = document.getElementById("adobeCategory").value;
+
+      // 🔹 1. UI → replace
+      adobeDataStore = res.results.map(item => ({
         ...item,
-        category // ✅ attach category here
-      }))
-    ];
+        category: currentCategory
+      }));
+
+      // 🔹 2. MASTER → append
+      adobeDataMaster.push(
+        ...adobeDataStore
+      );
+
+      // 🔹 3. render ONLY latest
+      window._adobeResults = adobeDataStore;
+      renderAdobePrompts(adobeDataStore);
+    }
+
+    // update global
+    window._adobeResults = adobeDataStore;
+
+    // render
+    renderAdobePrompts(adobeDataStore);
   }
 
   // 🔥 THIS IS STEP 4 (correct position)
@@ -5015,7 +5040,7 @@ function sendSeamless(index){
 
 document.getElementById("copyAdobeBtn").addEventListener("click", async () => {
 
-if (!adobeDataStore.length) {
+if (!adobeDataMaster.length) {
   alert("No data to export");
   return;
 }
@@ -5026,7 +5051,7 @@ const res = await fetch("/api/export-excel", {
     "Content-Type": "application/json"
   },
   body: JSON.stringify({
-    data: adobeDataStore
+    data: adobeDataMaster
   })
 });
 
@@ -5055,6 +5080,7 @@ if (!confirmReset) return;
 
 // 🧠 Clear memory
 adobeDataStore = [];
+adobeDataMaster = [];
 
 // 🧹 Clear UI (prompts list)
 const container = document.getElementById("adobePrompts");

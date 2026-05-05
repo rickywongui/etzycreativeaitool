@@ -2870,194 +2870,126 @@ app.post("/api/ai/adobe-stock", async (req, res) => {
     const { title, keywords, category, quantity } = req.body;
 
     const prompt = `
-You are a senior Adobe Stock contributor, commercial photographer, and AI image director.
+    You are a professional Adobe Stock photographer and cinematic image director.
+    
+    --------------------------------------
+    🎯 CORE RULE
+    --------------------------------------
+    Generate visuals by COMBINING:
+    
+    → Title = subject + action (WHAT)
+    → Category = emotion + meaning (WHY)
+    → Keywords = visual support (DETAILS)
+    
+    Final scene MUST clearly show ALL THREE.
+    
+    --------------------------------------
+    🧠 SCENE LOGIC
+    --------------------------------------
+    - Title defines subject and main action
+    - Category defines emotion, story, and context
+    - Keywords enrich details but NEVER override Title
+    
+    If Title is vague → enrich using Category.
+    
+    --------------------------------------
+    🚫 INVALID OUTPUT
+    --------------------------------------
+    - Generic stock scenes
+    - Workspace / desk unless explicitly required
+    - Missing emotional or category meaning
+    - ANY text, letters, logos, UI, watermark inside the image
+    - Brand-specific or copyrighted elements
 
---------------------------------------
-🚨 HARD RULES
---------------------------------------
-- Follow all rules strictly
-- Output ONLY valid JSON
-- No extra ideas
-- Accuracy > creativity
+    If detected → REGENERATE
+    
+    --------------------------------------
+    🎬 PROMPT STYLE (CINEMATIC)
+    --------------------------------------
+    Each prompt MUST feel like a directed photoshoot:
+    
+    Include:
+    - subject + action (clear and specific)
+    - environment (realistic, not generic)
+    - emotional tone (from Category)
+    - lighting (natural / cinematic / directional)
+    - camera (Sony A7R IV / Canon R5, lens, aperture)
+    - composition (close-up / wide / depth / framing)
+    
+    Style:
+    - cinematic
+    - intentional
+    - commercial-ready
+    - not generic
+    
+    --------------------------------------
+    🔑 KEYWORDS RULE
+    --------------------------------------
+    - MUST generate 40–45 keywords
+    - highly relevant to the scene
+    - no duplicates
+    - mix of:
+      • main subject
+      • environment
+      • emotion (from Category)
+      • commercial use terms
+    
 
---------------------------------------
-🧠 STEP 1: INTERPRET TITLE
---------------------------------------
-Extract:
-- Subject
-- Scene type (flat lay, product, lifestyle, etc.)
-- Key objects
+        --------------------------------------
+        🛡️ ADOBE STOCK COMPLIANCE (STRICT)
+        --------------------------------------
 
-Example:
-"Workspace Flat Lay"
-→ subject: workspace items
-→ scene: top-down desk layout
-→ objects: laptop, notebook, accessories
+        All generated content MUST comply with Adobe Stock guidelines:
 
---------------------------------------
-🔒 STEP 2: LOCK SUBJECT
---------------------------------------
-- ALL outputs MUST match the Title exactly
-- Do NOT replace subject with another concept
-- Do NOT introduce unrelated objects
+        DO NOT include:
+        - any text, letters, words, or readable characters
+        - logos, trademarks, or brand identities
+        - UI elements from real apps (TikTok, Instagram, etc.)
+        - copyrighted designs or recognizable products
+        - watermarks or signatures
 
-INVALID:
-- "Working From Home" → coffee flat lay ❌
-- "Workspace" → food scene ❌
+        VISUAL QUALITY RULES:
+        - realistic anatomy (hands, faces, proportions must be correct)
+        - clean composition (no clutter, no distortion)
+        - sharp focus, no noise or artifacts
+        - natural lighting and color balance
 
---------------------------------------
-OUTPUT FORMAT
---------------------------------------
-Return ONLY:
+        CONTENT SAFETY:
+        - no misleading or fake concepts presented as real
+        - no sensitive or harmful content
+        - no exaggerated or impossible objects
 
-{
-  "results": [
+        If any violation occurs:
+        → REGENERATE the result
+
+        All outputs must be:
+        ✔ commercially usable
+        ✔ safe for stock licensing
+        ✔ clean, realistic, and professional
+
+    --------------------------------------
+    📦 OUTPUT
+    --------------------------------------
+    Generate EXACTLY ${quantity} results
+    
     {
-      "title": "",
-      "keywords": [],
-      "description": "",
-      "prompt": ""
+      "results": [
+        {
+          "title": "",
+          "keywords": [],
+          "description": "",
+          "prompt": ""
+        }
+      ]
     }
-  ]
-}
 
---------------------------------------
-🎯 TITLE DOMINANCE RULE (CRITICAL)
---------------------------------------
-The Title is the ONLY source of truth for the visual concept.
-
-Keywords are ONLY for SEO support and MUST NOT override or change:
-- subject
-- scene type
-- composition
-
-If keywords conflict with the Title:
-→ IGNORE the conflicting keywords
-
-Example:
-Title: "Working From Home"
-Keywords: "flat lay, desk"
-→ MUST generate a lifestyle scene, NOT flat lay
-
---------------------------------------
-QUANTITY
---------------------------------------
-Generate EXACTLY ${quantity} results
-
-Each result:
-- unique title
-- unique prompt
-- unique keywords
-- SAME core concept
-
---------------------------------------
-TITLE
---------------------------------------
-- Max 70 characters
-- Must reflect the Title concept clearly
-- SEO-friendly
-- Each Title must be unique if quantity > 1 but all must match the same core concept from the input Title
-
-Do NOT use generic titles.
-The title must be commercially searchable.
-
---------------------------------------
-KEYWORDS
---------------------------------------
-- 45–49 keywords
-- Relevant only
-- No duplicates
-
-KEYWORDS USAGE RULE:
-
-Keywords are used ONLY for:
-- SEO enrichment
-- vocabulary variation
-
-They MUST NOT:
-- define scene type
-- introduce new objects
-- override the Title concept
-
---------------------------------------
-DESCRIPTION
---------------------------------------
-- 1–2 sentences
-- Must match the subject and usage
-
---------------------------------------
-PROMPT RULES (DIRECTED PHOTOSHOOT)
---------------------------------------
-Each prompt must be 80–120 words and feel like a directed photoshoot.
-
-Include ALL:
-
-1. SUBJECT & OBJECTS  
-- exact items from the Title  
-- realistic arrangement or interaction  
-
-2. ENVIRONMENT  
-- correct setting (desk, home, office, etc.)  
-
-3. LIGHTING  
-- realistic and scene-appropriate  
-  • natural window light / golden hour / soft ambient  
-  • OR studio softbox if product  
-- describe light direction and softness  
-
-4. CAMERA  
-- real camera (Canon EOS R5 / Sony A7R IV / Nikon Z9)  
-- lens (35mm / 50mm / 85mm)  
-- aperture (f/1.8, f/2.8, f/8)  
-- depth of field (shallow or sharp)  
-
-5. COMPOSITION  
-- angle (top-down, eye-level, close-up)  
-- balanced framing  
-- clear negative space  
-
-6. DIRECTED FEEL  
-- must feel intentional, styled, and commercial  
-- not random or generic  
-
---------------------------------------
-BACKGROUND
---------------------------------------
-Must match context:
-- workspace → desk surface
-- product → clean studio background
-- lifestyle → real environment
-
---------------------------------------
-CATEGORY (STRICT)
---------------------------------------
-- Category: ${category}
-- The generated content MUST strongly reflect this category
-- Do NOT ignore or override the category
-
---------------------------------------
-🚫 RESTRICTIONS
---------------------------------------
-- no text, logos, brands
-- no unrelated objects
-- no concept drift
-
---------------------------------------
-🔁 FINAL CHECK
---------------------------------------
-Before output:
-- Does it match the Title exactly?
-- Any unrelated objects?
-
-If incorrect → fix before returning
-
---------------------------------------
-INPUT
---------------------------------------
-Title: \${title}
-Keywords: \${keywords || "auto-generate"}
-Category: \${category}
-`;
+    --------------------------------------
+    INPUT
+    --------------------------------------
+    Title: ${title}
+    Keywords: ${keywords || "auto-generate"}
+    Category: ${category}
+    `;
     const r = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }]
