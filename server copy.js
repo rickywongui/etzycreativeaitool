@@ -2867,383 +2867,327 @@ app.listen(PORT, () => console.log(`AI proxy server running on ${PORT}`));
 
 app.post("/api/ai/adobe-stock", async (req, res) => {
 
-    const { title, keywords, category, quantity = 1, mode } = req.body;
-
-    // --------------------------------------
-    // 🧠 CORE ENGINE
-    // --------------------------------------
-
-    const coreEngine = `
-You are a world-class Adobe Stock photographer, cinematic visual storyteller, and luxury commercial art director.
-
-Create emotionally authentic, commercially valuable, visually distinctive imagery that feels professionally photographed rather than AI-generated.
-
-CORE RULES:
-- prioritize storytelling over generic beauty
-- create believable lived moments
-- environments must feel physically real
-- naturalistic photographic realism with emotional depth grounded in authentic photography
-- compositions must feel observational, not staged
-- variation between outputs must be significant
-
-VISUAL STYLE:
-- documentary-inspired visual realism
-- documentary authenticity
-- layered environmental depth
-- natural optical behavior
-- emotionally grounded framing
-
-TECHNICAL REQUIREMENTS:
-- razor sharp subject focus
-- realistic anatomy
-- natural textures
-- physically believable lighting
-- balanced exposure
-- zero AI artifacts
-
-STRICTLY AVOID:
-- generic stock compositions
-- plastic skin
-- warped anatomy
-- repetitive framing
-- centered catalog compositions unless product-focused
-- vague cinematic adjectives
-- over-stylized AI aesthetics
-
-The image must feel:
-- authentic
-- cinematic
-- visually rich
-- commercially licensable
-- professionally photographed
-
-
-If the image feels generic, repetitive, artificial, or AI-generated:
-→ REGENERATE COMPLETELY
-`;
-
-    const realismGuard = `
-REALISM LANGUAGE RULES:
-
-Avoid abstract cinematic language such as:
-- cinematic
-- immersive
-- authentic atmosphere
-- emotional realism
-- visually rich
-- dramatic mood
-- storytelling composition
-
-Instead:
-describe only physically observable details.
-
-Focus on:
-- surfaces
-- materials
-- lighting behavior
-- spatial layering
-- environmental interaction
-- body posture
-- framing imperfections
-- object placement
-- weather interaction
-- motion behavior
-
-Write like:
-- a street photographer describing a captured frame
-NOT:
-- a film director pitching a scene
-`;
-
-    // --------------------------------------
-    // 🧩 MODULES
-    // --------------------------------------
-
-    const modeModule = getModeModule(mode);
-    const qualityModule = getQualityModule("ultra");
-    const styleModule = getStyleModule("lifestyle"); //more option
-    const cameraModule = getCameraModule("realismGuard");
-    const observationModule = getObservationModule("documentary");
-    const ipsafetyModule = getIPSafetyModule();
-
-    // --------------------------------------
-    // 🎬 OUTPUT REQUIREMENTS
-    // --------------------------------------
-
-    const outputRequirements = `
-    OUTPUT REQUIREMENTS:
-
-    The final output must read like:
-    - a cinematographer shot brief
-    - a luxury commercial photography direction
-    - slightly uneven framing through passing pedestrians
-
-    Each generated prompt MUST explicitly describe:
-    - camera angle
-    - camera height
-    - lens focal behavior
-    - framing composition
-    - focus hierarchy
-    - subject sharpness priority
-    - foreground/background layering
-    - environmental depth
-    - atmospheric motion
-    - lighting interaction
-    - optical realism
-    - cinematic perspective
-
-    The writing must feel:
-    - visually dense
-    - emotionally immersive
-    - environmentally rich
-    - optically believable
-
-    Minimum length:
-    180 to 350 words per prompt.
-
-    Avoid:
-    - short summaries
-    - compressed prose
-    - generic scene descriptions
-    - vague cinematic wording
-    - broad adjectives without visual detail
-
-    Scenes should contain sensory realism including:
-    - humidity lightly diffusing distant neon reflections
-    - temperature cues
-    - material textures
-    - atmospheric density
-    - tactile surfaces
-    - environmental residue
-    - physical weather interaction
-    - subtle imperfections
-
-    The environment must feel physically inhabitable.
-
-    Human subjects should display:
-    - natural posture variation
-    - imperfect body positioning
-    - candid interaction
-    - distracted moments
-    - subtle emotional expression
-    - believable physical behavior
-
-    Avoid:
-    - direct posing
-    - perfect posture
-    - exaggerated cinematic emotion
-    - symmetrical body arrangement
-
-    `;
-
-    const culturalConsistencyModule = `
-CULTURAL + METADATA CONSISTENCY RULES:
-
-All visual elements must remain fully consistent with the metadata keywords, title, and location context.
-
-If the metadata references a specific country, culture, city, ethnicity, or region, the generated image must accurately reflect that identity through realistic environmental and human details.
-
-This includes:
-- architecture
-- people
-- facial features
-- clothing
-- transportation
-- food
-- weather
-- lighting behavior
-- atmosphere
-- urban density
-- environmental materials
-- street layout
-- cultural interactions
-- lifestyle details
-
-The environment must feel geographically believable and culturally coherent.
-
-Avoid:
-- generic international aesthetics
-- mixed Asian visual language
-- tourism-poster exaggeration
-- incorrect cultural blending
-- artificial cinematic beautification
-
-The generated image must visually match the metadata so buyers instantly recognize the location and cultural identity without needing to read the title or keywords.
-
-Scenes should feel naturally observed rather than designed for tourism advertising.
-`;
-
-    // --------------------------------------
-    // 📦 FINAL PROMPT
-    // --------------------------------------
+    const { title, keywords, category, quantity, mode } = req.body;
 
     const prompt = `
-${coreEngine}
+    You are a professional Adobe Stock photographer and cinematic image director.
 
-${modeModule}
+    --------------------------------------
+    🎛️ GENERATION MODE
+    --------------------------------------
 
-${qualityModule}
+    Mode: ${mode}
 
-${styleModule}
+If mode = "clipart":
 
-${culturalConsistencyModule}
-
-${cameraModule}
-
-${outputRequirements}
-
-${observationModule}
-
-${ipsafetyModule}
-
+- style must be soft watercolor illustration (NOT flat vector)
+- hand-painted texture with visible brush strokes
+- pastel, warm, muted color palette
+- natural tones (cream, beige, soft green, warm yellow)
 
 --------------------------------------
-INPUT
+🧠 CONTENT RULE (STRICT)
 --------------------------------------
 
-Generate EXACTLY ${quantity} cinematic Adobe Stock prompts.
+- The subject MUST be derived from Title (main object)
+- Keywords MUST be used as visual elements (props, materials, variations)
+- Category MUST define mood, theme, and styling
 
-TITLE:
-${title}
+Formula:
+→ Clipart subject = Title + Keywords + Category
 
-KEYWORDS:
-${keywords || "auto-generate"}
+Examples:
+Title: "Daisy"
+Keywords: basket, boots, crate
+Category: Plants and Flowers
 
-CATEGORY:
-${category}
+→ valid outputs:
+- daisy bouquet in rustic basket
+- daisies inside rain boots
+- daisies in wooden crate
+- daisy arrangement on stool
 
-The image must look like:
-- a real professional photoshoot
-- naturally captured
-- visually immersive
-- emotionally authentic
-- commercially valuable
+--------------------------------------
+🎨 STYLE RULE
+--------------------------------------
 
-Every image must capture:
-- a specific lived moment
-- authentic environmental interaction
-- cinematic visual storytelling
-- believable human realism
+- watercolor botanical / farmhouse aesthetic
+- soft edges, no hard outlines
+- gentle gradients, natural paint blending
+- slightly vintage, cozy, rustic feel
+- realistic but artistically stylized
 
-The final image should feel like:
-- a remembered real moment
-- a captured human experience
-- an emotionally authentic observation
+--------------------------------------
+🧩 COMPOSITION
+--------------------------------------
 
-NOT:
-- an AI-generated concept illustration
-- a generic stock composition
-- a staged cinematic render
+- single object or small grouped object
+- isolated (PNG style)
+- transparent or very soft white background
+- centered composition
+- clean cut edges (stock-ready)
 
-Return ONLY valid JSON.
+--------------------------------------
+🚫 STRICTLY AVOID
+--------------------------------------
 
-────────────────────────
-KEYWORD RULES
-────────────────────────
+- flat vector icons
+- bold outlines
+- cartoon style
+- 3D rendering
+- glossy or plastic textures
 
-Generate EXACTLY between 45 and 49 Adobe Stock keywords.
+--------------------------------------
+🔁 VARIATION RULE
+--------------------------------------
 
-CRITICAL:
-- Minimum: 45 keywords
-- Maximum: 49 keywords
-- Never output fewer than 45
-- Never output more than 49
+Each result MUST:
+- be a different object variation
+- use different keyword combinations
+- feel like part of a cohesive clipart bundle set
 
-Keywords must include a diverse mix of:
+If mode = "isolated":
 
-1. Main subject keywords
-2. Secondary object keywords
-3. Human/action keywords
-4. Environment/location keywords
-5. Emotion/mood keywords
-6. Lighting/photography keywords
-7. Documentary realism keywords
-8. Lifestyle keywords
-9. Commercial usage keywords
-10. Travel/culture keywords
+--------------------------------------
+🎯 CORE STYLE
+--------------------------------------
 
-IMPORTANT:
-- Most important keywords first
-- No duplicates
-- No repeated meaning
-- No spam
-- No trademarked terms
-- No copyrighted terms
-- No camera brands
-- No artist names
+- ultra-clean studio product photography
+- cinematic realism with subtle artistic direction
+- subject must be visually striking and premium quality
 
-GOOD:
-vietnam market, street vendor, daily life
+--------------------------------------
+🧠 CONTENT RULE (STRICT)
+--------------------------------------
 
-BAD:
-beautiful, amazing, stunning
+- Title defines the main object (hero subject)
+- Keywords define material, variation, and details
+- Category defines mood, tone, and commercial context
 
-Keywords should resemble:
-real top-performing Adobe Stock metadata.
+Final result MUST clearly reflect all three.
 
-The final keywords array MUST contain between 45 and 49 items.
+--------------------------------------
+🎬 CINEMATIC VISUAL STYLE
+--------------------------------------
 
-FORMAT:
-{
-  "results": [
+- high-end studio lighting (soft key light + subtle rim light)
+- controlled highlights and gentle contrast
+- shallow depth of field (subject sharp, edges softly fall off)
+- realistic shadows (soft, diffused, natural grounding shadow)
+- slight cinematic grading (clean, neutral tone ONLY — no color tint)
+
+Camera direction:
+- Canon EOS R5 / Sony A7R IV
+- 50mm / 85mm lens
+- aperture f/2.8 – f/5.6
+- sharp focus on subject details
+
+--------------------------------------
+🧩 COMPOSITION
+--------------------------------------
+
+- single hero object ONLY
+- centered composition (no off-center styling)
+- generous negative space
+- clean cut silhouette for easy masking
+
+--------------------------------------
+⚪ BACKGROUND (ABSOLUTE RULE)
+--------------------------------------
+
+- background MUST be pure white (#FFFFFF EXACT)
+- RGB(255,255,255) only
+- no gradient, no gray, no shadow fade, no color tint
+- no visible surface, floor, or horizon line
+- no environment of any kind
+
+- ONLY allow a very soft, tight contact shadow directly under the object
+- shadow must be subtle, light gray, and stay close to the object
+
+This image must look like:
+→ a professional e-commerce product cutout
+→ ready for background removal without editing
+
+If ANY of the following appear → REGENERATE:
+- off-white background
+- gray or beige tones
+- visible background texture
+- studio wall, table, or floor
+- gradient or vignette
+
+--------------------------------------
+🚫 STRICTLY AVOID
+--------------------------------------
+
+- multiple objects or clutter
+- props not required by keywords
+- strong or dramatic shadows
+- reflections or glossy floor
+- colored lighting or mood lighting
+- text, logos, branding
+
+--------------------------------------
+🔁 VARIATION RULE
+--------------------------------------
+
+Each result must:
+- change object variation (based on keywords)
+- slightly vary lighting direction ONLY
+- remain consistent as a clean product set
+
+    If mode = "default":
+    - follow cinematic style (normal rules)
+        
+    --------------------------------------
+    🎯 CORE RULE
+    --------------------------------------
+    Generate visuals by COMBINING:
+    
+    → Title = subject + action (WHAT)
+    → Category = emotion + meaning (WHY)
+    → Keywords = visual support (DETAILS)
+    
+    Final scene MUST clearly show ALL THREE.
+    
+    --------------------------------------
+    🧠 SCENE LOGIC
+    --------------------------------------
+    - Title defines subject and main action
+    - Category defines emotion, story, and context
+    - Keywords enrich details but NEVER override Title
+    
+    If Title is vague → enrich using Category.
+    
+    --------------------------------------
+    🚫 INVALID OUTPUT
+    --------------------------------------
+    - Generic stock scenes
+    - Workspace / desk unless explicitly required
+    - Missing emotional or category meaning
+    - ANY text, letters, logos, UI, watermark inside the image
+    - Brand-specific or copyrighted elements
+
+    If detected → REGENERATE
+    
+    --------------------------------------
+    🎬 PROMPT STYLE (CINEMATIC)
+    --------------------------------------
+    PROMPT STYLE depends on mode:
+
+    - clipart → vector illustration style
+    - isolated → studio product photography
+    - default → cinematic photography
+
+    Each prompt MUST match the selected mode strictly.
+    
+    Include:
+    - subject + action (clear and specific)
+    - environment (realistic, not generic)
+    - emotional tone (from Category)
+    - lighting (natural / cinematic / directional)
+    - camera (Sony A7R IV / Canon R5, lens, aperture)
+    - composition (close-up / wide / depth / framing)
+    
+    Style:
+    - cinematic
+    - intentional
+    - commercial-ready
+    - not generic
+    
+    --------------------------------------
+    🔑 KEYWORDS RULE
+    --------------------------------------
+    - MUST generate 40–45 keywords
+    - highly relevant to the scene
+    - no duplicates
+    - mix of:
+      • main subject
+      • environment
+      • emotion (from Category)
+      • commercial use terms
+    If mode = "clipart":
+    - include keywords like: vector, clipart, isolated, flat design
+
+    If mode = "isolated":
+    - include keywords like: isolated, white background, cutout, png asset
+    
+
+    --------------------------------------
+    🛡️ ADOBE STOCK COMPLIANCE (STRICT)
+    --------------------------------------
+
+    All generated content MUST comply with Adobe Stock guidelines:
+
+    DO NOT include:
+    - any text, letters, words, or readable characters
+    - logos, trademarks, or brand identities
+    - UI elements from real apps (TikTok, Instagram, etc.)
+    - copyrighted designs or recognizable products
+    - watermarks or signatures
+
+    VISUAL QUALITY RULES:
+    - realistic anatomy (hands, faces, proportions must be correct)
+    - clean composition (no clutter, no distortion)
+    - sharp focus, no noise or artifacts
+    - natural lighting and color balance
+
+    CONTENT SAFETY:
+    - no misleading or fake concepts presented as real
+    - no sensitive or harmful content
+    - no exaggerated or impossible objects
+
+    If any violation occurs:
+    → REGENERATE the result
+
+    All outputs must be:
+    ✔ commercially usable
+    ✔ safe for stock licensing
+    ✔ clean, realistic, and professional
+
+    --------------------------------------
+    📦 OUTPUT
+    --------------------------------------
+    Generate EXACTLY ${quantity} results
+    
     {
-      "title": "",
-      "keywords": [],
-      "description": "",
-      "prompt": ""
+      "results": [
+        {
+          "title": "",
+          "keywords": [],
+          "description": "",
+          "prompt": ""
+        }
+      ]
     }
-  ]
-}
-`;
 
-    // --------------------------------------
-    // 🚀 OPENAI CALL
-    // --------------------------------------
-
+    --------------------------------------
+    INPUT
+    --------------------------------------
+    Title: ${title}
+    Keywords: ${keywords || "auto-generate"}
+    Category: ${category}
+    `;
     const r = await openai.chat.completions.create({
-        model: "gpt-4o",
-        temperature: 0.85,
-        max_tokens: 3400,
-        response_format: { type: "json_object" },
-        messages: [
-            {
-                role: "system",
-                content: "You are an elite cinematic visual director and Adobe Stock photography prompt engineer."
-            },
-            {
-                role: "user",
-                content: prompt
-            }
-        ]
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }]
     });
-
-    // --------------------------------------
-    // 🧹 CLEAN RESPONSE
-    // --------------------------------------
 
     const raw = r.choices[0].message.content;
 
-    let parsed;
+    const cleaned = raw
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
 
-    try {
-        parsed = JSON.parse(raw);
-    } catch (err) {
+    const extracted = cleaned.match(/\{[\s\S]*\}/)?.[0];
 
-        const cleaned = raw
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .trim();
-
-        const extracted = cleaned.match(/\{[\s\S]*\}/)?.[0];
-
-        if (!extracted) {
-            console.error("❌ Invalid JSON");
-            console.log(raw);
-            throw new Error("Invalid AI response");
-        }
-
-        parsed = JSON.parse(extracted);
+    if (!extracted) {
+        console.error("❌ No valid JSON found");
+        console.log(raw);
+        throw new Error("Invalid AI response");
     }
+
+    const parsed = JSON.parse(extracted);
 
     res.json(parsed);
 });
@@ -3300,1017 +3244,3 @@ app.post("/api/export-excel", (req, res) => {
         res.status(500).send(err.message);
     }
 });
-
-
-function getModeModule(mode) {
-
-    // --------------------------------------
-    // 🎬 DEFAULT CINEMATIC MODE
-    // --------------------------------------
-
-    if (mode === "default") {
-        return `
-MODE: CINEMATIC STORYTELLING
-
-Create authentic cinematic photography with emotional realism and environmental storytelling.
-
-SCENE RULES:
-- scenes must feel naturally lived-in
-- subjects should interact with the environment
-- moments should feel candid, not posed
-- storytelling must feel emotionally grounded
-- composition should feel immersive and observational
-
-VISUAL DIRECTION:
-- documentary-style realism
-- layered foreground/background depth
-- subtle atmospheric details
-- natural environmental imperfections
-- believable motion and interaction
-- intimate cinematic framing
-
-ENVIRONMENTAL DETAILS:
-- weather interaction
-- humidity lightly diffusing distant neon reflections
-- fabric movement
-- realistic reflections
-- atmospheric particles
-- authentic texture variation
-
-ALLOWED COMPOSITIONS:
-- rule of thirds
-- asymmetrical framing
-- environmental storytelling
-- close intimate framing
-- layered perspective depth
-
-AVOID:
-- centered catalog compositions
-- empty backgrounds
-- frozen poses
-- sterile perfection
-- generic stock scenes
-- artificial symmetry
-`;
-    }
-
-    // --------------------------------------
-    // ⚪ ISOLATED PRODUCT MODE
-    // --------------------------------------
-
-    if (mode === "isolated") {
-        return `
-MODE: ISOLATED PRODUCT PHOTOGRAPHY
-
-Create premium commercial product photography designed for stock marketplaces and e-commerce usage.
-
-SCENE RULES:
-- single hero object only
-- pure white background
-- clean silhouette
-- minimal composition
-- product-focused presentation
-
-BACKGROUND RULES:
-- RGB(255,255,255) pure white
-- no visible environment
-- no horizon line
-- no floor texture
-- no gradients
-- no vignette
-
-LIGHTING:
-- soft commercial studio lighting
-- controlled highlights
-- subtle contact shadow only
-- realistic material reflections
-- balanced exposure
-
-VISUAL STYLE:
-- premium commercial realism
-- luxury product presentation
-- sharp detail rendering
-- realistic textures
-- elegant simplicity
-
-AVOID:
-- storytelling environments
-- dramatic cinematic lighting
-- clutter
-- props unless required
-- colored shadows
-- reflective floors
-- environmental backgrounds
-`;
-    }
-
-    // --------------------------------------
-    // 🎨 CLIPART / WATERCOLOR MODE
-    // --------------------------------------
-
-    if (mode === "clipart") {
-        return `
-MODE: WATERCOLOR CLIPART ILLUSTRATION
-
-Create hand-painted watercolor illustrations suitable for premium stock clipart collections.
-
-STYLE RULES:
-- soft watercolor painting
-- visible brush texture
-- organic paint blending
-- natural pigment variation
-- cozy farmhouse aesthetic
-- vintage botanical charm
-
-COLOR PALETTE:
-- muted earthy tones
-- warm neutrals
-- pastel natural colors
-- soft greens
-- cream and beige tones
-
-COMPOSITION:
-- isolated object or small grouped elements
-- clean edges
-- transparent or soft white background
-- visually balanced arrangement
-
-SUBJECT RULES:
-- objects must feel handcrafted
-- variations should feel collectible
-- cohesive visual family between results
-- natural artistic imperfections encouraged
-
-AVOID:
-- flat vector appearance
-- bold outlines
-- glossy rendering
-- 3D effects
-- cartoon styling
-- plastic textures
-`;
-    }
-
-    // --------------------------------------
-    // 📰 EDITORIAL DOCUMENTARY MODE
-    // --------------------------------------
-
-    if (mode === "editorial") {
-        return `
-MODE: EDITORIAL DOCUMENTARY PHOTOGRAPHY
-
-Create emotionally authentic editorial photography that feels captured during a real human moment.
-
-VISUAL STYLE:
-- photojournalistic realism
-- documentary atmosphere
-- observational storytelling
-- raw emotional authenticity
-- cinematic naturalism
-
-SCENE RULES:
-- imperfect real-world environments
-- candid interactions
-- layered social context
-- environmental storytelling
-- emotionally believable moments
-
-CAMERA FEEL:
-- handheld realism
-- natural framing
-- spontaneous composition
-- immersive perspective
-
-AVOID:
-- luxury commercial polish
-- over-staging
-- perfect symmetry
-- artificial posing
-- hyper-clean environments
-`;
-    }
-
-    // --------------------------------------
-    // 👗 FASHION EDITORIAL MODE
-    // --------------------------------------
-
-    if (mode === "fashion") {
-        return `
-MODE: FASHION EDITORIAL
-
-Create cinematic fashion photography with strong mood, texture, and visual identity.
-
-VISUAL STYLE:
-- luxury editorial atmosphere
-- cinematic fashion realism
-- elegant emotional tension
-- magazine-style storytelling
-- sophisticated color harmony
-
-SCENE RULES:
-- expressive styling
-- intentional body language
-- atmospheric environments
-- layered lighting depth
-- subtle emotional narrative
-
-COMPOSITION:
-- dynamic framing
-- negative space balance
-- dramatic silhouette control
-- immersive perspective layering
-
-AVOID:
-- generic catalog poses
-- flat lighting
-- fast-fashion aesthetic
-- repetitive styling
-- sterile studio appearance
-`;
-    }
-
-    // --------------------------------------
-    // 🔥 FALLBACK MODE
-    // --------------------------------------
-
-    return `
-MODE: GENERAL CINEMATIC REALISM
-
-Create visually authentic, commercially valuable imagery with natural storytelling and cinematic realism.
-`;
-}
-
-
-function getQualityModule(level = "high") {
-
-    // --------------------------------------
-    // ⚡ STANDARD QUALITY
-    // --------------------------------------
-
-    if (level === "standard") {
-        return `
-QUALITY LEVEL: STANDARD
-
-QUALITY RULES:
-- clean composition
-- sharp focus
-- realistic anatomy
-- balanced exposure
-- natural lighting
-- realistic textures
-
-AVOID:
-- blurry details
-- obvious AI artifacts
-- distorted anatomy
-- excessive noise
-- poor lighting balance
-`;
-    }
-
-    // --------------------------------------
-    // 🔥 HIGH QUALITY
-    // --------------------------------------
-
-    if (level === "high") {
-        return `
-QUALITY LEVEL: HIGH
-
-TECHNICAL REQUIREMENTS:
-- ultra high resolution
-- razor sharp focus
-- realistic micro-details
-- physically accurate textures
-- natural depth of field
-- balanced dynamic range
-- professional exposure control
-
-TEXTURE REALISM:
-- natural skin texture
-- authentic fabric detail
-- realistic wood grain
-- believable reflections
-- organic surface imperfections
-
-LIGHTING QUALITY:
-- physically believable lighting
-- soft natural shadow transitions
-- realistic highlight rolloff
-- controlled contrast
-- cinematic but natural illumination
-
-STRICTLY AVOID:
-- plastic skin
-- over-smoothing
-- excessive sharpening
-- burned highlights
-- crushed blacks
-- muddy shadows
-- unrealistic reflections
-- fake HDR appearance
-- artificial texture repetition
-
-ANATOMY RULES:
-- correct fingers and hands
-- natural facial structure
-- realistic body proportions
-- believable posture and movement
-
-The image must pass professional stock inspection at 200% zoom.
-`;
-    }
-
-    // --------------------------------------
-    // 🏆 ULTRA / ADOBE STOCK SAFE
-    // --------------------------------------
-
-    if (level === "ultra") {
-        return `
-QUALITY LEVEL: ULTRA COMMERCIAL
-
-This image must meet premium Adobe Stock commercial standards.
-
-ULTRA TECHNICAL REQUIREMENTS:
-- extremely sharp critical focus
-- flawless texture rendering
-- physically realistic materials
-- cinematic optical realism
-- zero rendering artifacts
-- professional-grade detail separation
-- ultra-clean edge definition
-
-MICRO DETAIL REQUIREMENTS:
-- visible skin pores
-- realistic hair strand separation
-- authentic fabric weave
-- natural environmental wear
-- organic texture variation
-- physically accurate material response
-
-LIGHTING REQUIREMENTS:
-- realistic directional lighting
-- natural shadow behavior
-- believable light falloff
-- controlled highlight retention
-- cinematic dynamic range
-- physically plausible reflections
-
-IMAGE INTEGRITY:
-- no duplicated objects
-- no warped structures
-- no malformed anatomy
-- no floating elements
-- no texture smearing
-- no ghosting artifacts
-- no unnatural symmetry
-
-STRICTLY FORBIDDEN:
-- AI-looking perfection
-- waxy skin
-- fake sharpness
-- oversaturated grading
-- synthetic textures
-- unrealistic eyes
-- distorted fingers
-- melted details
-- blurry micro-contrast
-- fake bokeh artifacts
-
-The final image must feel:
-- captured with a professional full-frame camera
-- naturally lit and optically believable
-- commercially licensable
-- indistinguishable from real photography
-
-If any visual artifact appears:
-→ REGENERATE COMPLETELY
-`;
-    }
-
-    // --------------------------------------
-    // 🧼 MINIMAL FALLBACK
-    // --------------------------------------
-
-    return `
-QUALITY RULES:
-- sharp focus
-- realistic anatomy
-- clean lighting
-- natural textures
-- no AI artifacts
-`;
-}
-
-
-function getStyleModule(style = "cinematic") {
-
-    // --------------------------------------
-    // 🎬 CINEMATIC REALISM
-    // --------------------------------------
-
-    if (style === "cinematic") {
-        return `
-STYLE: CINEMATIC REALISM
-
-VISUAL TONE:
-- authentic cinematic atmosphere
-- emotionally grounded realism
-- natural visual storytelling
-- restrained cinematic grading
-- subtle dramatic depth
-
-COLOR SCIENCE:
-- Kodak Portra inspired tones
-- natural skin rendering
-- filmic highlight rolloff
-- subtle shadow separation
-- restrained saturation
-
-LIGHTING STYLE:
-- natural directional light
-- soft environmental shadows
-- realistic light falloff
-- atmospheric depth lighting
-- cinematic but believable illumination
-
-CAMERA FEEL:
-- full-frame photography realism
-- natural optical depth
-- intimate framing
-- immersive perspective layering
-
-AVOID:
-- fake HDR
-- fantasy color grading
-- oversaturated colors
-- artificial sharpness
-- synthetic AI beauty
-`;
-    }
-
-    // --------------------------------------
-    // 📰 DOCUMENTARY
-    // --------------------------------------
-
-    if (style === "documentary") {
-        return `
-STYLE: DOCUMENTARY REALISM
-
-VISUAL TONE:
-- observational photography
-- emotionally authentic realism
-- candid atmosphere
-- raw environmental storytelling
-- immersive real-world texture
-
-LIGHTING:
-- natural available light
-- imperfect environmental lighting
-- realistic exposure variation
-- subtle atmospheric haze
-
-CAMERA FEEL:
-- handheld realism
-- spontaneous framing
-- authentic perspective
-- lived-in composition
-
-ENVIRONMENT:
-- subtle imperfections
-- environmental wear
-- authentic textures
-- naturally layered depth
-
-AVOID:
-- polished luxury aesthetics
-- overly cinematic grading
-- artificial posing
-- sterile environments
-`;
-    }
-
-    // --------------------------------------
-    // 👗 FASHION EDITORIAL
-    // --------------------------------------
-
-    if (style === "fashion") {
-        return `
-STYLE: FASHION EDITORIAL
-
-VISUAL TONE:
-- luxury editorial realism
-- elegant cinematic mood
-- expressive styling
-- emotionally sophisticated atmosphere
-- modern fashion storytelling
-
-COLOR STYLE:
-- refined color harmony
-- premium tonal separation
-- cinematic contrast
-- soft skin rendering
-- elegant material textures
-
-LIGHTING:
-- dramatic soft lighting
-- sculpted facial shadows
-- controlled highlight depth
-- fashion magazine atmosphere
-
-COMPOSITION:
-- intentional framing
-- negative space balance
-- dynamic body positioning
-- layered visual rhythm
-
-AVOID:
-- catalog photography
-- flat commercial lighting
-- repetitive posing
-- generic fast-fashion aesthetics
-`;
-    }
-
-    // --------------------------------------
-    // 🌿 NATURAL LIFESTYLE
-    // --------------------------------------
-
-    if (style === "lifestyle") {
-        return `
-STYLE: NATURAL LIFESTYLE
-
-VISUAL TONE:
-- warm authentic realism
-- emotionally relatable atmosphere
-- candid human interaction
-- natural environmental harmony
-- comforting visual storytelling
-
-LIGHTING:
-- golden hour realism
-- soft daylight diffusion
-- natural window light
-- realistic indoor/outdoor balance
-
-ENVIRONMENT:
-- lived-in spaces
-- organic imperfections
-- realistic daily interaction
-- cozy visual textures
-
-CAMERA FEEL:
-- intimate perspective
-- relaxed framing
-- authentic candid motion
-- documentary-inspired realism
-
-AVOID:
-- staged lifestyle scenes
-- sterile interiors
-- artificial perfection
-- empty emotional tone
-`;
-    }
-
-    // --------------------------------------
-    // 🎨 WATERCOLOR / ARTISTIC
-    // --------------------------------------
-
-    if (style === "watercolor") {
-        return `
-STYLE: WATERCOLOR ILLUSTRATION
-
-ART STYLE:
-- hand-painted watercolor texture
-- soft organic pigment blending
-- visible brushstroke variation
-- natural watercolor bleeding
-- artistic handcrafted imperfections
-
-COLOR PALETTE:
-- muted earth tones
-- warm neutrals
-- pastel botanical colors
-- soft vintage harmony
-
-TEXTURE:
-- textured watercolor paper feel
-- layered paint transparency
-- organic edge variation
-- soft paint diffusion
-
-MOOD:
-- cozy
-- rustic
-- botanical
-- nostalgic
-- artistic
-
-AVOID:
-- flat vector appearance
-- glossy rendering
-- hard outlines
-- 3D effects
-- plastic digital textures
-`;
-    }
-
-    // --------------------------------------
-    // 🏛️ LUXURY COMMERCIAL
-    // --------------------------------------
-
-    if (style === "luxury") {
-        return `
-STYLE: LUXURY COMMERCIAL
-
-VISUAL TONE:
-- premium commercial realism
-- elegant cinematic atmosphere
-- refined visual sophistication
-- luxury campaign aesthetics
-- high-end editorial polish
-
-LIGHTING:
-- sculpted studio lighting
-- refined shadow depth
-- controlled reflections
-- elegant contrast shaping
-
-COLOR STYLE:
-- premium tonal separation
-- restrained luxury palette
-- cinematic richness
-- clean highlight rendering
-
-COMPOSITION:
-- intentional luxury framing
-- elegant minimalism
-- premium product emphasis
-- refined visual balance
-
-AVOID:
-- cheap commercial appearance
-- cluttered compositions
-- oversaturated tones
-- generic advertising aesthetics
-`;
-    }
-
-    // --------------------------------------
-    // 🌧️ MOODY ATMOSPHERIC
-    // --------------------------------------
-
-    if (style === "moody") {
-        return `
-STYLE: MOODY ATMOSPHERIC
-
-VISUAL TONE:
-- emotional atmospheric realism
-- cinematic shadow depth
-- immersive environmental mood
-- subtle melancholy
-- dramatic naturalism
-
-LIGHTING:
-- low-key cinematic lighting
-- atmospheric shadow layering
-- realistic window light
-- rain haze or fog diffusion
-- soft practical light sources
-
-COLOR STYLE:
-- muted cinematic palette
-- restrained saturation
-- cool shadow tones
-- film-inspired grading
-
-ENVIRONMENT:
-- weather interaction
-- atmospheric particles
-- textured environments
-- emotional spatial depth
-
-AVOID:
-- crushed blacks
-- fake cinematic fog
-- artificial color grading
-- over-dramatic HDR
-`;
-    }
-
-    // --------------------------------------
-    // 🧼 FALLBACK STYLE
-    // --------------------------------------
-
-    return `
-STYLE:
-- authentic realism
-- cinematic atmosphere
-- natural lighting
-- professional photography
-`;
-}
-
-function getCameraModule(type = "cinematic") {
-
-    // --------------------------------------
-    // 🎬 CINEMATIC DOCUMENTARY
-    // --------------------------------------
-
-    if (type === "cinematic") {
-        return `
-CAMERA DIRECTION:
-
-Use natural photographic framing with believable optical behavior and observational realism.
-
-CAMERA STYLE:
-- layered foreground/background depth
-- shallow natural depth of field
-- realistic lens compression
-- immersive environmental framing
-- physically believable perspective
-- natural handheld feel
-
-LENS GUIDANCE:
-- 35mm for environmental intimacy
-- 50mm for natural human perspective
-- 85mm for subtle portrait compression
-
-FOCUS PRIORITY:
-- primary subject critically sharp
-- secondary details softly fall away
-- background naturally diffused
-- optical transitions should feel realistic
-
-COMPOSITION:
-- asymmetrical framing
-- layered environmental depth
-- partial foreground obstruction allowed
-- candid observational perspective
-- natural visual imbalance encouraged
-
-ALLOW:
-- imperfect framing
-- environmental interference
-- slight cropping
-- layered movement
-- subtle camera obstruction
-- uneven spacing
-- accidental realism
-
-AVOID:
-- perfectly centered compositions
-- everything equally sharp
-- artificial symmetry
-- staged catalog framing
-- over-designed cinematic layouts
-- unrealistic lens distortion
-`;
-    }
-
-    // --------------------------------------
-    // 📷 OBSERVATIONAL REALISM
-    // --------------------------------------
-
-    if (type === "realismGuard") {
-        return `
-REALISM CAMERA RULES:
-
-The image should feel physically photographed during a real observed moment.
-
-Avoid cinematic self-awareness.
-
-DO NOT describe:
-- cinematic atmosphere
-- emotional depth
-- immersive storytelling
-- dramatic composition
-- artistic realism
-
-Instead:
-describe only what the camera naturally observes.
-
-CAMERA BEHAVIOR:
-- natural eye-level or physically plausible perspective
-- subtle framing imperfections
-- slight handheld realism
-- believable environmental obstruction
-- candid observational positioning
-
-FOCUS BEHAVIOR:
-- realistic focus falloff
-- natural optical softness
-- believable subject separation
-- imperfect environmental clarity
-
-ALLOW:
-- partial obstruction
-- uneven framing
-- accidental cropping
-- environmental clutter
-- awkward spacing
-- layered movement
-- imperfect timing
-
-VISUAL PRIORITY:
-- tactile surfaces
-- material textures
-- environmental wear
-- realistic lighting behavior
-- spatial realism
-- physical interaction
-
-Describe:
-- reflections
-- condensation
-- wrinkles
-- worn textures
-- weather interaction
-- object placement
-- lighting behavior
-- environmental residue
-
-AVOID:
-- AI-art aesthetics
-- over-stylized cinematic language
-- exaggerated mood descriptions
-- fake HDR realism
-- overly perfect composition
-- polished showroom environments
-
-TEXT REALISM:
-
-Environmental text should behave like incidental background noise.
-
-Allow:
-- incomplete characters
-- cropped words
-- faded paint
-- motion blur
-- low contrast text
-- partially hidden signs
-- warped typography
-- handwritten irregularity
-
-Text should never appear:
-- centered
-- perfectly readable
-- graphically clean
-- compositionally important
-
-Write like:
-- a documentary photographer describing a captured frame
-NOT:
-- a film director pitching a cinematic scene
-`;
-    }
-
-    return "";
-}
-
-function getObservationModule(type = "documentary") {
-
-    if (type === "documentary") {
-        return `
-OBSERVATIONAL REALISM:
-
-Describe only physically observable details.
-
-Focus on:
-- material surfaces
-- imperfect object placement
-- environmental wear
-- realistic body posture
-- lighting interaction
-- atmospheric residue
-- natural clutter
-- tactile textures
-- framing imperfections
-- candid spatial relationships
-
-Prefer:
-- condensation on metal
-- wrinkled fabric
-- chipped paint
-- damp pavement
-- tangled cables
-- uneven signage
-- crowded spacing
-- partially obstructed framing
-- accidental asymmetry
-
-Avoid:
-- cinematic wording
-- emotional narration
-- artistic explanation
-- dramatic storytelling language
-- immersive atmosphere phrasing
-- luxury commercial adjectives
-
-Write like:
-a documentary photographer describing a captured frame.
-
-NOT:
-a film director pitching a cinematic scene.
-`;
-    }
-
-    return "";
-}
-
-function getIPSafetyModule() {
-    return `
-IP & COMMERCIAL SAFETY RULES:
-
-The image must remain fully safe for commercial Adobe Stock licensing.
-
-AVOID ALL:
-- readable signage
-- storefront names
-- logos
-- branded packaging
-- product trademarks
-- recognizable typography
-- advertisements
-- copyrighted graphics
-- famous landmarks
-- company identities
-- recognizable brand color systems
-- celebrity likenesses
-- copyrighted character designs
-
-TEXT HANDLING:
-Any environmental text should be:
-- heavily blurred
-- partially cropped
-- obscured by objects
-- blocked by motion
-- out of focus
-- unreadable
-- fragmented
-- visually insignificant
-
-Do NOT generate:
-- clean storefront text
-- menu boards
-- advertisements
-- visible labels
-- realistic business names
-- recognizable packaging layouts
-
-PRODUCT SAFETY:
-Packaging should use:
-- generic containers
-- abstract markings
-- fictional minimal labeling
-- non-recognizable design systems
-
-Avoid:
-- cosmetic branding
-- technology branding
-- fashion logos
-- beverage labels
-- restaurant names
-- recognizable packaging silhouettes
-
-ENVIRONMENT RULES:
-Street scenes should prioritize:
-- physical realism
-- environmental texture
-- human interaction
-NOT:
-- readable urban information
-
-Allow:
-- partial obstruction
-- distant blur
-- motion blur
-- weather interference
-- low contrast signage
-- cropped environmental details
-
-REALISM PRIORITY:
-Real environments naturally contain visual noise and partial obstruction.
-
-The image should feel:
-- observational
-- documentary-like
-- commercially safe
-- naturally photographed
-
-NOT:
-- advertisement-focused
-- travel-poster styled
-- typography-centered
-- brand-oriented
-
-IMPORTANT:
-If text appears in the scene,
-it must never become:
-- a focal point
-- fully readable
-- commercially identifiable
-- visually dominant
-`;
-}
-

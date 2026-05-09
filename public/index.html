@@ -1401,6 +1401,13 @@
 
         <!-- LEFT SIDE -->
         <div>
+          <label style="margin-top:8px;">Generation Mode</label>
+          <select id="adobeMode"
+            style="width:100%;padding:6px;margin-bottom:10px;">
+            <option value="default">Default (Cinematic)</option>
+            <option value="clipart">Clipart (Vector Style)</option>
+            <option value="isolated">White Background Object</option>
+          </select>
 
           <label>Category</label>
           <select id="adobeCategory"
@@ -4823,6 +4830,7 @@ const title = document.getElementById("adobeTitle").value;
 const keywords = document.getElementById("adobeKeywords").value;
 const category = document.getElementById("adobeCategory").value;
 const quantity = document.getElementById("adobeQuantity").value;
+const mode = document.getElementById("adobeMode").value;
 
 
 const btn = document.getElementById("genAdobeBtn");
@@ -4835,7 +4843,8 @@ try {
     title,
     keywords,
     category,
-    quantity  
+    quantity,
+    mode // 🔥 NEW
   });
 
   // 🚨 IMPORTANT: APPEND, NOT REPLACE

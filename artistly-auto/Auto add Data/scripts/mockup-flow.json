@@ -68,6 +68,10 @@
                     "value": "{{Prompt}}"
                 },
                 {
+                    "action": "wait",
+                    "ms": 500
+                },
+                {
                     "action": "click",
                     "icon": "arrow_forward",
                     "text": "Tạo"

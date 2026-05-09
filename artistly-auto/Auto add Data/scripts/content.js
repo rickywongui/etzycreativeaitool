@@ -582,50 +582,64 @@ async function handleSlateInput(step, context) {
 
 async function handleClick(step) {
 
-    // 🔥 exact button (icon + label)
+    // ✅ exact icon + text
     if (step.icon && step.text) {
-        const btn = findExactSendButton();
+
+        const btn = findExactSendButton(step);
+
         if (btn) {
+            console.log("✅ Clicking exact button:", btn);
+
+            btn.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+            await delay(300);
+
             realClick(btn);
+
             return;
         }
+
+        console.warn("❌ Exact button not found");
     }
 
-    // 🔥 icon only
-    if (step.icon) {
-        const btn = findSendButtonByIcon();
-        if (btn) {
-            realClick(btn);
-            return;
-        }
-    }
-
-    // 🔥 text only
-    if (step.text) {
-        const btn = findSendButtonByLabel();
-        if (btn) {
-            realClick(btn);
-            return;
-        }
-    }
-
-    // 🔥 fallback selector
+    // ✅ fallback selector
     if (step.selector) {
+
         const el = await waitForElement(step.selector);
+
         realClick(el);
+
+        return;
     }
+
+    console.warn("❌ Click target not found:", step);
 }
 
 
-function findExactSendButton() {
+function findExactSendButton(step) {
+
     const buttons = document.querySelectorAll("button");
 
     for (const btn of buttons) {
-        const hasIcon = btn.querySelector("i")?.textContent.trim() === "arrow_forward";
-        const hasLabel = Array.from(btn.querySelectorAll("span"))
-            .some(s => s.textContent.trim().toLowerCase() === "tạo");
 
-        if (hasIcon && hasLabel) return btn;
+        const iconEl = btn.querySelector("i");
+        const spans = btn.querySelectorAll("span");
+
+        const hasIcon =
+            iconEl?.textContent.trim() === step.icon;
+
+        const hasLabel =
+            Array.from(spans).some(s =>
+                s.textContent.trim().toLowerCase() ===
+                step.text.toLowerCase()
+            );
+
+        if (hasIcon && hasLabel) {
+            return btn;
+        }
     }
 
     return null;
