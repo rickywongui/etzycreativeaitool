@@ -2865,9 +2865,401 @@ app.listen(PORT, () => console.log(`AI proxy server running on ${PORT}`));
 
 
 
+app.post("/api/ai/clipart-stock", async (req, res) => {
+    let cloneStyleBlock = "";
+
+    const {
+        title,
+        keywords,
+        category,
+        quantity = 1,
+        cloneprompt = ""
+    } = req.body;
+
+    const cleanedClonePrompt = String(cloneprompt || "").trim();
+
+
+    if (cleanedClonePrompt) {
+
+        cloneStyleBlock = `
+REFERENCE STYLE:
+${cleanedClonePrompt}
+
+STYLE DNA RECONSTRUCTION RULES:
+
+Deeply analyze the reference prompt and reconstruct its visual design language in high detail.
+
+The new artwork must preserve the SAME:
+
+- illustration density
+- mascot anatomy style
+- silhouette complexity
+- facial construction
+- eye styling
+- mouth styling
+- accessory scale
+- pose energy
+- object interaction
+- composition rhythm
+- visual balance
+- background simplicity
+- outline thickness
+- line smoothness
+- cel shading behavior
+- color distribution
+- shape language
+- emotional atmosphere
+- vector cleanliness
+- commercial mascot polish
+- sticker-pack readability
+- flat illustration structure
+- graphic design aesthetic
+
+The generated prompt should feel like:
+- a different character from the SAME illustrator
+- part of the SAME mascot collection
+- the SAME visual product line
+- the SAME commercial sticker universe
+
+IMPORTANT:
+Do NOT summarize the style briefly.
+
+The generated prompt must contain rich visual reconstruction detail similar in density and specificity to the reference prompt itself.
+
+The final prompt should mirror the reference prompt's:
+- descriptive depth
+- visual pacing
+- detail density
+- stylistic layering
+- rendering specificity
+- composition structure
+
+Preserve the MASTER STYLE.
+
+Change ONLY:
+- the subject identity
+- object theme
+- accessory theme
+
+NOT:
+- the illustration language.
+`;
+    }
+    const keywordArray = Array.isArray(keywords)
+        ? keywords
+        : String(keywords || "")
+            .split(",")
+            .map(x => x.trim())
+            .filter(Boolean);
+
+    const keywordText = keywordArray.join(", ");
+
+    const prompt = `
+You are a senior commercial vector art director specializing in Adobe Stock mascot illustration systems.
+
+Generate ${quantity} unique commercial Adobe Stock clipart concepts.
+
+${cloneStyleBlock}
+
+SOURCE INFORMATION:
+- Title: ${title || ""}
+- Keywords: ${keywordText}
+- Category: ${category || ""}
+
+SUBJECT CONSISTENCY RULES:
+
+The user-provided subject is mandatory and must remain visually dominant.
+
+The generated concept must clearly match:
+- title
+- keywords
+- category
+- requested animal/object/character
+
+Do not:
+- replace the species
+- invent unrelated animals
+- substitute mascot archetypes
+- introduce unrelated character identities
+
+Avoid introducing unrelated animals or mascot archetypes not present in the source metadata.
+
+Style transfer should affect ONLY:
+- rendering style
+- outline behavior
+- color treatment
+- composition quality
+- shading logic
+- illustration aesthetics
+
+NOT:
+- the core subject identity.
+
+CLIPART STYLE RULES:
+- clean vector illustration
+- flat modern design
+- isolated object composition
+- transparent or white background
+- commercially useful
+- scalable SVG-friendly design
+- clean edges
+- visually simplified but descriptively rich illustration design
+- high readability at thumbnail size
+- premium commercial mascot quality
+
+VISUAL RULES:
+- avoid realistic photography
+- avoid cinematic lighting
+- avoid DSLR language
+- avoid environmental storytelling
+- avoid realistic shadows
+- avoid movie scene composition
+- avoid complex backgrounds
+- avoid photorealism
+- avoid painterly realism
+- avoid cinematic realism
+
+VECTOR CLEANLINESS:
+
+Shapes should feel:
+- production-ready
+- print-friendly
+- scalable
+- visually simplified
+- edge-clean
+- commercially polished
+- vector-friendly
+- easy to isolate
+- suitable for transparent PNG export
+
+Avoid:
+- messy texture noise
+- AI watercolor artifacts
+- fuzzy rendering
+- excessive detail clutter
+- inconsistent line thickness
+- blurry edges
+- low-resolution appearance
+
+COMMERCIAL STOCK SAFETY:
+
+Avoid:
+- copyrighted characters
+- famous mascots
+- anime franchise similarity
+- recognizable game styles
+- Disney-like proportions
+- Pixar-like rendering
+- trademarked symbols
+- logos
+- readable text
+- branded accessories
+- licensed visual identities
+- recognizable intellectual property
+
+All characters must feel:
+- original
+- commercially safe
+- unique but broadly usable
+- stock-friendly
+- commercially licensable
+
+ADOBE STOCK OPTIMIZATION:
+
+The illustration should feel commercially searchable and broadly usable.
+
+Prioritize:
+- clean subject clarity
+- strong silhouette readability
+- isolated composition
+- stock marketplace appeal
+- printable sticker aesthetic
+- scalable commercial usability
+- premium vector pack quality
+- strong thumbnail readability
+
+The concept should work for:
+- stickers
+- t-shirts
+- planners
+- sublimation
+- digital downloads
+- educational graphics
+- social media assets
+- print-on-demand products
+- Cricut projects
+
+UNIQUENESS RULES:
+
+Avoid generating:
+- generic marketplace clipart
+- repetitive mascot poses
+- common Etsy-style clichés
+- overused kawaii expressions
+- identical composition structures
+- repetitive stock mascots
+
+Each concept should contain:
+- unique personality
+- distinct accessory choices
+- different emotional energy
+- memorable silhouette identity
+- visually recognizable shape language
+- clear visual differentiation
+
+COLOR RULES:
+- commercially balanced color palette
+- clean visual separation
+- harmonious but readable colors
+- print-friendly contrast
+- polished modern color styling
+
+Avoid:
+- oversaturated rainbow palettes
+- muddy color combinations
+- neon overload
+- dull low-energy palettes
+
+DETAIL DENSITY RULES:
+
+The generated prompt should explicitly describe:
+- subject pose
+- facial expression
+- body posture
+- accessory interaction
+- background structure
+- composition placement
+- silhouette readability
+- color palette structure
+- outline behavior
+- shading placement
+- visual depth treatment
+- emotional tone
+- graphic balance
+- decorative elements
+- vector rendering style
+
+Avoid:
+- compressed one-line prompts
+- generic descriptions
+- vague mascot wording
+- low-detail summaries
+
+The prompt should:
+- feel visually complete
+- feel production-ready
+- resemble a professional art director brief
+- contain rich visual direction
+
+The output prompt should typically be 120 to 250 words long.
+
+METADATA CONSISTENCY:
+
+The generated artwork must visually match:
+- the title
+- the keywords
+- the category
+
+Buyers should instantly understand the subject without reading metadata.
+
+DESCRIPTION RULES:
+
+The description must:
+- be short and commercially searchable
+- summarize the illustration clearly
+- feel like Adobe Stock metadata
+- contain approximately 80 to 120 characters
+- avoid unnecessary adjectives
+- avoid storytelling language
+- avoid repeating the full prompt
+
+Good description examples:
+- Cute fox mascot holding coffee mug in flat vector illustration style
+- Playful panda cartoon character with bamboo in sticker art style
+- Kawaii cat mascot drinking tea in clean vector illustration
+
+Avoid:
+- long descriptive paragraphs
+- cinematic writing
+- emotional storytelling
+- art-director language
+- repeating every visual detail
+
+
+KEYWORD RULES:
+- generate 45 to 49 Adobe Stock keywords
+- no duplicates
+- prioritize SEO discoverability
+- most important keywords first
+- include commercial search intent
+- include illustration-related discoverability
+- include object/category descriptors
+- include usage-related keywords
+
+Return ONLY valid JSON.
+
+OUTPUT FORMAT:
+{
+  "results":[
+    {
+      "title":"",
+      "keywords":[],
+      "description":"",
+      "prompt":""
+    }
+  ]
+}
+`;
+
+    try {
+
+        const r = await openai.chat.completions.create({
+            model: "gpt-4o",
+            temperature: 0.68,
+            max_tokens: 1800,
+            response_format: {
+                type: "json_object"
+            },
+            messages: [
+                {
+                    role: "system",
+                    content: "You generate Adobe Stock clipart prompts."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ]
+        });
+
+        const parsed = JSON.parse(
+            r.choices[0].message.content
+        );
+
+        res.json(parsed);
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            error: err.message
+        });
+
+    }
+
+});
+
 app.post("/api/ai/adobe-stock", async (req, res) => {
 
-    const { title, keywords, category, quantity = 1, mode } = req.body;
+    const {
+        title,
+        keywords,
+        category,
+        quantity = 1,
+        mode = "default",
+        cloneprompt = ""
+    } = req.body;
 
     // --------------------------------------
     // 🧠 CORE ENGINE
@@ -2959,12 +3351,13 @@ NOT:
     // 🧩 MODULES
     // --------------------------------------
 
-    const modeModule = getModeModule(mode);
+    const modeModule = getModeModule(mode, cloneprompt, title, keywords);
     const qualityModule = getQualityModule("ultra");
     const styleModule = getStyleModule("lifestyle"); //more option
     const cameraModule = getCameraModule("realismGuard");
     const observationModule = getObservationModule("documentary");
     const ipsafetyModule = getIPSafetyModule();
+
 
     // --------------------------------------
     // 🎬 OUTPUT REQUIREMENTS
@@ -3076,9 +3469,44 @@ Scenes should feel naturally observed rather than designed for tourism advertisi
     // --------------------------------------
     // 📦 FINAL PROMPT
     // --------------------------------------
+    const clipartCoreEngine = `
+You are a world-class kawaii mascot illustrator and Adobe Stock vector artist.
+
+Create premium commercial clipart illustrations optimized for:
+- sticker packs
+- mascot branding
+- POD products
+- Adobe Stock vector collections
+
+STYLE GOALS:
+- flat 2D illustration
+- thick smooth outlines
+- kawaii mascot proportions
+- expressive cute characters
+- clean vector edges
+- soft cel shading
+- centered composition
+- isolated subject readability
+
+STRICTLY AVOID:
+- photography
+- realism
+- cinematic lenses
+- documentary style
+- environmental realism
+- camera language
+- optical realism
+`;
+    const isClipart = mode === "clipart";
+
+    const hasClonePrompt =
+        cloneprompt &&
+        cloneprompt.trim().length > 0;
 
     const prompt = `
-${coreEngine}
+${mode === "clipart"
+            ? clipartCoreEngine
+            : coreEngine}
 
 ${modeModule}
 
@@ -3086,22 +3514,27 @@ ${qualityModule}
 
 ${styleModule}
 
-${culturalConsistencyModule}
+${mode === "clipart"
+            ? ""
+            : culturalConsistencyModule}
 
-${cameraModule}
+${mode === "clipart"
+            ? ""
+            : cameraModule}
 
 ${outputRequirements}
 
-${observationModule}
+${mode === "clipart"
+            ? ""
+            : observationModule}
 
 ${ipsafetyModule}
-
 
 --------------------------------------
 INPUT
 --------------------------------------
 
-Generate EXACTLY ${quantity} cinematic Adobe Stock prompts.
+Generate EXACTLY ${quantity} Adobe Stock prompts.
 
 TITLE:
 ${title}
@@ -3111,6 +3544,67 @@ ${keywords || "auto-generate"}
 
 CATEGORY:
 ${category}
+
+${mode === "clipart"
+            ? `
+🎨 CLIPART RULES:
+
+The artwork must look like:
+- premium kawaii mascot illustration
+- clean vector clipart
+- sticker-art quality
+- flat 2D commercial artwork
+- Adobe Illustrator aesthetic
+- cute simplified character design
+
+STYLE REQUIREMENTS:
+- thick smooth outlines
+- clean silhouette readability
+- centered composition
+- isolated subject
+- soft cel shading
+- simplified cute proportions
+- expressive mascot emotions
+- thumbnail-friendly readability
+
+STRICTLY AVOID:
+- photography
+- cameras
+- realism
+- cinematic shots
+- documentary realism
+- environmental storytelling
+- realistic lighting
+- realistic fur texture
+- depth of field
+- cinematic lenses
+- film still composition
+- urban realism
+
+KEYWORD RULES:
+Generate EXACTLY between 35 and 45 keywords.
+
+Keywords should focus on:
+- mascot
+- clipart
+- kawaii
+- vector
+- cartoon
+- sticker
+- illustration
+- cute character
+- isolated object
+- flat design
+- commercial artwork
+
+DO NOT include:
+- photography keywords
+- camera keywords
+- documentary keywords
+- realism keywords
+`
+            : `
+📸 REALISM RULES:
 
 The image must look like:
 - a real professional photoshoot
@@ -3135,53 +3629,23 @@ NOT:
 - a generic stock composition
 - a staged cinematic render
 
-Return ONLY valid JSON.
-
 ────────────────────────
 KEYWORD RULES
 ────────────────────────
 
 Generate EXACTLY between 45 and 49 Adobe Stock keywords.
 
-CRITICAL:
-- Minimum: 45 keywords
-- Maximum: 49 keywords
-- Never output fewer than 45
-- Never output more than 49
+Keywords must include:
+- subject keywords
+- environment keywords
+- emotion keywords
+- documentary realism keywords
+- lighting keywords
+- travel/culture keywords
+`
+        }
 
-Keywords must include a diverse mix of:
-
-1. Main subject keywords
-2. Secondary object keywords
-3. Human/action keywords
-4. Environment/location keywords
-5. Emotion/mood keywords
-6. Lighting/photography keywords
-7. Documentary realism keywords
-8. Lifestyle keywords
-9. Commercial usage keywords
-10. Travel/culture keywords
-
-IMPORTANT:
-- Most important keywords first
-- No duplicates
-- No repeated meaning
-- No spam
-- No trademarked terms
-- No copyrighted terms
-- No camera brands
-- No artist names
-
-GOOD:
-vietnam market, street vendor, daily life
-
-BAD:
-beautiful, amazing, stunning
-
-Keywords should resemble:
-real top-performing Adobe Stock metadata.
-
-The final keywords array MUST contain between 45 and 49 items.
+Return ONLY valid JSON.
 
 FORMAT:
 {
@@ -3302,7 +3766,23 @@ app.post("/api/export-excel", (req, res) => {
 });
 
 
-function getModeModule(mode) {
+function getModeModule(mode, cloneprompt = "", title, keywords) {
+
+    const cleanedClonePrompt = cloneprompt
+        .replace(/camera[^,.\n]*/gi, "")
+        .replace(/lens[^,.\n]*/gi, "")
+        .replace(/golden hour/gi, "")
+        .replace(/depth of field/gi, "")
+        .replace(/realistic/gi, "")
+        .replace(/photography/gi, "")
+        .replace(/cinematic/gi, "")
+        .replace(/documentary/gi, "")
+        .replace(/real life/gi, "")
+        .replace(/sharp focus/gi, "")
+        .replace(/4k resolution/gi, "")
+        .replace(/studio lighting/gi, "")
+        .replace(/physical realism/gi, "")
+        .trim();
 
     // --------------------------------------
     // 🎬 DEFAULT CINEMATIC MODE
@@ -3404,52 +3884,6 @@ AVOID:
 `;
     }
 
-    // --------------------------------------
-    // 🎨 CLIPART / WATERCOLOR MODE
-    // --------------------------------------
-
-    if (mode === "clipart") {
-        return `
-MODE: WATERCOLOR CLIPART ILLUSTRATION
-
-Create hand-painted watercolor illustrations suitable for premium stock clipart collections.
-
-STYLE RULES:
-- soft watercolor painting
-- visible brush texture
-- organic paint blending
-- natural pigment variation
-- cozy farmhouse aesthetic
-- vintage botanical charm
-
-COLOR PALETTE:
-- muted earthy tones
-- warm neutrals
-- pastel natural colors
-- soft greens
-- cream and beige tones
-
-COMPOSITION:
-- isolated object or small grouped elements
-- clean edges
-- transparent or soft white background
-- visually balanced arrangement
-
-SUBJECT RULES:
-- objects must feel handcrafted
-- variations should feel collectible
-- cohesive visual family between results
-- natural artistic imperfections encouraged
-
-AVOID:
-- flat vector appearance
-- bold outlines
-- glossy rendering
-- 3D effects
-- cartoon styling
-- plastic textures
-`;
-    }
 
     // --------------------------------------
     // 📰 EDITORIAL DOCUMENTARY MODE
@@ -4311,6 +4745,11 @@ it must never become:
 - fully readable
 - commercially identifiable
 - visually dominant
+
+Ouutput must have this text:
+- Ignore all text in the scene. Do not attempt to read or interpret it. It is purely environmental noise and should not be considered as part of the image's content. Focus on the physical realism of the scene, not the legibility of any text.
+
+
 `;
 }
 

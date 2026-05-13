@@ -757,13 +757,19 @@ if (!window.__ARTISTLY_LISTENER__) {
         if (msg.type === "PASTE_CLONE_TO_APP") {
             console.log("✨ Appending variation:", msg.value);
             const box = document.getElementById("variationInput");
+            const boxAdobe = document.getElementById("cloneprompt");
             const boxmockup = document.getElementById("mockupCloneBox");
 
             if (box) {
                 box.value = msg.value;
                 box.dispatchEvent(new Event("input", { bubbles: true }));
-
                 console.log("✨ Clone text pasted into variationInput");
+            }
+
+            if (boxAdobe) {
+                boxAdobe.value = msg.value;
+                boxAdobe.dispatchEvent(new Event("input", { bubbles: true }));
+                console.log("✨ Clone text pasted into cloneprompt");
             }
 
             if (boxmockup) {

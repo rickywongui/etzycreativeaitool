@@ -1450,10 +1450,19 @@
             <option value="10">10</option>
           </select>
 
+          <div id="clonePromptWrap" style="display:none;margin-top:10px;">
+            <label>Clone Prompt</label>
+            <textarea
+              id="cloneprompt"
+              rows="4"
+              placeholder="Describe the clipart variation style..."></textarea>
+          </div>
+
           <div style="margin-top:10px">
             <button id="genAdobeBtn">Generate Adobe Stock Data (AI)</button>
             <button id="copyAdobeBtn">Download CSV 📥</button>
             <button id="resetAdobeBtn">♻️ Reset Data</button>
+            <button id="adobeVariationBtn">Clone with Artistly</button>
           </div>
 
         </div>
@@ -3594,32 +3603,33 @@ regenBtn.onclick = async () => {
 
 
   document.getElementById("artistlyVariationBtn").addEventListener("click", runArtistlyClone);
+  document.getElementById("adobeVariationBtn").addEventListener("click", runArtistlyClone);
 
   function runArtistlyClone() {
     let EXTENSION_ID =
- localStorage.getItem(
-   "selectedExtensionId"
- ) || "";
+    localStorage.getItem(
+      "selectedExtensionId"
+    ) || "";
 
-    // Open Artistly
-    // const win = window.open(
-    //   "https://app.artistly.ai/ai/image-designer-v6",
-    //   "_blank"
-    // );
+        // Open Artistly
+        // const win = window.open(
+        //   "https://app.artistly.ai/ai/image-designer-v6",
+        //   "_blank"
+        // );
 
-    // wait a bit so content script loads
-    setTimeout(() => {
-      console.log("Sending RUN_ARTISTLY_CLONE message");
-      chrome.runtime.sendMessage(
-        EXTENSION_ID,
-        { type: "RUN_ARTISTLY_CLONE" },
-        () => {
-          if (chrome.runtime.lastError) {
-            console.warn("Extension not ready:", chrome.runtime.lastError);
-          }
-        }
-      );
-    }, 1000);
+        // wait a bit so content script loads
+        setTimeout(() => {
+          console.log("Sending RUN_ARTISTLY_CLONE message");
+          chrome.runtime.sendMessage(
+            EXTENSION_ID,
+            { type: "RUN_ARTISTLY_CLONE" },
+            () => {
+              if (chrome.runtime.lastError) {
+                console.warn("Extension not ready:", chrome.runtime.lastError);
+              }
+            }
+          );
+        }, 1000);
   };
 
   document.getElementById("copyVariationStyleBtn").onclick = async () => {
@@ -4710,6 +4720,47 @@ document.getElementById("copyVariationStyleIdeaBtn").onclick = async () => {
   );
 };
 
+
+document.addEventListener("click", async (e) => {
+
+  const btn = e.target.closest(".copyVariationStyleAdobeBtn");
+
+  if (!btn) return;
+
+  // 🔥 find nearest card
+  const card = btn.closest(".adobe-card");
+
+  if (!card) return;
+
+  // 🔥 get textarea inside THIS card
+  const textarea = card.querySelector("textarea");
+
+  const prompt = textarea?.value?.trim();
+
+  if (!prompt) {
+    return alert("No variation prompt yet");
+  }
+
+  const quantity =
+    Number(document.getElementById("styleQuantity")?.value) || 4;
+
+  await navigator.clipboard.writeText(prompt);
+
+  const EXTENSION_ID =
+    localStorage.getItem("selectedExtensionId") || "";
+
+  chrome.runtime.sendMessage(
+    EXTENSION_ID,
+    {
+      type: "RUN_ARTISTLY_STYLE",
+      prompt,
+      quantity
+    },
+    () => {}
+  );
+
+});
+
 document.querySelectorAll(".slot-value.editable").forEach(el => {
 
   el.addEventListener("input", () => {
@@ -4839,12 +4890,21 @@ btn.textContent = "Generating...";
 
 try {
 
-  const res = await postJSON("/api/ai/adobe-stock", {
+  const cloneprompt =
+  document.getElementById("cloneprompt")?.value?.trim() || "";
+
+  const endpoint =
+    mode === "clipart"
+      ? "/api/ai/clipart-stock"
+      : "/api/ai/adobe-stock";
+
+  const res = await postJSON(endpoint, {
     title,
     keywords,
     category,
     quantity,
-    mode // 🔥 NEW
+    mode,
+    cloneprompt
   });
 
   // 🚨 IMPORTANT: APPEND, NOT REPLACE
@@ -4915,7 +4975,7 @@ prompts.forEach((item, index) => {
   const block = document.createElement("div");
 
   block.innerHTML = `
-    <div style="border:1px solid #ddd;padding:10px;margin-bottom:10px;border-radius:6px">
+    <div class="adobe-card" style="border:1px solid #ddd;padding:10px;margin-bottom:10px;border-radius:6px">
 
       <strong>Prompt ${index + 1}</strong>
 
@@ -4927,6 +4987,7 @@ ${item.prompt || ""}
         <button onclick="copyPrompt(${index})">📋 Copy</button>
         <button onclick="sendToArtistly(${index})">⚡ Send to Artistly</button>
         <button onclick="sendSeamless(${index})">🧩 Send Seamless</button>
+        <button class="copyVariationStyleAdobeBtn">🎨 Copy Variation Style</button>
       </div>
 
       <p><strong>Title:</strong> ${item.title || ""}</p>
@@ -5107,6 +5168,21 @@ if (descEl) descEl.textContent = "—";
 console.log("♻️ Data reset complete");
 
 });
+
+const adobeMode = document.getElementById("adobeMode");
+const clonePromptWrap = document.getElementById("clonePromptWrap");
+
+function toggleClonePrompt() {
+  if (adobeMode.value === "clipart") {
+    clonePromptWrap.style.display = "block";
+  } else {
+    clonePromptWrap.style.display = "none";
+  }
+}
+
+adobeMode.addEventListener("change", toggleClonePrompt);
+
+toggleClonePrompt();
 
 </script>
   </body>
