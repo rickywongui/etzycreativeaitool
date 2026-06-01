@@ -1463,6 +1463,11 @@
             <button id="copyAdobeBtn">Download CSV 📥</button>
             <button id="resetAdobeBtn">♻️ Reset Data</button>
             <button id="adobeVariationBtn">Clone with Artistly</button>
+            <button
+              id="adobeCopyStyleBtn"
+              style="display:none;">
+              Copy with Style
+            </button>
           </div>
 
         </div>
@@ -3632,23 +3637,23 @@ regenBtn.onclick = async () => {
         }, 1000);
   };
 
-  document.getElementById("copyVariationStyleBtn").onclick = async () => {
-    const prompt = document.getElementById("variationResult").value;
-    if (!prompt) return alert("No variation prompt yet");
+//   document.getElementById("copyVariationStyleBtn").onclick = async () => {
+//     const prompt = document.getElementById("variationResult").value;
+//     if (!prompt) return alert("No variation prompt yet");
 
-    await navigator.clipboard.writeText(prompt);
+//     await navigator.clipboard.writeText(prompt);
 
-    let EXTENSION_ID =
- localStorage.getItem(
-   "selectedExtensionId"
- ) || "";
+//     let EXTENSION_ID =
+//  localStorage.getItem(
+//    "selectedExtensionId"
+//  ) || "";
 
-    chrome.runtime.sendMessage(
-      EXTENSION_ID,
-      { type: "RUN_ARTISTLY_STYLE", prompt },
-      () => {}
-    );
-  };
+//     chrome.runtime.sendMessage(
+//       EXTENSION_ID,
+//       { type: "RUN_ARTISTLY_STYLE", prompt },
+//       () => {}
+//     );
+//   };
 
 
   document.getElementById("artistlyMixBtn").onclick = () => {
@@ -5183,6 +5188,77 @@ function toggleClonePrompt() {
 adobeMode.addEventListener("change", toggleClonePrompt);
 
 toggleClonePrompt();
+
+
+const clonePromptEl =
+    document.getElementById("cloneprompt");
+
+const adobeCopyStyleBtn =
+    document.getElementById("adobeCopyStyleBtn");
+
+function updateCopyStyleButton() {
+
+    adobeCopyStyleBtn.style.display =
+        clonePromptEl.value.trim()
+            ? "inline-block"
+            : "none";
+}
+
+clonePromptEl.addEventListener(
+    "input",
+    updateCopyStyleButton
+);
+
+updateCopyStyleButton();
+
+async function runArtistlyStyle(prompt) {
+
+  prompt = String(prompt || "").trim();
+
+  if (!prompt) {
+    return alert("No prompt found");
+  }
+
+  await navigator.clipboard.writeText(prompt);
+
+  const EXTENSION_ID =
+    localStorage.getItem("selectedExtensionId") || "";
+
+   const quantity =
+    Number(document.getElementById("styleQuantity")?.value) || 4;
+
+  chrome.runtime.sendMessage(
+    EXTENSION_ID,
+    {
+      type: "RUN_ARTISTLY_STYLE",
+      prompt,
+      quantity
+    },
+    () => {}
+  );
+}
+
+document.getElementById(
+  "copyVariationStyleBtn"
+).onclick = () => {
+
+  runArtistlyStyle(
+    document.getElementById(
+      "variationResult"
+    ).value
+  );
+};
+
+document.getElementById(
+  "adobeCopyStyleBtn"
+).onclick = () => {
+
+  runArtistlyStyle(
+    document.getElementById(
+      "cloneprompt"
+    ).value
+  );
+};
 
 </script>
   </body>
