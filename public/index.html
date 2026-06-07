@@ -1463,10 +1463,16 @@
             <button id="copyAdobeBtn">Download CSV 📥</button>
             <button id="resetAdobeBtn">♻️ Reset Data</button>
             <button id="adobeVariationBtn">Clone with Artistly</button>
+
             <button
               id="adobeCopyStyleBtn"
               style="display:none;">
               Copy with Style
+            </button>
+            <button
+              id="adobeSeamlessBtn"
+              style="display:none;">
+              🧩 Send Seamless
             </button>
           </div>
 
@@ -5196,12 +5202,19 @@ const clonePromptEl =
 const adobeCopyStyleBtn =
     document.getElementById("adobeCopyStyleBtn");
 
+const adobeSeamlessBtn =
+  document.getElementById("adobeSeamlessBtn");
+
 function updateCopyStyleButton() {
 
+    const hasPrompt =
+    clonePromptEl.value.trim();
+
     adobeCopyStyleBtn.style.display =
-        clonePromptEl.value.trim()
-            ? "inline-block"
-            : "none";
+    hasPrompt ? "inline-block" : "none";
+    
+    adobeSeamlessBtn.style.display =
+    hasPrompt ? "inline-block" : "none";
 }
 
 clonePromptEl.addEventListener(
@@ -5210,6 +5223,9 @@ clonePromptEl.addEventListener(
 );
 
 updateCopyStyleButton();
+
+
+
 
 async function runArtistlyStyle(prompt) {
 
@@ -5238,6 +5254,35 @@ async function runArtistlyStyle(prompt) {
   );
 }
 
+
+async function runSeamlessStyle(prompt) {
+  prompt = String(prompt || "").trim();
+
+  if (!prompt) {
+    return alert("No prompt found");
+  }
+
+  await navigator.clipboard.writeText(prompt);
+
+  const EXTENSION_ID =
+    localStorage.getItem("selectedExtensionId") || "";
+
+   const quantity =
+    Number(document.getElementById("styleQuantity")?.value) || 4;
+
+  chrome.runtime.sendMessage(
+    EXTENSION_ID,
+    {
+      type: "RUN_ARTISTLY_SEAMLESS_AUTOMATION",
+      prompt,
+      quantity
+    },
+    () => {}
+  );
+}
+
+
+
 document.getElementById(
   "copyVariationStyleBtn"
 ).onclick = () => {
@@ -5254,6 +5299,18 @@ document.getElementById(
 ).onclick = () => {
 
   runArtistlyStyle(
+    document.getElementById(
+      "cloneprompt"
+    ).value
+  );
+};
+
+
+document.getElementById(
+  "adobeSeamlessBtn"
+).onclick = () => {
+
+  runSeamlessStyle(
     document.getElementById(
       "cloneprompt"
     ).value
